@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "DiziWatch"
     description = "diziwatch.ac arşivi üzerinden güncel anime ve yabancı dizi akışları sunar."
     authors = listOf("falsisdev")
     status = 1

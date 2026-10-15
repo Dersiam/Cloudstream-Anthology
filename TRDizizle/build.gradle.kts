@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "TR Dizi İzle"
     description = "trdiziizle.xyz yerli dizi arşivi (Cloudflare koruması varsa boş döner)."
     authors = listOf("falsisdev")
     status = 1

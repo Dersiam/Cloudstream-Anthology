@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "Anizm"
     description = "AnizmPlayer (FirePlayer HLS), OK.ru ve Sibnet üzerinden Türkçe anime akışları."
     authors = listOf("falsisdev")
     status = 1

@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "FilmModu"
     description = "Türkçe dublaj ve altyazılı 4K/1080p full HD film akışları (ImgsAPI)."
     authors = listOf("falsisdev")
     status = 1

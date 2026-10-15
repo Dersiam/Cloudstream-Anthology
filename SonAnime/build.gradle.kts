@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "SonAnime"
     description = "SonAnime Türkçe anime arşivi — Doğrudan Backblaze B2 ve Cloudflare CDN üzerinden 1080p, 720p ve 480p Türkçe altyazılı MP4 akışları."
     authors = listOf("falsisdev")
     status = 1

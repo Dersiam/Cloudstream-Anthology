@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "Anthology Canlı Haber"
     description = "NTV, Habertürk, TRT Haber, A Haber, CNBC-e, TBMM TV ve 27 canlı haber kanalı."
     authors = listOf("falsisdev")
     status = 1

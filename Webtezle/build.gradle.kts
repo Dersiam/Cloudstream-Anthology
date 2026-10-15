@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "Webteİzle"
     description = "Webteİzle arşivi üzerinden Türkçe Dublaj ve Altyazılı VidMoly 1080p master HLS akışları."
     authors = listOf("falsisdev")
     status = 1

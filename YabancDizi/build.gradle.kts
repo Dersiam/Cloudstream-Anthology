@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "YabancıDizi"
     description = "YabancıDizi arşivi üzerinden Türkçe Dublaj ve Altyazılı VidMoly 1080p master HLS akışları."
     authors = listOf("falsisdev")
     status = 1

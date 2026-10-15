@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "PuhuTV"
     description = "puhutv.com arşivi — DYG video_info üzerinden mncdn 1080p HLS ve Türkçe altyazı."
     authors = listOf("falsisdev")
     status = 1

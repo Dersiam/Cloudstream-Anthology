@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "TvDiziler"
     description = "TvDiziler.tv yerli dizi arşivi üzerinden 1080p HLS (Twitter Amplify), doğrudan MP4 (Ciner/CDN) ve YouTube akışları."
     authors = listOf("falsisdev")
     status = 1

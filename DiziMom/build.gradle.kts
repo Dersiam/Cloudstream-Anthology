@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "DiziMom"
     description = "Popüler yabancı diziler arşivi, güncel bölümler kataloğu ve doğrudan 1080p Fire HLS master akışları."
     authors = listOf("falsisdev")
     status = 1

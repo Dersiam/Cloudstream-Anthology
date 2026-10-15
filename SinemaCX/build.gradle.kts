@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "SinemaCX"
     description = "Sinema.gg arşivi üzerinden doğrudan 1080p Filmizle HLS master akışları."
     authors = listOf("falsisdev")
     status = 1

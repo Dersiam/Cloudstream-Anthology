@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "SetFilmIzle"
     description = "SetFilmIzle arşivi üzerinden FastPlay 1080p HLS master akışları ve TR/EN altyazılar (film + dizi)."
     authors = listOf("falsisdev")
     status = 1

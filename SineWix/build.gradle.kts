@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "SineWix"
     description = "5000+ HD film, dizi ve anime - Türkçe dublaj & altyazı, 1080p çift ses direct MKV."
     authors = listOf("falsisdev")
     status = 1

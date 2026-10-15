@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "Anthology Belgesel & Çocuk"
     description = "TRT Belgesel, TRT Çocuk, Minika, TRT Diyanet Çocuk, Çiftçi TV, TLC, DMAX, Travelxp ve 12 canlı belgesel & çocuk kanalı."
     authors = listOf("falsisdev")
     status = 1

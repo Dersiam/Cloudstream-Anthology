@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "Anizium"
     description = "4K & 1080p Türkçe Dublaj ve Altyazılı Anime Kaynağı (Doğrudan MP4 + WebVTT)."
     authors = listOf("falsisdev")
     status = 1

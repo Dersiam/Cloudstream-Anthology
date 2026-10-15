@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "AniMOM"
     description = "HDPlayer HLS, Sibnet ve YourUpload üzerinden Türkçe anime akışları."
     authors = listOf("falsisdev")
     status = 1

@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "KultFilmler"
     description = "KultFilmler arşivi üzerinden VidMoly/Vidpapi HLS akışları."
     authors = listOf("falsisdev")
     status = 1

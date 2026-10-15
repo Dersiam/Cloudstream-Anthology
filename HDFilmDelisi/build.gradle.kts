@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "HDFilmDelisi"
     description = "HDFilmDelisi JSON API arşivi üzerinden VidMody 1080p HLS akışları."
     authors = listOf("falsisdev")
     status = 1

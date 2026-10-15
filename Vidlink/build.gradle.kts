@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "Vidlink"
     description = "TMDB entegrasyonlu global film ve dizi akış sağlayıcısı (4K/1080p direct MP4)."
     authors = listOf("falsisdev")
     status = 1

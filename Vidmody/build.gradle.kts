@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "Vidmody"
     description = "Doğrudan çoklu dil ve altyazı destekli HLS film ve dizi akış sağlayıcısı (1080p)."
     authors = listOf("falsisdev")
     status = 1

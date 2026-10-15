@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "HDFilmCehennemi"
     description = "Binlerce HD film - Türkçe dublaj & altyazı, 1080p CloseLoad adaptif HLS akışları."
     authors = listOf("falsisdev")
     status = 1

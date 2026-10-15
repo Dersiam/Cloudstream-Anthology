@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "AsyaAnimeleri"
     description = "Anime ve donghua arşivi — Sibnet, Ok.ru, Mail.ru ve Rumble üzerinden 1080p doğrudan MP4 ve HLS akışları."
     authors = listOf("falsisdev")
     status = 1

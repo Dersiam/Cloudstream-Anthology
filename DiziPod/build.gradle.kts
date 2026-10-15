@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "DiziPod"
     description = "Popüler yabancı ve yerli dizi/film arşivi — Doğrudan HLS master akışları ve Türkçe altyazı desteği."
     authors = listOf("falsisdev")
     status = 1

@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "YouTube Dizi & Film"
     description = "YouTube resmi yapımcı kanalları, yerli dizi ve Yeşilçam film arşivleri, 1080p resmi akışlar."
     authors = listOf("metemel")
     status = 1

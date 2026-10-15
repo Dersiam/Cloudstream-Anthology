@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "DiziYou"
     description = "DiziYou doğrudan depolama akışları ve Türkçe altyazı desteği."
     authors = listOf("falsisdev")
     status = 1

@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "AnimePraX"
     description = "Sibnet, OK.ru ve Dailymotion üzerinden Türkçe anime akışları."
     authors = listOf("falsisdev")
     status = 1

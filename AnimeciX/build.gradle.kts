@@ -1,5 +1,6 @@
+version = 1
+
 cloudstream {
-    name = "AnimeciX"
     description = "TauVideo altyapısıyla binlerce anime bölümü (1080p, 720p, 480p direct MP4)."
     authors = listOf("falsisdev")
     status = 1
