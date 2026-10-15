@@ -1,0 +1,8 @@
+{
+  "name": "Cloudstream Anthology",
+  "description": "Cloudstream-Anthology Türkçe Sağlayıcı Deposu",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/plugins.json"
+  ]
+}
