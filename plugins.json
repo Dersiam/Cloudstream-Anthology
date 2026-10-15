@@ -2,14 +2,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnimeciX.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnimeciX",
         "internalName": "AnimeciX",
         "authors": [
             "falsisdev"
         ],
         "description": "TauVideo altyap\u0131s\u0131yla binlerce anime b\u00f6l\u00fcm\u00fc (1080p, 720p, 480p direct MP4).",
-        "fileSize": 8203,
+        "fileSize": 23207,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -18,19 +18,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animecix.tv&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-e06e617129a8db664d31f98d3fbc9514e46a8d9b6f218edb97576c3bb55e8852"
+        "fileHash": "sha256-24bc62ccaa56ed3a9a6d994aea74eaaef1186682e8a1e5708168da39899e78f1"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnimePraX.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnimePraX",
         "internalName": "AnimePraX",
         "authors": [
             "falsisdev"
         ],
         "description": "Sibnet, OK.ru ve Dailymotion \u00fczerinden T\u00fcrk\u00e7e anime ak\u0131\u015flar\u0131.",
-        "fileSize": 8203,
+        "fileSize": 8201,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -40,19 +40,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animeprax.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-eb1e0f49b74f37fa1d75a72de039ca0a15ad568c564a3809b2d19f6253ce7cbc"
+        "fileHash": "sha256-bb21c3df445affe50a05cdd357ae7375b7ed45b8f401f3f1f51dddc95c998946"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AniMOM.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AniMOM",
         "internalName": "AniMOM",
         "authors": [
             "falsisdev"
         ],
         "description": "HDPlayer HLS, Sibnet ve YourUpload \u00fczerinden T\u00fcrk\u00e7e anime ak\u0131\u015flar\u0131.",
-        "fileSize": 8209,
+        "fileSize": 8207,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -62,19 +62,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animom.org&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-edd30bdefa177f2fc42a2bf6970d6d4bc1ff84368e8b65aab2cd1a48c517c618"
+        "fileHash": "sha256-1dbedebfce07da8ab3e7ddadbe29450afd6309d6f11dbbac849f85eda364ddbb"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizium.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "Anizium",
         "internalName": "Anizium",
         "authors": [
             "falsisdev"
         ],
         "description": "4K & 1080p T\u00fcrk\u00e7e Dublaj ve Altyaz\u0131l\u0131 Anime Kayna\u011f\u0131 (Do\u011frudan MP4 + WebVTT).",
-        "fileSize": 8203,
+        "fileSize": 8207,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -84,19 +84,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/anizium.png",
         "apiVersion": 1,
-        "fileHash": "sha256-9d27d39b6fc73de97fe8cf73c7006cefdcf960465faeaa5433c15eeca0f68863"
+        "fileHash": "sha256-acb51505f12625c84d36da4e6ee44efa27e4d1ac2e15fa91a8bac5e2658311aa"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizm.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "Anizm",
         "internalName": "Anizm",
         "authors": [
             "falsisdev"
         ],
         "description": "AnizmPlayer (FirePlayer HLS), OK.ru ve Sibnet \u00fczerinden T\u00fcrk\u00e7e anime ak\u0131\u015flar\u0131.",
-        "fileSize": 8201,
+        "fileSize": 20159,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -106,19 +106,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=anizm.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-ec774a8d4bfea76b8aae5d6c1ff3fb54a9b11fbc2c69d57e5d27f8d0945fef5d"
+        "fileHash": "sha256-c559180c6112c28fe85a180225890969abe37b86dbb10dec1427f984049a5e20"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyBelgeselocuk.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyBelgeselocuk",
         "internalName": "AnthologyBelgeselocuk",
         "authors": [
             "falsisdev"
         ],
         "description": "TRT Belgesel, TRT \u00c7ocuk, Minika, TRT Diyanet \u00c7ocuk, \u00c7ift\u00e7i TV, TLC, DMAX, Travelxp ve 12 canl\u0131 belgesel & \u00e7ocuk kanal\u0131.",
-        "fileSize": 8241,
+        "fileSize": 20602,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -127,19 +127,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/trtbelgesel.png",
         "apiVersion": 1,
-        "fileHash": "sha256-737dd225db0d0221423d6ddf0011ea4d7b5816af9ce6f4f364f56abddb761e03"
+        "fileHash": "sha256-052b5e1269549276bcfc8c6119d1bc6151283d6d3798b9aecdeb5ea5ad4d94d2"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyCanlHaber.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyCanlHaber",
         "internalName": "AnthologyCanlHaber",
         "authors": [
             "falsisdev"
         ],
         "description": "NTV, Habert\u00fcrk, TRT Haber, A Haber, CNBC-e, TBMM TV ve 27 canl\u0131 haber kanal\u0131.",
-        "fileSize": 8226,
+        "fileSize": 19584,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -148,19 +148,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/ntv.png",
         "apiVersion": 1,
-        "fileHash": "sha256-b1a1866c1e9a4f991da9df31fb3c67dc20b83dd4902885bb0b10b66d7303a3c0"
+        "fileHash": "sha256-7cd4f5feec6530e6947904a48cc65d6bb987bba6ea32f3f887d9ffb46b7eaad9"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyCanlSpor.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyCanlSpor",
         "internalName": "AnthologyCanlSpor",
         "authors": [
             "falsisdev"
         ],
         "description": "B-In Sports 1-5, Es Sport 1-2, TV-Bu Spor, Eksen Spor, Tab11 Spor ve 55 canl\u0131 spor kanal\u0131 (\u00c7ok kaynakl\u0131 canl\u0131 spor ve ma\u00e7 yay\u0131nlar\u0131 altyap\u0131s\u0131). Taraftarium24 canl\u0131 ma\u00e7 ve spor yay\u0131nlar\u0131 motoru dahil.",
-        "fileSize": 8223,
+        "fileSize": 19571,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -169,19 +169,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/aspor.png",
         "apiVersion": 1,
-        "fileHash": "sha256-19320e80e57be7b8a6c56989d5a624a8f68b56d7a9535b2c8e9b6bdec4afa4a8"
+        "fileHash": "sha256-75a26714b32e0b3089840a694ba635b7806a460e479fcf1c2ba6ace674d79bb7"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyCanlTV.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyCanlTV",
         "internalName": "AnthologyCanlTV",
         "authors": [
             "falsisdev"
         ],
         "description": "138 canl\u0131 TV kanal\u0131 \u2014 Ulusal, Spor, Haber, Belgesel & \u00c7ocuk, M\u00fczik ve Sinema (7 vitrin katalo\u011fu) + M3U katalo\u011fu.",
-        "fileSize": 8243,
+        "fileSize": 8234,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -190,19 +190,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-9bb842f277ce03deb90f048655d54e8543ffa45c22f5ec50770d6618364f4ce4"
+        "fileHash": "sha256-f2c3bdb188e0eb5f22bfb1d2ec608d7f9b7651f38a2a4ad56ef80f2851a502a8"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyDizi.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyDizi",
         "internalName": "AnthologyDizi",
         "authors": [
             "falsisdev"
         ],
         "description": "NOW / Show TV / KanalD / Star TV / ATV / TRT1 resmi yay\u0131n ar\u015fivlerinden dinamik b\u00f6l\u00fcm ak\u0131\u015flar\u0131 \u2014 TMDB e\u015fle\u015ftirmeli, sabit harita yok.",
-        "fileSize": 8216,
+        "fileSize": 26681,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -211,19 +211,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=nowtv.com.tr&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-612bd6b009a1dd101b789c537c7471820395e38de9a2302dcd1d2ce36958c45e"
+        "fileHash": "sha256-9c8717c6dfa421dbf9620e6e5e99da644423105052d2f220a2c5a2c20d1a0630"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyM3U.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyM3U",
         "internalName": "AnthologyM3U",
         "authors": [
             "falsisdev"
         ],
         "description": "Binlerce yerli ve yabanc\u0131 film ve dizi ar\u015fivi do\u011frudan HD HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8202,
+        "fileSize": 19534,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -233,19 +233,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-ac9e8cffe29e0d9eb16cc0849c9fc5e41ff81966f65974b33027fd252920e846"
+        "fileHash": "sha256-ef4122e6171f53b10b1be1ade8220f9be4a135adc4d8a1ab9765ef117aa047e5"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyMzikElence.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyMzikElence",
         "internalName": "AnthologyMzikElence",
         "authors": [
             "falsisdev"
         ],
         "description": "Kral Pop, Power, Number 1, Dream T\u00fcrk, TMB TV, Show Max ve 16 canl\u0131 m\u00fczik & e\u011flence kanal\u0131.",
-        "fileSize": 8220,
+        "fileSize": 19587,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -254,19 +254,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/kralpop.png",
         "apiVersion": 1,
-        "fileHash": "sha256-7547fac5048dbd6e0b1d346fcc8e2c1c109bd8b3f932ce2f25171cdef0c9af21"
+        "fileHash": "sha256-feb887eb8112bf75af672927601937b040ffdf0f0839d955d2f36f382382c771"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologySinemaKanallar.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologySinemaKanallar",
         "internalName": "AnthologySinemaKanallar",
         "authors": [
             "falsisdev"
         ],
         "description": "Cine 1, FX, TRT Nostalji ve canli.m3u S\u0130NEMA KANALLARI grubundaki t\u00fcm canl\u0131 sinema yay\u0131nlar\u0131 (T\u00fcrk\u00e7e + \u0130ngilizce ses).",
-        "fileSize": 8246,
+        "fileSize": 19585,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -275,19 +275,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/cine1.png",
         "apiVersion": 1,
-        "fileHash": "sha256-0a75c81ef2cae4fdc1ec990c98e6526e3e0704fe74aacfd8e881008e0fa12a94"
+        "fileHash": "sha256-0cf948699c102a0bb602ea458bc51ddf751c27a433484a99709546b610a72a93"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyUlusalKanallar.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AnthologyUlusalKanallar",
         "internalName": "AnthologyUlusalKanallar",
         "authors": [
             "falsisdev"
         ],
         "description": "TRT 1, ATV, Kanal D, Show TV, Star TV, NOW TV, TV8, TRT Gen\u00e7, Euro D, TV4 ve 25 ulusal televizyon kanal\u0131.",
-        "fileSize": 8238,
+        "fileSize": 19593,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -296,19 +296,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/trt1.png",
         "apiVersion": 1,
-        "fileHash": "sha256-74f42908e0a8d5d14de78031eff3c2315430c954c27cdd2d4a565145638168d3"
+        "fileHash": "sha256-a4fd57f8569a9a3fb7bc5008239c39b3d2f71f58deeb2631cc46d2836c4f30c3"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AsyaAnimeleri.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "AsyaAnimeleri",
         "internalName": "AsyaAnimeleri",
         "authors": [
             "falsisdev"
         ],
         "description": "Anime ve donghua ar\u015fivi \u2014 Sibnet, Ok.ru, Mail.ru ve Rumble \u00fczerinden 1080p do\u011frudan MP4 ve HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8212,
+        "fileSize": 8216,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -317,19 +317,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=asyaanimeleri.top&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-cefc37552655330c40c9dd2efc6868c433e6d68d9634e2f398c4073c06f13c6b"
+        "fileHash": "sha256-86265a9a76d34c475109a74e62e5704c166b2bf4055694a0a22d46af5cac32a6"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DDizi.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "DDizi",
         "internalName": "DDizi",
         "authors": [
             "falsisdev"
         ],
         "description": "Yerli dizi ar\u015fivi, g\u00fcncel b\u00f6l\u00fcmler katalo\u011fu ve do\u011frudan Ciner/Yandex CDN MP4/HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8201,
+        "fileSize": 22738,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -338,19 +338,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=ddizi.im&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-72ae28521ee7b524a6644317988c6afe8f4851d1e69f52a5656235f52a401c1b"
+        "fileHash": "sha256-4cbcc590b7687d50b5870c97255a16f0c7bd4c282bec5ce4682333efd7c598bd"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziBak.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "DiziBak",
         "internalName": "DiziBak",
         "authors": [
             "falsisdev"
         ],
         "description": "Yabanc\u0131 dizi ar\u015fivi, g\u00fcncel b\u00f6l\u00fcmler katalo\u011fu ve do\u011frudan d1iz-b0ok.xyz 1080p HLS master ak\u0131\u015flar\u0131.",
-        "fileSize": 8198,
+        "fileSize": 8204,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -359,19 +359,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizibak.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-9848b6a82f161672c01c07c1799a8efa858ba56a31ba854dc1fdc8b03d0c5f03"
+        "fileHash": "sha256-2cc58cca8fea2f484432f6f2cdec5cd894cc77069a3b3da0f19cf7ef1ce45b11"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziBoxzle.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "DiziBoxzle",
         "internalName": "DiziBoxzle",
         "authors": [
             "falsisdev"
         ],
         "description": "G\u00fcncel yabanc\u0131 dizi ar\u015fivi \u2014 VidMoly ve Ok.ru \u00fczerinden 1080p do\u011frudan HLS ve MP4 ak\u0131\u015flar\u0131.",
-        "fileSize": 8202,
+        "fileSize": 22624,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -380,19 +380,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=diziboxizle.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-9ef6121b7ec24658d203543969b811c5585694bad0883b2c157e46ae1e743f53"
+        "fileHash": "sha256-e2e3d4e7f4952c6def896df0d514666add462865b247e4f780a32efc6c9f5352"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziMom.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "DiziMom",
         "internalName": "DiziMom",
         "authors": [
             "falsisdev"
         ],
         "description": "Pop\u00fcler yabanc\u0131 diziler ar\u015fivi, g\u00fcncel b\u00f6l\u00fcmler katalo\u011fu ve do\u011frudan 1080p Fire HLS master ak\u0131\u015flar\u0131.",
-        "fileSize": 8208,
+        "fileSize": 29940,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -401,19 +401,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizimom.diy&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-a3e06218342b478dc65da3e91d0cf92c2d3143267e2616676eb32e222d6bc0ee"
+        "fileHash": "sha256-dcec10dbf901660f7dbf4bd1ad0c77331282d7ccf978da6fa9dbe3480c972cac"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziPod.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "DiziPod",
         "internalName": "DiziPod",
         "authors": [
             "falsisdev"
         ],
         "description": "Pop\u00fcler yabanc\u0131 ve yerli dizi/film ar\u015fivi \u2014 Do\u011frudan HLS master ak\u0131\u015flar\u0131 ve T\u00fcrk\u00e7e altyaz\u0131 deste\u011fi.",
-        "fileSize": 8203,
+        "fileSize": 14883,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -422,19 +422,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizipod.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-13f19dc90f59270ecf21f268d30cbe64b3c88cb11e8c321c3e80518ad3f3c99d"
+        "fileHash": "sha256-d94dc75c94933a6a0ff73b9cf4d7c23d6603cb1badf2ea4bcef9cfd950be6070"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziWatch.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "DiziWatch",
         "internalName": "DiziWatch",
         "authors": [
             "falsisdev"
         ],
         "description": "diziwatch.ac ar\u015fivi \u00fczerinden g\u00fcncel anime ve yabanc\u0131 dizi ak\u0131\u015flar\u0131 sunar.",
-        "fileSize": 14678,
+        "fileSize": 14671,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -445,19 +445,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-c3c91c1cbac2dbc4b90b971c688b372a2bf733eb1192a40b94769e892680627e"
+        "fileHash": "sha256-94d4462950f6c53b749e17c832ef534e83d807830a2d4313e70b223a03434d03"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziYou.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "DiziYou",
         "internalName": "DiziYou",
         "authors": [
             "falsisdev"
         ],
         "description": "DiziYou do\u011frudan depolama ak\u0131\u015flar\u0131 ve T\u00fcrk\u00e7e altyaz\u0131 deste\u011fi.",
-        "fileSize": 8201,
+        "fileSize": 14182,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -466,19 +466,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=diziyou.one&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-aba50b898246cbbea3f90a1e0e1f9ce48965e24a15ab61c2be35912684ac0644"
+        "fileHash": "sha256-b8d93d10fbe22be7ff209edb23df943a5b9c6fd0990f77e75b8c1c1d61876fec"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/FilmModu.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "FilmModu",
         "internalName": "FilmModu",
         "authors": [
             "falsisdev"
         ],
         "description": "T\u00fcrk\u00e7e dublaj ve altyaz\u0131l\u0131 4K/1080p full HD film ak\u0131\u015flar\u0131 (ImgsAPI).",
-        "fileSize": 8205,
+        "fileSize": 14706,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -487,19 +487,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=filmmodu.one&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-6a7cd4644808f46d4ee231b191254f14c907662d178c93729b5b0ad0dbab1311"
+        "fileHash": "sha256-9f4164c975cf063e2278eea5113cf48303a2d6bc17b764f1ddf9d1d30fed0872"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/HDFilmCehennemi.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "HDFilmCehennemi",
         "internalName": "HDFilmCehennemi",
         "authors": [
             "falsisdev"
         ],
         "description": "Binlerce HD film - T\u00fcrk\u00e7e dublaj & altyaz\u0131, 1080p CloseLoad adaptif HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8222,
+        "fileSize": 22855,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -508,19 +508,19 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-60c2ab8bb7f3a08fa4471c8be56f41243a10c64955bf0060d568cee3a6af8cb6"
+        "fileHash": "sha256-bf894528ebd383e06d8289184741105bd895037fb301d18a22a88c49f0905b57"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/HDFilmDelisi.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "HDFilmDelisi",
         "internalName": "HDFilmDelisi",
         "authors": [
             "falsisdev"
         ],
         "description": "HDFilmDelisi JSON API ar\u015fivi \u00fczerinden VidMody 1080p HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8207,
+        "fileSize": 8205,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -529,19 +529,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=hdfilmdelisi.one&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-7a1dd260de55ea46bc6ba7ed0d7cbf651d03f832394053be5303957fa1bad5c8"
+        "fileHash": "sha256-df3c65107b14bfc08f6cbeccd11eda884b4fb2c1885cdc52bb3e82836eaaea08"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/HDFilmIzle.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "HDFilmIzle",
         "internalName": "HDFilmIzle",
         "authors": [
             "falsisdev"
         ],
         "description": "HDFilmIzle (Ink/Vip) ar\u015fivi \u00fczerinden FastPlay 1080p HLS master ak\u0131\u015flar\u0131 ve TR/EN altyaz\u0131lar.",
-        "fileSize": 8200,
+        "fileSize": 28510,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -550,19 +550,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=hdfilmizle.ink&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-5012c82b403c9723f1bcb213d91593cc0998ab57a60a60c4e9c7f614502e9d61"
+        "fileHash": "sha256-2c6542c42be1d5e7b7fd3f6ae71ba63e46dd75148a2462d161105c9349ef25d1"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/KultFilmler.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "KultFilmler",
         "internalName": "KultFilmler",
         "authors": [
             "falsisdev"
         ],
         "description": "KultFilmler ar\u015fivi \u00fczerinden VidMoly/Vidpapi HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8191,
+        "fileSize": 18911,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -571,19 +571,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=kultfilmler.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-5c5614c02bf6409ebbc48bb0a62a8341ef1696c90a7deeca477e7bf2fa085576"
+        "fileHash": "sha256-8ed587fc971e57750c36a25b95670e3c686d460cd0df2e8defe58e8795829f2a"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/LiderFilm.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "LiderFilm",
         "internalName": "LiderFilm",
         "authors": [
             "metemel"
         ],
         "description": "LiderFilm.vip - Yerli & yabanc\u0131 film ve dizi ar\u015fivi, 1080p do\u011frudan HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8192,
+        "fileSize": 8208,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -593,19 +593,19 @@
         ],
         "iconUrl": "https://liderfilmizle.vip/icons/icon-192.png",
         "apiVersion": 1,
-        "fileHash": "sha256-e5a203cd97b85800a2ed84846dddefb5abf783b06a89e3d7b1d744539f2e0cef"
+        "fileHash": "sha256-5e68ed466b9f4a2c582e7a1130372930941912b045a4516a59442440e176ae8b"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/PuhuTV.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "PuhuTV",
         "internalName": "PuhuTV",
         "authors": [
             "falsisdev"
         ],
         "description": "puhutv.com ar\u015fivi \u2014 DYG video_info \u00fczerinden mncdn 1080p HLS ve T\u00fcrk\u00e7e altyaz\u0131.",
-        "fileSize": 8202,
+        "fileSize": 8205,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -614,19 +614,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=puhutv.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-52353114531712fc578cdb9362127423d961438d43599ee9942885133959f8dc"
+        "fileHash": "sha256-929cd60890a009643617fd6b623ef4a64df88f3c7a5d3e0d03141fc47ab92750"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SeiCode.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "SeiCode",
         "internalName": "SeiCode",
         "authors": [
             "falsisdev"
         ],
         "description": "SeiCode anime platformu \u2014 TauVideo, Ok.ru, Sibnet, VidMoly ve MP4Upload \u00fczerinden 1080p do\u011frudan MP4 ve HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8197,
+        "fileSize": 8201,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -636,19 +636,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=seicode.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-30e48c52eaa03084e52a4b9598b6186d3c3fc948b9847286ddc1dae3c0cfda98"
+        "fileHash": "sha256-d2bc008a0ba31e68617f959d1cd5991b26276a87b74f303e76b558e895b3af79"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SetFilmIzle.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "SetFilmIzle",
         "internalName": "SetFilmIzle",
         "authors": [
             "falsisdev"
         ],
         "description": "SetFilmIzle ar\u015fivi \u00fczerinden FastPlay 1080p HLS master ak\u0131\u015flar\u0131 ve TR/EN altyaz\u0131lar (film + dizi).",
-        "fileSize": 8193,
+        "fileSize": 21687,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -657,19 +657,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=setfilmizle.ltd&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-80341db68c0a4013cf842ffd5c843b2b36b7c88d89bd1f420936d5ed80dde7ad"
+        "fileHash": "sha256-e6ff363afd5529351558cdeeac25256837879127b10508730042d1a7fa2d6cc8"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SinemaCX.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "SinemaCX",
         "internalName": "SinemaCX",
         "authors": [
             "falsisdev"
         ],
         "description": "Sinema.gg ar\u015fivi \u00fczerinden do\u011frudan 1080p Filmizle HLS master ak\u0131\u015flar\u0131.",
-        "fileSize": 8208,
+        "fileSize": 14304,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -678,19 +678,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=sinema.gg&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-d3259862a6d5ec38dc4ec8c00fa9aa3c6c7c858ffc72cede45b015bc01bc7a6a"
+        "fileHash": "sha256-fa8442df9edb61088f3cfd031bdd3f7dedf9827d962d8b8ec2c2b7a546971786"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SineWix.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "SineWix",
         "internalName": "SineWix",
         "authors": [
             "falsisdev"
         ],
         "description": "5000+ HD film, dizi ve anime - T\u00fcrk\u00e7e dublaj & altyaz\u0131, 1080p \u00e7ift ses direct MKV.",
-        "fileSize": 8212,
+        "fileSize": 25354,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -699,19 +699,19 @@
         ],
         "iconUrl": "https://play-lh.googleusercontent.com/brwGNmr7IjA_MKk_TTPs0va10hdKE_bD_a1lnKoiMuCayW98EHpRv55edA6aEoJlmwfX=w240-h480",
         "apiVersion": 1,
-        "fileHash": "sha256-8aadd7b643b71b30ff8acef3c0b91a595c03d0c6737e921864c7e56bd588bc1e"
+        "fileHash": "sha256-dd375e3a098ed2b8dc1cce224c8bd6284f968eeb99015340104b4268fd1a678f"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SonAnime.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "SonAnime",
         "internalName": "SonAnime",
         "authors": [
             "falsisdev"
         ],
         "description": "SonAnime T\u00fcrk\u00e7e anime ar\u015fivi \u2014 Do\u011frudan Backblaze B2 ve Cloudflare CDN \u00fczerinden 1080p, 720p ve 480p T\u00fcrk\u00e7e altyaz\u0131l\u0131 MP4 ak\u0131\u015flar\u0131.",
-        "fileSize": 8201,
+        "fileSize": 20178,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -720,19 +720,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=sonanime.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-c9f828ae61b8cd8d92eb7ade224b895cd0b22cd63c632295f76fdbf89577c631"
+        "fileHash": "sha256-cd2d1294b770c553f5f416efacbfa1eade44b197045c4a2a4cb1ef988c068386"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/TRDizizle.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "TRDizizle",
         "internalName": "TRDizizle",
         "authors": [
             "falsisdev"
         ],
         "description": "trdiziizle.xyz yerli dizi ar\u015fivi (Cloudflare korumas\u0131 varsa bo\u015f d\u00f6ner).",
-        "fileSize": 8211,
+        "fileSize": 8217,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -741,19 +741,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=trdiziizle.xyz&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-624f426bdda9acbfd8951fd72d341028807fdff3675534571c68d4aed5fa2f24"
+        "fileHash": "sha256-2b71211db24a63eb37defeffa699f0d8407d16900dc62427a3c25e134084803a"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/TvDiziler.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "TvDiziler",
         "internalName": "TvDiziler",
         "authors": [
             "falsisdev"
         ],
         "description": "TvDiziler.tv yerli dizi ar\u015fivi \u00fczerinden 1080p HLS (Twitter Amplify), do\u011frudan MP4 (Ciner/CDN) ve YouTube ak\u0131\u015flar\u0131.",
-        "fileSize": 8196,
+        "fileSize": 26609,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -762,19 +762,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=tvdiziler.tv&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-63a2134d04f9429ac6bda6d697f2a14a3441528e5686d5aa10ace07ff8197f74"
+        "fileHash": "sha256-69781f311a0e8d07d5cdcddc5c5067cb10b6c8f5f186093540a174656b47ad5c"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Vidlink.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "Vidlink",
         "internalName": "Vidlink",
         "authors": [
             "falsisdev"
         ],
         "description": "TMDB entegrasyonlu global film ve dizi ak\u0131\u015f sa\u011flay\u0131c\u0131s\u0131 (4K/1080p direct MP4).",
-        "fileSize": 8195,
+        "fileSize": 8190,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -783,19 +783,19 @@
         ],
         "iconUrl": "https://vidlink.pro/favicon.ico",
         "apiVersion": 1,
-        "fileHash": "sha256-ec797815a66135a52ca2e17683ea1460770465f8bfcf273c0d3d94c19e2422d2"
+        "fileHash": "sha256-57e90e320ae3de2fd0bd273e81e6a5bb405384b3d25b97473a3fd5e2cd8009a2"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Vidmody.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "Vidmody",
         "internalName": "Vidmody",
         "authors": [
             "falsisdev"
         ],
         "description": "Do\u011frudan \u00e7oklu dil ve altyaz\u0131 destekli HLS film ve dizi ak\u0131\u015f sa\u011flay\u0131c\u0131s\u0131 (1080p).",
-        "fileSize": 8194,
+        "fileSize": 8196,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -804,19 +804,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=vidmody.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-4336a4b36c03d5cc320e71369b77a82b1abcad86b1784e10be75426fa3f18dcc"
+        "fileHash": "sha256-50c211488550d133232b6eb1a814ee1434f0a63fe239b0276337b4d764d2fbfc"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Webtezle.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "Webtezle",
         "internalName": "Webtezle",
         "authors": [
             "falsisdev"
         ],
         "description": "Webte\u0130zle ar\u015fivi \u00fczerinden T\u00fcrk\u00e7e Dublaj ve Altyaz\u0131l\u0131 VidMoly 1080p master HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8207,
+        "fileSize": 22706,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -825,19 +825,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=webteizle.info&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-bd72dee232e5ed91dfc1a4313654d9148e20fb5422f06c7f4cbae2e837887cec"
+        "fileHash": "sha256-084e0de1e69ad93482eddfa4344ea5f5fee2aa57f86ebf7e56232fb08c201d0d"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/YabancDizi.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "YabancDizi",
         "internalName": "YabancDizi",
         "authors": [
             "falsisdev"
         ],
         "description": "Yabanc\u0131Dizi ar\u015fivi \u00fczerinden T\u00fcrk\u00e7e Dublaj ve Altyaz\u0131l\u0131 VidMoly 1080p master HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 8201,
+        "fileSize": 36562,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -846,19 +846,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=yabancidizi.news&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-3d4a615a566288d46baef080284c78f75013799e6b12e116cb248c3470c43690"
+        "fileHash": "sha256-264705c64a184970ceb885d2f40b1fcf30c1d3660b7606b3d5f4fb5391cea123"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/YouTubeDiziFilm.cs3",
         "status": 1,
-        "version": 1,
+        "version": 2,
         "name": "YouTubeDiziFilm",
         "internalName": "YouTubeDiziFilm",
         "authors": [
             "metemel"
         ],
         "description": "YouTube resmi yap\u0131mc\u0131 kanallar\u0131, yerli dizi ve Ye\u015fil\u00e7am film ar\u015fivleri, 1080p resmi ak\u0131\u015flar.",
-        "fileSize": 8243,
+        "fileSize": 15692,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -868,6 +868,6 @@
         ],
         "iconUrl": "https://www.youtube.com/s/desktop/f4ff17dc/img/favicon_144x144.png",
         "apiVersion": 1,
-        "fileHash": "sha256-cd03af8fc4104fc1dd35091d8b9bd68addd653f2891b7a4c2ad3de1936fdf24a"
+        "fileHash": "sha256-2cef9bc19d93b439051f8fe832c95023b6de3ded917e481c6180aabd0cfade59"
     }
 ]
