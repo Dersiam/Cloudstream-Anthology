@@ -16,7 +16,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import org.jsoup.Jsoup
 
-class DiziBox İzle : MainAPI() {
+class DiziBoxzle : MainAPI() {
     override var mainUrl              = "https://www.dizibox.live"
     override var name = "DiziBoxİzle"
     override val hasMainPage          = true

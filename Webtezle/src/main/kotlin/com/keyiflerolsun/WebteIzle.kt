@@ -37,7 +37,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import java.net.URLEncoder
 
-class Webteİzle : MainAPI() {
+class Webtezle : MainAPI() {
     override var mainUrl              = "https://webteizle1.xyz"
     override var name = "Webteİzle"
     override val hasMainPage          = true

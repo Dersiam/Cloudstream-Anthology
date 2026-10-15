@@ -31,7 +31,7 @@ import com.lagradost.cloudstream3.utils.newExtractorLink
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
-class YabancıDizi : MainAPI() {
+class YabancDizi : MainAPI() {
     override var mainUrl = "https://yabancidizi.tv"
     override var name = "YabancıDizi"
     override val hasMainPage = true
