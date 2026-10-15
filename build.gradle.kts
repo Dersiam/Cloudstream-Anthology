@@ -32,7 +32,7 @@ subprojects {
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
     cloudstream {
-        setRepo("https://github.com/Dersiam/Cloudstream-Anthology") ?: "https://github.com/cloudstream-community/plugins")
+        setRepo("https://github.com/Dersiam/Cloudstream-Anthology")
         authors = listOf("Community")
     }
 
