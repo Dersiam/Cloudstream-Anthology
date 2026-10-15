@@ -1,4 +1,4 @@
-version = 2
+version = 3
 
 cloudstream {
     description = "TRT 1, ATV, Kanal D, Show TV, Star TV, NOW TV, TV8, TRT Genç, Euro D, TV4 ve 25 ulusal televizyon kanalı."

@@ -1,4 +1,4 @@
-version = 2
+version = 3
 
 cloudstream {
     description = "138 canlı TV kanalı — Ulusal, Spor, Haber, Belgesel & Çocuk, Müzik ve Sinema (7 vitrin kataloğu) + M3U kataloğu."

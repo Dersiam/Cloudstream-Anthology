@@ -1,4 +1,4 @@
-version = 2
+version = 3
 
 cloudstream {
     description = "Binlerce yerli ve yabancı film ve dizi arşivi doğrudan HD HLS akışları."

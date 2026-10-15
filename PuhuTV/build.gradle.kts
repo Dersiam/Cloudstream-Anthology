@@ -1,4 +1,4 @@
-version = 2
+version = 3
 
 cloudstream {
     description = "puhutv.com arşivi — DYG video_info üzerinden mncdn 1080p HLS ve Türkçe altyazı."

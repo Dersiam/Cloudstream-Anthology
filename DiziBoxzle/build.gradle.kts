@@ -1,4 +1,4 @@
-version = 2
+version = 3
 
 cloudstream {
     description = "Güncel yabancı dizi arşivi — VidMoly ve Ok.ru üzerinden 1080p doğrudan HLS ve MP4 akışları."

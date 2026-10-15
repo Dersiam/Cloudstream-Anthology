@@ -1,4 +1,4 @@
-version = 2
+version = 3
 
 cloudstream {
     description = "YouTube resmi yapımcı kanalları, yerli dizi ve Yeşilçam film arşivleri, 1080p resmi akışlar."

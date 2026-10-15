@@ -1,4 +1,4 @@
-version = 2
+version = 3
 
 cloudstream {
     description = "diziwatch.ac arşivi üzerinden güncel anime ve yabancı dizi akışları sunar."
