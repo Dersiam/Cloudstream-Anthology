@@ -39,7 +39,7 @@ jobs:
       - name: Build Plugins
         run: |
           cd main
-          gradle makePluginsJson --stacktrace
+          gradle makePluginsJson --stacktrace --no-daemon
 
       - name: Deploy to builds branch
         run: |
