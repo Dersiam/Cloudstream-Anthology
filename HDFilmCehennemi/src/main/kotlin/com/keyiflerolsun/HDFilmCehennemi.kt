@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! https://github.com/hexated/cloudstream-extensions-hexated/blob/master/Hdfilmcehennemi/src/main/kotlin/com/hexated/Hdfilmcehennemi.kt
 
 package com.keyiflerolsun
@@ -29,7 +30,6 @@ import com.lagradost.cloudstream3.newMovieLoadResponse
 import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
-import com.lagradost.cloudstream3.toRatingInt
 import com.lagradost.cloudstream3.utils.AppUtils
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.INFER_TYPE
@@ -137,7 +137,7 @@ class HDFilmCehennemi : MainAPI() {
         val description = document.selectFirst("article.post-info-content > p")?.text()?.trim()
         val rating =
             document.selectFirst("div.post-info-imdb-rating span")?.text()?.substringBefore("(")
-                ?.trim()?.toRatingInt()
+                ?.trim()??.toIntOrNull()
         val actors = document.select("div.post-info-cast a").map {
             Actor(it.selectFirst("strong")!!.text(), it.select("img").attr("data-src"))
         }
@@ -179,7 +179,7 @@ class HDFilmCehennemi : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                this.rating = rating
+                // this.rating = rating
                 this.recommendations = recommendations
                 addActors(actors)
                 addTrailer(trailer)
@@ -193,7 +193,7 @@ class HDFilmCehennemi : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                this.rating = rating
+                // this.rating = rating
                 this.recommendations = recommendations
                 addActors(actors)
                 addTrailer(trailer)

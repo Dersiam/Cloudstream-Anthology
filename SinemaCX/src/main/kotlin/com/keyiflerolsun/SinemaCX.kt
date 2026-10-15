@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 package com.keyiflerolsun
@@ -69,7 +70,7 @@ class SinemaCX : MainAPI() {
         val year        = document.selectFirst("div.f-bilgi ul.detay a[href*='yapim']")?.text()?.toIntOrNull()
         val description = document.selectFirst("div.f-bilgi div.ackl")?.text()?.trim()
         val tags        = document.select("div.f-bilgi div.tur a").map { it.text() }
-        val rating      = document.selectFirst("b#puandegistir")?.text()?.trim()?.toRatingInt()
+        val rating      = document.selectFirst("b#puandegistir")?.text()?.trim()??.toIntOrNull()
         val duration    = Regex("""Süre: </span>(\d+) Dakika</li>""").find(document.html())?.groupValues?.get(1)?.toIntOrNull()
         val actors      = document.select("li.oync li.oyuncu-k").map {
             Actor(it.selectFirst("span.isim")!!.text(), it.selectFirst("img")!!.attr("data-src"))
@@ -80,7 +81,7 @@ class SinemaCX : MainAPI() {
             this.year      = year
             this.plot      = description
             this.tags      = tags
-            this.rating    = rating
+            // this.rating    = rating
             this.duration  = duration
             addActors(actors)
         }

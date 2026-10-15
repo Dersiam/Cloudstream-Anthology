@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 package com.keyiflerolsun
@@ -104,7 +105,7 @@ class AnimeciX : MainAPI() {
             this.year      = response.title.year
             this.plot      = response.title.description
             this.tags      = response.title.tags.map { it.name }
-            this.rating    = response.title.rating.toRatingInt()
+            // this.rating    = response.title.rating?.toIntOrNull()
             addActors(response.title.actors.map { Actor(it.name, fixUrlNull(it.poster)) })
             addTrailer(response.title.trailer)
         }

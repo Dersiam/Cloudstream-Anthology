@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 package com.keyiflerolsun
@@ -156,7 +157,7 @@ class DiziBoxzle : MainAPI() {
         val description = document.selectFirst("div.tv-story p")?.text()?.trim()
         val year        = document.selectFirst("a[href*='/yil/']")?.text()?.trim()?.toIntOrNull()
         val tags        = document.select("a[href*='/tur/']").map { it.text() }
-        val rating      = document.selectFirst("span.label-imdb b")?.text()?.trim()?.toRatingInt()
+        val rating      = document.selectFirst("span.label-imdb b")?.text()?.trim()??.toIntOrNull()
         val actors      = document.select("a[href*='/oyuncu/']").map { Actor(it.text()) }
         val trailer     = document.selectFirst("div.tv-overview iframe")?.attr("src")
 
@@ -192,7 +193,7 @@ class DiziBoxzle : MainAPI() {
             this.plot      = description
             this.year      = year
             this.tags      = tags
-            this.rating    = rating
+            // this.rating    = rating
             addActors(actors)
             addTrailer(trailer)
         }

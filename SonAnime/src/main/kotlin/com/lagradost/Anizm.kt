@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 package com.lagradost
 
 import android.util.Log
@@ -241,7 +242,7 @@ class SonAnime : MainAPI() {
                 it.select("a").attr("translator"),
                 it.select("div.title").text()
             )
-        }.apmap { (url, translator) ->
+        }.amap { (url, translator) ->
             safeApiCall {
                 app.get(
                     url,
@@ -251,7 +252,7 @@ class SonAnime : MainAPI() {
                         "X-Requested-With" to "XMLHttpRequest"
                     )
                 ).parsedSafe<Translators>()?.data?.let {
-                    Jsoup.parse(it).select("a").apmap { video ->
+                    Jsoup.parse(it).select("a").amap { video ->
                         app.get(
                             video.attr("video"),
                             referer = data,

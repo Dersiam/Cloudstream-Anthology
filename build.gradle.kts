@@ -53,6 +53,7 @@ subprojects {
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile> {
             compilerOptions {
                 jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+                allWarningsAsErrors.set(false)
                 freeCompilerArgs.addAll(
                     listOf(
                         "-Xno-call-assertions",

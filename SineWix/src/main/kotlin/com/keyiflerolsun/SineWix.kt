@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 package com.keyiflerolsun
@@ -98,7 +99,7 @@ class SineWix : MainAPI() {
             val description     = media.overview
             val year            = media.releaseDate.split("-").first().toIntOrNull()
             val tags            = media.genres?.map { it.name }
-            val rating          = "${media.voteAverage}".toRatingInt()
+            val rating          = "${media.voteAverage}"?.toIntOrNull()
             val recommendations = media.relateds?.map { newMovieSearchResponse(it.title, "?type=${it.type}&id=${it.id}", TvType.Movie) { this.posterUrl = it.posterPath } }
             val actors          = media.casterslist?.map { Actor(it.name, it.profilePath) }
 
@@ -107,7 +108,7 @@ class SineWix : MainAPI() {
                 this.plot            = description
                 this.year            = year
                 this.tags            = tags
-                this.rating          = rating
+                // this.rating          = rating
                 this.recommendations = recommendations
                 addActors(actors)
             }
@@ -123,7 +124,7 @@ class SineWix : MainAPI() {
             val description     = media.overview
             val year            = media.firstAirDate.split("-").first().toIntOrNull()
             val tags            = media.genres?.map { it.name }
-            val rating          = "${media.voteAverage}".toRatingInt()
+            val rating          = "${media.voteAverage}"?.toIntOrNull()
             val recommendations = media.relateds?.map { newMovieSearchResponse(it.name, "?type=${it.type}&id=${it.id}", TvType.Movie) { this.posterUrl = it.posterPath } }
             val actors          = media.casterslist?.map { Actor(it.name, it.profilePath) }
 
@@ -146,7 +147,7 @@ class SineWix : MainAPI() {
                 this.plot            = description
                 this.year            = year
                 this.tags            = tags
-                this.rating          = rating
+                // this.rating          = rating
                 this.recommendations = recommendations
                 addActors(actors)
             }

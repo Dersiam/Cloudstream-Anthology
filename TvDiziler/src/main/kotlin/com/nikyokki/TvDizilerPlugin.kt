@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 package com.nikyokki
 
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin

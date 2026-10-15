@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 package com.keyiflerolsun
@@ -67,7 +68,7 @@ class DiziYou : MainAPI() {
         val description     = document.selectFirst("div.diziyou_desc")?.ownText()?.trim()
         val year            = document.selectFirst("span.dizimeta:contains(Yapım Yılı)")?.nextSibling()?.toString()?.trim()?.toIntOrNull()
         val tags            = document.select("div.genres a").map { it.text() }
-        val rating          = document.selectFirst("span.dizimeta:contains(IMDB)")?.nextSibling()?.toString()?.trim()?.toRatingInt()
+        val rating          = document.selectFirst("span.dizimeta:contains(IMDB)")?.nextSibling()?.toString()?.trim()??.toIntOrNull()
         val actors          = document.selectFirst("span.dizimeta:contains(Oyuncular)")?.nextSibling()?.toString()?.trim()?.split(", ")?.map { Actor(it) }
         val trailer         = document.selectFirst("iframe.trailer-video")?.attr("src")
 
@@ -89,7 +90,7 @@ class DiziYou : MainAPI() {
             this.plot      = description
             this.year      = year
             this.tags      = tags
-            this.rating    = rating
+            // this.rating    = rating
             addActors(actors)
             addTrailer(trailer)
         }

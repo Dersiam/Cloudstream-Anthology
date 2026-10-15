@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 package com.nikyokki
 
 import android.util.Log
@@ -182,7 +183,7 @@ class AnthologyDizi : MainAPI() {
                 ?.toIntOrNull()
         Log.d("TVD", "year -> $year")
 
-        val rating = document.selectXpath("//span[text()='IMDb Puanı']//following-sibling::p").text().trim().toRatingInt()
+        val rating = document.selectXpath("//span[text()='IMDb Puanı']//following-sibling::p").text().trim()?.toIntOrNull()
         Log.d("TVD", "rating -> $rating")
 
         val duration =
@@ -228,7 +229,7 @@ class AnthologyDizi : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                this.rating = rating
+                // this.rating = rating
                 addActors(actors)
                 addTrailer("https://www.youtube.com/embed/${trailer}")
             }
@@ -238,7 +239,7 @@ class AnthologyDizi : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                this.rating = rating
+                // this.rating = rating
                 this.duration = duration
                 addActors(actors)
                 addTrailer("https://www.youtube.com/embed/${trailer}")
