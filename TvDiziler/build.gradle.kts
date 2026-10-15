@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "TvDiziler.tv yerli dizi arşivi üzerinden 1080p HLS (Twitter Amplify), doğrudan MP4 (Ciner/CDN) ve YouTube akışları."

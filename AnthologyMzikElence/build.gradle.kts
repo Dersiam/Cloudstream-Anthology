@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "Kral Pop, Power, Number 1, Dream Türk, TMB TV, Show Max ve 16 canlı müzik & eğlence kanalı."

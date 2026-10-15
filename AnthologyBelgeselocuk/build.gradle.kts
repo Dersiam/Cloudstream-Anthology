@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "TRT Belgesel, TRT Çocuk, Minika, TRT Diyanet Çocuk, Çiftçi TV, TLC, DMAX, Travelxp ve 12 canlı belgesel & çocuk kanalı."

@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "NTV, Habertürk, TRT Haber, A Haber, CNBC-e, TBMM TV ve 27 canlı haber kanalı."

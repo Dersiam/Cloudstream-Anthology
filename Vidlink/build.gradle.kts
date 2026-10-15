@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "TMDB entegrasyonlu global film ve dizi akış sağlayıcısı (4K/1080p direct MP4)."

@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "Webteİzle arşivi üzerinden Türkçe Dublaj ve Altyazılı VidMoly 1080p master HLS akışları."

@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "TauVideo altyapısıyla binlerce anime bölümü (1080p, 720p, 480p direct MP4)."

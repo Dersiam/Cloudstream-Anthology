@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "Cine 1, FX, TRT Nostalji ve canli.m3u SİNEMA KANALLARI grubundaki tüm canlı sinema yayınları (Türkçe + İngilizce ses)."

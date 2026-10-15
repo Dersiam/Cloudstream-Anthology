@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "SetFilmIzle arşivi üzerinden FastPlay 1080p HLS master akışları ve TR/EN altyazılar (film + dizi)."
