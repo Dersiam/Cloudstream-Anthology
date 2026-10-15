@@ -43,13 +43,18 @@ jobs:
 
       - name: Deploy to builds branch
         run: |
-          mkdir -p builds
-          cp -r main/build/* builds/ 2>/dev/null || true
-          cp -r main/*.json builds/ 2>/dev/null || true
-          cd builds
+          mkdir -p deploy
+          find main -name "*.cs3" -exec cp -v {} deploy/ \;
+          cp -fv main/build/plugins.json deploy/ 2>/dev/null || true
+          cp -fv main/repo.json deploy/ 2>/dev/null || true
+          cd deploy
+          echo "=== Total CS3 files built: ==="
+          ls -1 *.cs3 2>/dev/null | wc -l
+          echo "=== Files in deploy directory: ==="
+          ls -lh
           git init
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Auto-build plugins [skip ci]" || exit 0
+          git commit -m "Auto-build plugins with cs3 binaries [skip ci]" || exit 0
           git push -f https://${{ github.token }}@github.com/${{ github.repository }}.git HEAD:builds
