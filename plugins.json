@@ -2,7 +2,7 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnimeciX.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnimeciX",
         "internalName": "AnimeciX",
         "authors": [
@@ -18,12 +18,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animecix.tv&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-24bc62ccaa56ed3a9a6d994aea74eaaef1186682e8a1e5708168da39899e78f1"
+        "fileHash": "sha256-5cdd38b8e4a991cee0f43456c41748df461514144cbd8a02b88a4d3750e80daa"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnimePraX.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnimePraX",
         "internalName": "AnimePraX",
         "authors": [
@@ -40,12 +40,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animeprax.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-bb21c3df445affe50a05cdd357ae7375b7ed45b8f401f3f1f51dddc95c998946"
+        "fileHash": "sha256-371f9649235f3ae074d6f9ee8f72680d9cb9738cb1e173bb9fb56c28ddd1a36d"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AniMOM.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AniMOM",
         "internalName": "AniMOM",
         "authors": [
@@ -62,19 +62,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animom.org&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-1dbedebfce07da8ab3e7ddadbe29450afd6309d6f11dbbac849f85eda364ddbb"
+        "fileHash": "sha256-af027cc09df0f15d6a8287917eaf9ae92d0ecc062140ee946bc12bd762490822"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizium.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "Anizium",
         "internalName": "Anizium",
         "authors": [
             "falsisdev"
         ],
         "description": "4K & 1080p T\u00fcrk\u00e7e Dublaj ve Altyaz\u0131l\u0131 Anime Kayna\u011f\u0131 (Do\u011frudan MP4 + WebVTT).",
-        "fileSize": 8207,
+        "fileSize": 15057,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -84,12 +84,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/anizium.png",
         "apiVersion": 1,
-        "fileHash": "sha256-acb51505f12625c84d36da4e6ee44efa27e4d1ac2e15fa91a8bac5e2658311aa"
+        "fileHash": "sha256-0be7f3c160f6ec29306029203b770b022284aa1ffe3a87021b6c96069053b10b"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizm.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "Anizm",
         "internalName": "Anizm",
         "authors": [
@@ -106,12 +106,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=anizm.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-c559180c6112c28fe85a180225890969abe37b86dbb10dec1427f984049a5e20"
+        "fileHash": "sha256-28381199e0a836f8a7d0f7b058d1e6b369ace205307d2a6ae055b11b54752a8d"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyBelgeselocuk.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyBelgeselocuk",
         "internalName": "AnthologyBelgeselocuk",
         "authors": [
@@ -127,12 +127,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/trtbelgesel.png",
         "apiVersion": 1,
-        "fileHash": "sha256-052b5e1269549276bcfc8c6119d1bc6151283d6d3798b9aecdeb5ea5ad4d94d2"
+        "fileHash": "sha256-5fe97cc0e70d7aa98c9d346a185e0590a547f793d9428021aba3a9a48a4c3fca"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyCanlHaber.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyCanlHaber",
         "internalName": "AnthologyCanlHaber",
         "authors": [
@@ -148,12 +148,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/ntv.png",
         "apiVersion": 1,
-        "fileHash": "sha256-7cd4f5feec6530e6947904a48cc65d6bb987bba6ea32f3f887d9ffb46b7eaad9"
+        "fileHash": "sha256-223fd13d17b4042ddb51b68ab9559e9290b1819b983bf3491cb9e96d65af0c16"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyCanlSpor.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyCanlSpor",
         "internalName": "AnthologyCanlSpor",
         "authors": [
@@ -169,12 +169,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/aspor.png",
         "apiVersion": 1,
-        "fileHash": "sha256-75a26714b32e0b3089840a694ba635b7806a460e479fcf1c2ba6ace674d79bb7"
+        "fileHash": "sha256-7cc27c85ddc534c4f565fd4aec105dfc36f6bb974a60a53a2ee3a1b8ab141a10"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyCanlTV.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyCanlTV",
         "internalName": "AnthologyCanlTV",
         "authors": [
@@ -190,12 +190,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-f2c3bdb188e0eb5f22bfb1d2ec608d7f9b7651f38a2a4ad56ef80f2851a502a8"
+        "fileHash": "sha256-d12f111d0a1560e44d54236073c2b53c0acc875e6b142a48685a227881036b5c"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyDizi.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyDizi",
         "internalName": "AnthologyDizi",
         "authors": [
@@ -211,12 +211,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=nowtv.com.tr&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-9c8717c6dfa421dbf9620e6e5e99da644423105052d2f220a2c5a2c20d1a0630"
+        "fileHash": "sha256-8c35a97f1fe0a65d2a67daa4cfc430244e81510f3ee9fa2eca00906ba5e74513"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyM3U.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyM3U",
         "internalName": "AnthologyM3U",
         "authors": [
@@ -233,12 +233,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-ef4122e6171f53b10b1be1ade8220f9be4a135adc4d8a1ab9765ef117aa047e5"
+        "fileHash": "sha256-8116c31bf130148ef0a2a1c7017190f43613cab95efefeca2d301dba98279217"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyMzikElence.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyMzikElence",
         "internalName": "AnthologyMzikElence",
         "authors": [
@@ -254,12 +254,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/kralpop.png",
         "apiVersion": 1,
-        "fileHash": "sha256-feb887eb8112bf75af672927601937b040ffdf0f0839d955d2f36f382382c771"
+        "fileHash": "sha256-2d1ffe75556f8fe18ae90ab4aea4b45dbb33804311bc9dc452cae0f6e4ba9de2"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologySinemaKanallar.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologySinemaKanallar",
         "internalName": "AnthologySinemaKanallar",
         "authors": [
@@ -275,12 +275,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/cine1.png",
         "apiVersion": 1,
-        "fileHash": "sha256-0cf948699c102a0bb602ea458bc51ddf751c27a433484a99709546b610a72a93"
+        "fileHash": "sha256-f41f2ea454558eb20d6cd7fb962f62d6b13808aa9b409d13f9a2dce51b931351"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyUlusalKanallar.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AnthologyUlusalKanallar",
         "internalName": "AnthologyUlusalKanallar",
         "authors": [
@@ -296,12 +296,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/canli/trt1.png",
         "apiVersion": 1,
-        "fileHash": "sha256-a4fd57f8569a9a3fb7bc5008239c39b3d2f71f58deeb2631cc46d2836c4f30c3"
+        "fileHash": "sha256-c7c8005cec4d26fea6a00c70ae3da8d29c6ce42ed6f1a0e9e65ab02423cbfe99"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AsyaAnimeleri.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "AsyaAnimeleri",
         "internalName": "AsyaAnimeleri",
         "authors": [
@@ -317,12 +317,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=asyaanimeleri.top&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-86265a9a76d34c475109a74e62e5704c166b2bf4055694a0a22d46af5cac32a6"
+        "fileHash": "sha256-56b6fffde3d6d8f8c78124345d04d48c2243ab7df7b0853581134ccf3470dd0a"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DDizi.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "DDizi",
         "internalName": "DDizi",
         "authors": [
@@ -338,12 +338,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=ddizi.im&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-4cbcc590b7687d50b5870c97255a16f0c7bd4c282bec5ce4682333efd7c598bd"
+        "fileHash": "sha256-7906a293923b24fc2914a3f7ab6ce8991f334e54614bb4186db62d00ff236510"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziBak.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "DiziBak",
         "internalName": "DiziBak",
         "authors": [
@@ -359,12 +359,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizibak.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-2cc58cca8fea2f484432f6f2cdec5cd894cc77069a3b3da0f19cf7ef1ce45b11"
+        "fileHash": "sha256-47b971bb62027186215ec3e36c658ef80996ddc6f8876c2234704c588f3f0c1a"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziBoxzle.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "DiziBoxzle",
         "internalName": "DiziBoxzle",
         "authors": [
@@ -380,12 +380,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=diziboxizle.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-e2e3d4e7f4952c6def896df0d514666add462865b247e4f780a32efc6c9f5352"
+        "fileHash": "sha256-f62809460a543296ecf58c79a0871c3319189231847d6c2e8e2f4c8d6c04834f"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziMom.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "DiziMom",
         "internalName": "DiziMom",
         "authors": [
@@ -401,12 +401,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizimom.diy&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-dcec10dbf901660f7dbf4bd1ad0c77331282d7ccf978da6fa9dbe3480c972cac"
+        "fileHash": "sha256-8a7ea9ee7a5e9a0825836a27975244f6889d09b2f45260c6605a2587df477580"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziPod.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "DiziPod",
         "internalName": "DiziPod",
         "authors": [
@@ -422,12 +422,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizipod.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-d94dc75c94933a6a0ff73b9cf4d7c23d6603cb1badf2ea4bcef9cfd950be6070"
+        "fileHash": "sha256-cb56c85908501aff765930926cc0a023e68d1a9c6b2f8f7b549dfb7ff1e0372b"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziWatch.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "DiziWatch",
         "internalName": "DiziWatch",
         "authors": [
@@ -445,12 +445,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-94d4462950f6c53b749e17c832ef534e83d807830a2d4313e70b223a03434d03"
+        "fileHash": "sha256-b01073a500594f1eecdbb3cfe585f2a5931e3fb3a8e57c3c20c55cf38dcdeb6b"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziYou.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "DiziYou",
         "internalName": "DiziYou",
         "authors": [
@@ -466,12 +466,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=diziyou.one&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-b8d93d10fbe22be7ff209edb23df943a5b9c6fd0990f77e75b8c1c1d61876fec"
+        "fileHash": "sha256-fa5dc09cf4fe6c9e24bf51c912cd6c941ca744496beb10d031ac39946785c59b"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/FilmModu.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "FilmModu",
         "internalName": "FilmModu",
         "authors": [
@@ -487,12 +487,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=filmmodu.one&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-9f4164c975cf063e2278eea5113cf48303a2d6bc17b764f1ddf9d1d30fed0872"
+        "fileHash": "sha256-49cd85392485edc78cd85850d8f4527a71afc28ba4e6d3c775ea7414eddca3d2"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/HDFilmCehennemi.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "HDFilmCehennemi",
         "internalName": "HDFilmCehennemi",
         "authors": [
@@ -508,12 +508,12 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-bf894528ebd383e06d8289184741105bd895037fb301d18a22a88c49f0905b57"
+        "fileHash": "sha256-04498c17d50ac4c0e987fc13bce1679dd3ce9fa7f96d07da38feb84af16aff3e"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/HDFilmDelisi.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "HDFilmDelisi",
         "internalName": "HDFilmDelisi",
         "authors": [
@@ -529,12 +529,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=hdfilmdelisi.one&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-df3c65107b14bfc08f6cbeccd11eda884b4fb2c1885cdc52bb3e82836eaaea08"
+        "fileHash": "sha256-05bfc2d6e08e44b13cca2e73248e74c17f30476d33c7e453ebc23387d2a40001"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/HDFilmIzle.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "HDFilmIzle",
         "internalName": "HDFilmIzle",
         "authors": [
@@ -550,12 +550,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=hdfilmizle.ink&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-2c6542c42be1d5e7b7fd3f6ae71ba63e46dd75148a2462d161105c9349ef25d1"
+        "fileHash": "sha256-c723b5bfd4edc6de021fab280ec0f4089ac73a439a1f5f278c0d40e94872cd0a"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/KultFilmler.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "KultFilmler",
         "internalName": "KultFilmler",
         "authors": [
@@ -571,12 +571,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=kultfilmler.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-8ed587fc971e57750c36a25b95670e3c686d460cd0df2e8defe58e8795829f2a"
+        "fileHash": "sha256-69dd521f4261af23e5706c50805f7058adee67f00cebd03afa19dd981d92d385"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/LiderFilm.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "LiderFilm",
         "internalName": "LiderFilm",
         "authors": [
@@ -593,12 +593,12 @@
         ],
         "iconUrl": "https://liderfilmizle.vip/icons/icon-192.png",
         "apiVersion": 1,
-        "fileHash": "sha256-5e68ed466b9f4a2c582e7a1130372930941912b045a4516a59442440e176ae8b"
+        "fileHash": "sha256-2364199b1d0b78c664d07239a0ae73578392b950f13403f694bea43c0b025742"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/PuhuTV.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "PuhuTV",
         "internalName": "PuhuTV",
         "authors": [
@@ -614,12 +614,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=puhutv.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-929cd60890a009643617fd6b623ef4a64df88f3c7a5d3e0d03141fc47ab92750"
+        "fileHash": "sha256-a23e587424324a5f518d6f806be353adc0f1199e9c36bfe28c0f75f866bc0e04"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SeiCode.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "SeiCode",
         "internalName": "SeiCode",
         "authors": [
@@ -636,12 +636,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=seicode.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-d2bc008a0ba31e68617f959d1cd5991b26276a87b74f303e76b558e895b3af79"
+        "fileHash": "sha256-1c35eb4f82d337d707bcd55c6df92550003688ef9f24dbdb30857448905445bf"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SetFilmIzle.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "SetFilmIzle",
         "internalName": "SetFilmIzle",
         "authors": [
@@ -657,12 +657,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=setfilmizle.ltd&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-e6ff363afd5529351558cdeeac25256837879127b10508730042d1a7fa2d6cc8"
+        "fileHash": "sha256-39935dc31a934cb86b3164036339572b57d9e97125aff9c07a6d296e28946cd1"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SinemaCX.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "SinemaCX",
         "internalName": "SinemaCX",
         "authors": [
@@ -678,12 +678,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=sinema.gg&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-fa8442df9edb61088f3cfd031bdd3f7dedf9827d962d8b8ec2c2b7a546971786"
+        "fileHash": "sha256-71c9b1b54971a01d7d0593857a1de80a8c0dc8bbd1c94b5baa5522f2dffaf517"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SineWix.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "SineWix",
         "internalName": "SineWix",
         "authors": [
@@ -699,12 +699,12 @@
         ],
         "iconUrl": "https://play-lh.googleusercontent.com/brwGNmr7IjA_MKk_TTPs0va10hdKE_bD_a1lnKoiMuCayW98EHpRv55edA6aEoJlmwfX=w240-h480",
         "apiVersion": 1,
-        "fileHash": "sha256-dd375e3a098ed2b8dc1cce224c8bd6284f968eeb99015340104b4268fd1a678f"
+        "fileHash": "sha256-0c82aeb5a71ff16939ee72b6324dc76663aded4b1e7520a11edda9b0cf640c88"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SonAnime.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "SonAnime",
         "internalName": "SonAnime",
         "authors": [
@@ -720,12 +720,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=sonanime.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-cd2d1294b770c553f5f416efacbfa1eade44b197045c4a2a4cb1ef988c068386"
+        "fileHash": "sha256-18aa4fb6c1337b53100fa34af07b57f3b355227c10178ebf246c6c5ea5f834db"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/TRDizizle.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "TRDizizle",
         "internalName": "TRDizizle",
         "authors": [
@@ -741,12 +741,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=trdiziizle.xyz&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-2b71211db24a63eb37defeffa699f0d8407d16900dc62427a3c25e134084803a"
+        "fileHash": "sha256-316909c8aaa052b9eb1e86056fdba3f8e191190dbc8efab8abb2ece6d60ba8f6"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/TvDiziler.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "TvDiziler",
         "internalName": "TvDiziler",
         "authors": [
@@ -762,12 +762,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=tvdiziler.tv&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-69781f311a0e8d07d5cdcddc5c5067cb10b6c8f5f186093540a174656b47ad5c"
+        "fileHash": "sha256-2357b775982638fc2aba6c12c3291d18ce51a2f48c7dc2984d96f9b32984fc87"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Vidlink.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "Vidlink",
         "internalName": "Vidlink",
         "authors": [
@@ -783,12 +783,12 @@
         ],
         "iconUrl": "https://vidlink.pro/favicon.ico",
         "apiVersion": 1,
-        "fileHash": "sha256-57e90e320ae3de2fd0bd273e81e6a5bb405384b3d25b97473a3fd5e2cd8009a2"
+        "fileHash": "sha256-78f654d97b2ce464a04fa0dfbb86f48007363651f54843b84ef4ec0ad7f066c8"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Vidmody.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "Vidmody",
         "internalName": "Vidmody",
         "authors": [
@@ -804,12 +804,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=vidmody.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-50c211488550d133232b6eb1a814ee1434f0a63fe239b0276337b4d764d2fbfc"
+        "fileHash": "sha256-cdfdb68e9bffe7d5f54fd5337ded7bfec0ec9d557668e7a66f353dc53c9c1123"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Webtezle.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "Webtezle",
         "internalName": "Webtezle",
         "authors": [
@@ -825,12 +825,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=webteizle.info&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-084e0de1e69ad93482eddfa4344ea5f5fee2aa57f86ebf7e56232fb08c201d0d"
+        "fileHash": "sha256-86819c6a8c7a4cf1a8317b74324266e50df5b7e84e32432bb37c290a43107b47"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/YabancDizi.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "YabancDizi",
         "internalName": "YabancDizi",
         "authors": [
@@ -846,12 +846,12 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=yabancidizi.news&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-264705c64a184970ceb885d2f40b1fcf30c1d3660b7606b3d5f4fb5391cea123"
+        "fileHash": "sha256-b1f5a77d71f31b2329b353c5fd1b12ded9bd6de1941f95d37165781474d45d41"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/YouTubeDiziFilm.cs3",
         "status": 1,
-        "version": 2,
+        "version": 3,
         "name": "YouTubeDiziFilm",
         "internalName": "YouTubeDiziFilm",
         "authors": [
@@ -868,6 +868,6 @@
         ],
         "iconUrl": "https://www.youtube.com/s/desktop/f4ff17dc/img/favicon_144x144.png",
         "apiVersion": 1,
-        "fileHash": "sha256-2cef9bc19d93b439051f8fe832c95023b6de3ded917e481c6180aabd0cfade59"
+        "fileHash": "sha256-225dfdf1e4248baef833150b4aefd5a6a26dd8e8a40c10c30dff7eb0f463b4ee"
     }
 ]
