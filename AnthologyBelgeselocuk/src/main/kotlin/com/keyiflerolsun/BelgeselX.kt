@@ -1,7 +1,7 @@
 @file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
-package com.keyiflerolsun
+package com.keyiflerolsun.anthologybelgeselocuk
 
 import java.util.Locale
 import android.util.Log

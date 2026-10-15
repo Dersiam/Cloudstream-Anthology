@@ -1,7 +1,7 @@
 @file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 // ! https://codeberg.org/cloudstream/cloudstream-extensions-multilingual/src/branch/master/FreeTVProvider/src/main/kotlin/com/lagradost/FreeTVProvider.kt
 
-package com.keyiflerolsun
+package com.keyiflerolsun.anthologym3u
 
 import android.util.Log
 import com.lagradost.cloudstream3.*

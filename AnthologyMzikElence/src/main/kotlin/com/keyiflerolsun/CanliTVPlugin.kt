@@ -1,5 +1,5 @@
 @file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
-package com.keyiflerolsun
+package com.keyiflerolsun.anthologymzikelence
 
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin

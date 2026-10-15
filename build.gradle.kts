@@ -37,7 +37,7 @@ subprojects {
     }
 
     android {
-        namespace = "com.cloudstream.turkish"
+        namespace = "com.cloudstream.anthology." + project.name.lowercase().replace(Regex("[^a-z0-9]"), "")
 
         defaultConfig {
             minSdk = 21
