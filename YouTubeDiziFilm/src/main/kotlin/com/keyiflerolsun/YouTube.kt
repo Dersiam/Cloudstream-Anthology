@@ -73,7 +73,7 @@ class YouTubeDiziFilm : MainAPI() {
     }
 
     private data class SearchEntry(val title: String, val videoId: String) {
-        fun toSearchResponse(provider: YouTube): SearchResponse {
+        fun toSearchResponse(provider: YouTubeDiziFilm): SearchResponse {
             return provider.newMovieSearchResponse(
                 title,
                 "${provider.mainUrl}/watch?v=${videoId}",
@@ -92,7 +92,7 @@ class YouTubeDiziFilm : MainAPI() {
         val author: String,
         val authorThumbnails: List<Thumbnail>
     ) {
-        suspend fun toLoadResponse(provider: YouTube): LoadResponse {
+        suspend fun toLoadResponse(provider: YouTubeDiziFilm): LoadResponse {
             return provider.newMovieLoadResponse(
                 title,
                 "${provider.mainUrl}/watch?v=${videoId}",
