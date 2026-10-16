@@ -9,6 +9,5 @@ import android.content.Context
 class TvDizilerPlugin: Plugin() {
     override fun load(context: Context) {
         registerMainAPI(TvDiziler())
-        registerExtractorAPI(TvDizilerOynat())
     }
 }
