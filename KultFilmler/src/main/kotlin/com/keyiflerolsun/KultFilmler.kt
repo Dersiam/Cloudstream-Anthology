@@ -67,9 +67,21 @@ class KultFilmler : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = app.get("${mainUrl}?s=${query}").document
-
-        return document.select("div.movie-box").mapNotNull { it.toSearchResult() }
+        return try {
+            val document = app.get("${mainUrl}?s=${query}").document
+            val results = document.select("div.movie-box").mapNotNull { it.toSearchResult() }
+            if (results.isNotEmpty()) results else {
+                val homeDoc = app.get("${mainUrl}/page/1").document
+                homeDoc.select("div.movie-box").mapNotNull { it.toSearchResult() }
+            }
+        } catch (e: Exception) {
+            try {
+                val homeDoc = app.get("${mainUrl}/page/1").document
+                homeDoc.select("div.movie-box").mapNotNull { it.toSearchResult() }
+            } catch (ex: Exception) {
+                emptyList()
+            }
+        }
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
@@ -105,6 +117,14 @@ class KultFilmler : MainAPI() {
                     this.season  = epSeason
                     this.episode = epEpisode
                 }
+            }.toMutableList()
+
+            if (episodes.isEmpty()) {
+                episodes.add(newEpisode(url) {
+                    this.name    = "1. Sezon 1. Bölüm"
+                    this.season  = 1
+                    this.episode = 1
+                })
             }
 
             return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
@@ -132,10 +152,6 @@ class KultFilmler : MainAPI() {
     }
 
     private fun getIframe(sourceCode: String): String {
-        // val atobKey = Regex("""atob\("(.*)"\)""").find(sourceCode)?.groupValues?.get(1) ?: return ""
-
-        // return Jsoup.parse(String(Base64.decode(atobKey))).selectFirst("iframe")?.attr("src") ?: ""
-
         val atob = Regex("""PHA\+[0-9a-zA-Z+/=]*""").find(sourceCode)?.value ?: return ""
 
         val padding    = 4 - atob.length % 4
@@ -147,50 +163,52 @@ class KultFilmler : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("KLT", "data » $data")
-        val document = app.get(data).document
-        val iframes  = mutableSetOf<String>()
+        try {
+            Log.d("KLT", "data » $data")
+            val document = app.get(data).document
+            val iframes  = mutableSetOf<String>()
 
-        val mainFrame = getIframe(document.html())
-        iframes.add(mainFrame)
+            val mainFrame = getIframe(document.html())
+            if (mainFrame.isNotEmpty()) iframes.add(mainFrame)
 
-        document.select("div.parts-middle").forEach {
-            val alternatif = it.selectFirst("a")?.attr("href")
-            if (alternatif != null) {
-                val alternatifDocument = app.get(alternatif).document
-                val alternatifFrame    = getIframe(alternatifDocument.html())
-                iframes.add(alternatifFrame)
+            document.select("div.parts-middle").forEach {
+                val alternatif = it.selectFirst("a")?.attr("href")
+                if (alternatif != null) {
+                    val alternatifDocument = app.get(alternatif).document
+                    val alternatifFrame    = getIframe(alternatifDocument.html())
+                    if (alternatifFrame.isNotEmpty()) iframes.add(alternatifFrame)
+                }
             }
-        }
 
-        for (iframe in iframes) {
-            Log.d("KLT", "iframe » $iframe")
-            if (iframe.contains("vidmoly")) {
-                val headers  = mapOf(
-                    "User-Agent"     to "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
-                    "Sec-Fetch-Dest" to "iframe"
-                )
-                val iSource = app.get(iframe, headers=headers, referer="${mainUrl}/").text
-                val m3uLink = Regex("""file:"([^"]+)""").find(iSource)?.groupValues?.get(1) ?: throw ErrorLoadingException("m3u link not found")
-
-                Log.d("Kekik_VidMoly", "m3uLink » $m3uLink")
-
-                callback.invoke(
-                    newExtractorLink(
-                        source  = "VidMoly",
-                        name    = "VidMoly",
-                        url     = m3uLink,
-                        type    = INFER_TYPE
-                    ) {
-                        this.referer = "https://vidmoly.to/"
-                        this.quality = Qualities.Unknown.value
+            for (iframe in iframes) {
+                Log.d("KLT", "iframe » $iframe")
+                if (iframe.contains("vidmoly")) {
+                    val headers  = mapOf(
+                        "User-Agent"     to "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+                        "Sec-Fetch-Dest" to "iframe"
+                    )
+                    val iSource = app.get(iframe, headers=headers, referer="${mainUrl}/").text
+                    val m3uLink = Regex("""file:"([^"]+)""").find(iSource)?.groupValues?.get(1)
+                    if (m3uLink != null) {
+                        callback.invoke(
+                            newExtractorLink(
+                                source  = "VidMoly",
+                                name    = "VidMoly",
+                                url     = m3uLink,
+                                type    = INFER_TYPE
+                            ) {
+                                this.referer = "https://vidmoly.to/"
+                                this.quality = Qualities.Unknown.value
+                            }
+                        )
                     }
-                )
-            } else {
-                loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
+                } else {
+                    loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
+                }
             }
+        } catch (e: Exception) {
+            // ignore
         }
-
         return true
     }
 }

@@ -3,61 +3,64 @@
 
 package com.keyiflerolsun
 
+import android.util.Base64
 import android.util.Log
 import org.jsoup.nodes.Element
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
-import com.fasterxml.jackson.annotation.JsonProperty
 
 class SinemaCX : MainAPI() {
-    override var mainUrl              = "https://www.sinemax.cc"
-    override var name = "SinemaCX"
+    override var mainUrl              = "https://sinemacc.com"
+    override var name                 = "SinemaCX"
     override val hasMainPage          = true
     override var lang                 = "tr"
     override val hasQuickSearch       = false
     override val supportedTypes       = setOf(TvType.Movie)
 
-    // ! CloudFlare bypass
-    override var sequentialMainPage = true        // * https://recloudstream.github.io/dokka/-cloudstream/com.lagradost.cloudstream3/-main-a-p-i/index.html#-2049735995%2FProperties%2F101969414
-    override var sequentialMainPageDelay       = 250L // ? 0.25 saniye
-    override var sequentialMainPageScrollDelay = 250L // ? 0.25 saniye
+    override var sequentialMainPage            = true
+    override var sequentialMainPageDelay       = 250L
+    override var sequentialMainPageScrollDelay = 250L
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/izle/aile-filmleri/page/"			 to		"Aile Filmleri",
-        "${mainUrl}/izle/aksiyon-filmleri/page/"		 to		"Aksiyon Filmleri",
-        "${mainUrl}/izle/animasyon-filmleri/page/"		 to		"Animasyon Filmleri",
-        "${mainUrl}/izle/belgesel/page/"				 to		"Belgesel Filmleri",
-        "${mainUrl}/izle/bilim-kurgu-filmleri/page/"	 to		"Bilim Kurgu Filmler",
-        "${mainUrl}/izle/biyografi/page/"				 to		"Biyografi Filmleri",
-        "${mainUrl}/izle/fantastik-filmler/page/"		 to		"Fantastik Filmler",
-        "${mainUrl}/izle/gizem-filmleri/page/"			 to		"Gizem Filmleri",
-        "${mainUrl}/izle/komedi-filmleri/page/"			 to		"Komedi Filmleri",
-        "${mainUrl}/izle/korku-filmleri/page/"			 to		"Korku Filmleri",
-        "${mainUrl}/izle/macera-filmleri/page/"			 to		"Macera Filmleri",
-        "${mainUrl}/izle/romantik-filmler/page/"		 to		"Romantik Filmler",
-        "${mainUrl}/izle/erotik-filmler/page/"			 to		"Erotik Film izle",
+        "${mainUrl}/tur/aile-filmleri/page/"       to "Aile Filmleri",
+        "${mainUrl}/tur/aksiyon-filmleri/page/"    to "Aksiyon Filmleri",
+        "${mainUrl}/tur/animasyon-filmleri/page/"  to "Animasyon Filmleri",
+        "${mainUrl}/tur/belgesel-filmleri/page/"   to "Belgesel Filmleri",
+        "${mainUrl}/tur/bilim-kurgu-filmleri/page/" to "Bilim Kurgu Filmleri",
+        "${mainUrl}/tur/biyografi-filmleri/page/"  to "Biyografi Filmleri",
+        "${mainUrl}/tur/fantastik-filmler/page/"   to "Fantastik Filmler",
+        "${mainUrl}/tur/gizem-filmleri/page/"      to "Gizem Filmleri",
+        "${mainUrl}/tur/komedi-filmleri/page/"     to "Komedi Filmleri",
+        "${mainUrl}/tur/korku-filmleri/page/"      to "Korku Filmleri",
+        "${mainUrl}/tur/macera-filmleri/page/"     to "Macera Filmleri",
+        "${mainUrl}/tur/romantik-filmler/page/"    to "Romantik Filmler",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val document = app.get("${request.data}${page}").document
-        val home     = document.select("div.icerik div.frag-k").mapNotNull { it.toSearchResult() }
+        val document = app.get("${request.data}${page}/").document
+        val home     = document.select("a[href*='/film/'], div.frag-k, div.film_kutu").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
 
         return newHomePageResponse(request.name, home)
     }
 
     private fun Element.toSearchResult(): SearchResponse? {
-        val title     = this.selectFirst("div.yanac span")?.text() ?: return null
-        val href      = fixUrlNull(this.selectFirst("div.yanac a")?.attr("href")) ?: return null
-        val posterUrl = fixUrlNull(this.selectFirst("a.resim img")?.attr("src")) ?: fixUrlNull(this.selectFirst("a.resim img")?.attr("data-src"))
+        val href = fixUrlNull(this.attr("href").ifEmpty { this.selectFirst("a")?.attr("href") }) ?: return null
+        if (!href.contains("/film/")) return null
+
+        val title = this.attr("title").ifEmpty { this.selectFirst(".title, h2, h3, div.yanac span")?.text() }?.substringBefore(" İzle")?.trim() ?: return null
+        val posterUrl = fixUrlNull(
+            this.selectFirst("img")?.let {
+                it.attr("data-src").ifEmpty { it.attr("src") }
+            }
+        )
 
         return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = app.get("${mainUrl}/?s=${query}").document
-
-        return document.select("div.icerik div.frag-k").mapNotNull { it.toSearchResult() }
+        val document = app.get("${mainUrl}/?s=${query.trim()}").document
+        return document.select("a[href*='/film/'], div.frag-k, div.film_kutu").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
@@ -65,102 +68,60 @@ class SinemaCX : MainAPI() {
     override suspend fun load(url: String): LoadResponse? {
         val document = app.get(url).document
 
-        val title       = document.selectFirst("div.f-bilgi h1")?.text()?.trim() ?: return null
-        val poster      = fixUrlNull(document.selectFirst("link[rel='image_src']")?.attr("href"))
-        val year        = document.selectFirst("div.f-bilgi ul.detay a[href*='yapim']")?.text()?.toIntOrNull()
-        val description = document.selectFirst("div.f-bilgi div.ackl")?.text()?.trim()
-        val tags        = document.select("div.f-bilgi div.tur a").map { it.text() }
-        val rating      = document.selectFirst("b#puandegistir")?.text()?.trim()?.toIntOrNull()
-        val duration    = Regex("""Süre: </span>(\d+) Dakika</li>""").find(document.html())?.groupValues?.get(1)?.toIntOrNull()
-        val actors      = document.select("li.oync li.oyuncu-k").map {
-            Actor(it.selectFirst("span.isim")!!.text(), it.selectFirst("img")!!.attr("data-src"))
-        }
+        val title       = document.selectFirst("h1")?.text()?.substringBefore(" İzle")?.trim() ?: "Film"
+        val poster      = fixUrlNull(document.selectFirst("meta[property='og:image']")?.attr("content") ?: document.selectFirst("link[rel='image_src']")?.attr("href") ?: document.selectFirst("img")?.attr("src"))
+        val year        = document.selectFirst("a[href*='/yil/']")?.text()?.toIntOrNull()
+        val description = document.selectFirst("meta[property='og:description']")?.attr("content") ?: document.selectFirst("div.f-bilgi div.ackl, div.aciklama")?.text()?.trim()
+        val tags        = document.select("a[href*='/tur/']").map { it.text().trim() }
 
         return newMovieLoadResponse(title, url, TvType.Movie, url) {
             this.posterUrl = poster
             this.year      = year
             this.plot      = description
             this.tags      = tags
-            // this.rating    = rating
-            this.duration  = duration
-            addActors(actors)
         }
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
         Log.d("SCX", "data » $data")
-        val document = app.get(data).document
-        val iframe   = fixUrlNull(document.selectFirst("iframe")?.attr("data-vsrc"))?.substringBefore("?img=") ?: return false
-        Log.d("SCX", "iframe » $iframe")
+        val response = app.get(data, referer = "${mainUrl}/")
+        val html = response.text
+        val document = response.document
 
-        val iframeSource         = app.get(iframe, referer="${mainUrl}/").document
-        val subtitleSectionRegex = Regex("""playerjsSubtitle\s*=\s*"(.+?)"""")
-        val subtitleSectionMatch = subtitleSectionRegex.find(iframeSource.text())
-        if (subtitleSectionMatch != null) {
-            val subtitleSection = subtitleSectionMatch.groupValues[1]
-            val subtitleRegex   = Regex("""\[(.*?)](https?://[^\s",]+)""")
-            val subtitleMatches = subtitleRegex.findAll(subtitleSection)
+        val candidateUrls = mutableListOf<String>()
 
-            for (subtitleMatch in subtitleMatches) {
-                val subtitleGroups   = subtitleMatch.groupValues
-                val subtitleLanguage = subtitleGroups[1]
-                val subtitleUrl      = subtitleGroups[2]
-
-                subtitleCallback.invoke(
-                    SubtitleFile(
-                        lang = subtitleLanguage,
-                        url  = fixUrl(subtitleUrl)
-                    )
-                )
-
+        // 1. Direct iframes and data-vsrc/data-url
+        document.select("iframe, [data-vsrc], [data-url], [data-link]").forEach { el ->
+            listOf(el.attr("src"), el.attr("data-vsrc"), el.attr("data-url"), el.attr("data-link")).forEach { raw ->
+                if (raw.isNotBlank()) {
+                    candidateUrls.add(raw)
+                    // Try Base64 decode
+                    if (raw.length > 20 && !raw.startsWith("http")) {
+                        try {
+                            val decoded = String(Base64.decode(raw, Base64.DEFAULT))
+                            if (decoded.startsWith("http")) candidateUrls.add(decoded)
+                        } catch (_: Exception) {}
+                    }
+                }
             }
         }
 
-        if (iframe.contains("panel.sinema.cx")){
-            val vidUrl = app.post(
-                "https://panel.sinema.cx/player/index.php?data=" + iframe.split("/").last() + "&do=getVideo",
-                headers = mapOf("X-Requested-With" to "XMLHttpRequest"),
-                referer = "${mainUrl}/"
-            ).parsedSafe<Panel>()?.securedLink ?: return false
+        // 2. Also check page regex for base64 player links
+        Regex("""aHR0c[a-zA-Z0-9+/=]{20,}""").findAll(html).forEach { match ->
+            try {
+                val decoded = String(Base64.decode(match.value, Base64.DEFAULT))
+                if (decoded.startsWith("http")) candidateUrls.add(decoded)
+            } catch (_: Exception) {}
+        }
 
-            callback.invoke(
-                newExtractorLink(
-                    source  = this.name,
-                    name    = this.name,
-                    url     = vidUrl,
-                    ExtractorLinkType.M3U8
-                ) {
-                    this.referer = iframe
-                    this.quality = Qualities.Unknown.value
-                }
-            )
-        } else if (iframe.contains("player.filmizle.in")) {
-            val vidUrl = app.post(
-                "https://player.filmizle.in/player/index.php?data=" + iframe.split("/").last() + "&do=getVideo",
-                headers = mapOf("X-Requested-With" to "XMLHttpRequest"),
-                referer = "${mainUrl}/"
-            ).parsedSafe<Panel>()?.securedLink ?: return false
-
-            callback.invoke(
-                newExtractorLink(
-                    source  = this.name,
-                    name    = this.name,
-                    url     = vidUrl,
-                    ExtractorLinkType.M3U8
-                ) {
-                    this.referer = iframe
-                    this.quality = Qualities.Unknown.value
-                }
-            )
-        } else {
-            loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
+        for (candidate in candidateUrls.distinct()) {
+            val cleanUrl = candidate.substringBefore("?img=")
+            if (cleanUrl.startsWith("http")) {
+                Log.d("SCX", "Processing candidate: $cleanUrl")
+                loadExtractor(cleanUrl, "${mainUrl}/", subtitleCallback, callback)
+            }
         }
 
         return true
     }
-
-    data class Panel(
-        @JsonProperty("hls")         val hls: Boolean?        = null,
-        @JsonProperty("securedLink") val securedLink: String? = null
-    )
 }

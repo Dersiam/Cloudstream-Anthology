@@ -11,8 +11,8 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 
 class DiziYou : MainAPI() {
-    override var mainUrl              = "https://www.diziyou6.com"
-    override var name = "DiziYou"
+    override var mainUrl              = "https://www.diziyou.one"
+    override var name                 = "DiziYou"
     override val hasMainPage          = true
     override var lang                 = "tr"
     override val hasQuickSearch       = false
@@ -39,23 +39,39 @@ class DiziYou : MainAPI() {
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url      = request.data.replace("SAYFA", "$page")
         val document = app.get(url).document
-        val home     = document.select("div.single-item").mapNotNull { it.toMainPageResult() }
+        val home     = document.select("div.single-item, div.listepisodes, div.post").mapNotNull { it.toMainPageResult() }
 
         return newHomePageResponse(request.name, home)
     }
 
     private fun Element.toMainPageResult(): SearchResponse? {
-        val title     = this.selectFirst("div#categorytitle a")?.text() ?: return null
-        val href      = fixUrlNull(this.selectFirst("div#categorytitle a")?.attr("href")) ?: return null
-        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("src"))
+        val aTag = this.selectFirst("a[title]") ?: this.selectFirst("div#categorytitle a") ?: this.selectFirst("a") ?: return null
+        val title = aTag.attr("title").ifEmpty { aTag.text() }.substringBefore(" izle").trim()
+        if (title.isBlank()) return null
+        val href = fixUrlNull(aTag.attr("href")) ?: return null
+        val posterUrl = fixUrlNull(this.selectFirst("img")?.let { it.attr("src").ifEmpty { it.attr("data-src") } })
 
         return newTvSeriesSearchResponse(title, href, TvType.TvSeries) { this.posterUrl = posterUrl }
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = app.get("${mainUrl}/?s=${query}").document
-
-        return document.select("div.incontent div#list-series").mapNotNull { it.toMainPageResult() }
+        return try {
+            val res = app.post(
+                "${mainUrl}/wp-admin/admin-ajax.php",
+                data = mapOf("action" to "data_fetch", "keyword" to query),
+                referer = "${mainUrl}/"
+            )
+            val doc = res.document
+            doc.select("div#searchelement, div.single-item").mapNotNull {
+                val a = it.selectFirst("a:has(img)") ?: it.selectFirst("a") ?: return@mapNotNull null
+                val href = fixUrlNull(a.attr("href")) ?: return@mapNotNull null
+                val title = it.select("a").lastOrNull()?.text()?.trim() ?: a.text().trim()
+                val poster = fixUrlNull(it.selectFirst("img")?.attr("src"))
+                newTvSeriesSearchResponse(title, href, TvType.TvSeries) { this.posterUrl = poster }
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
@@ -63,34 +79,35 @@ class DiziYou : MainAPI() {
     override suspend fun load(url: String): LoadResponse? {
         val document = app.get(url).document
 
-        val title           = document.selectFirst("h1")?.text()?.trim() ?: return null
-        val poster          = fixUrlNull(document.selectFirst("div.category_image img")?.attr("src"))
-        val description     = document.selectFirst("div.diziyou_desc")?.ownText()?.trim()
+        val title           = document.selectFirst("h1")?.text()?.trim()?.removePrefix("Slow Horses")?.ifEmpty { document.selectFirst("h1")?.text()?.trim() } ?: return null
+        val cleanTitle      = document.selectFirst("h1")?.text()?.replace(Regex("""<[^>]+>"""), "")?.trim() ?: "Dizi"
+        val poster          = fixUrlNull(document.selectFirst("div.category_image img, div.dil-afis img")?.attr("src"))
+        val description     = document.selectFirst("div.diziyou_desc, div.entry-content p")?.text()?.trim()
         val year            = document.selectFirst("span.dizimeta:contains(Yapım Yılı)")?.nextSibling()?.toString()?.trim()?.toIntOrNull()
         val tags            = document.select("div.genres a").map { it.text() }
-        val rating          = document.selectFirst("span.dizimeta:contains(IMDB)")?.nextSibling()?.toString()?.trim()?.toIntOrNull()
         val actors          = document.selectFirst("span.dizimeta:contains(Oyuncular)")?.nextSibling()?.toString()?.trim()?.split(", ")?.map { Actor(it) }
         val trailer         = document.selectFirst("iframe.trailer-video")?.attr("src")
 
-        val episodes = document.select("div.bolumust").mapNotNull {
-            val epName    = it.selectFirst("div.baslik")?.ownText()?.trim() ?: return@mapNotNull null
-            val epHref    = it.closest("a")?.attr("href")?.let { href -> fixUrlNull(href) } ?: return@mapNotNull null
-            val epEpisode = Regex("""(\d+)\. Bölüm""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
-            val epSeason  = Regex("""(\d+)\. Sezon""").find(epName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
+        val episodes = document.select("div.bolumust, div.listepisodes").mapNotNull {
+            val epLink = it.selectFirst("a") ?: it.closest("a") ?: return@mapNotNull null
+            val epHref = fixUrlNull(epLink.attr("href")) ?: return@mapNotNull null
+            val epName = it.selectFirst("div.baslik, .bolumismi")?.text()?.trim()
+                ?: epLink.attr("title").ifEmpty { epLink.text() }.trim()
+            val epEpisode = Regex("""(\d+)\.\s*Bölüm""", RegexOption.IGNORE_CASE).find(epName)?.groupValues?.get(1)?.toIntOrNull()
+            val epSeason  = Regex("""(\d+)\.\s*Sezon""", RegexOption.IGNORE_CASE).find(epName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
 
             newEpisode(epHref) {
-                this.name = it.selectFirst("div.bolumismi")?.text()?.trim()?.replace(Regex("""[()]"""), "")?.trim() ?: epName
+                this.name = epName
                 this.season = epSeason
-                this.episode = epEpisode
+                this.episode = epEpisode ?: 1
             }
-        }
+        }.distinctBy { it.data }
 
-        return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+        return newTvSeriesLoadResponse(cleanTitle, url, TvType.TvSeries, episodes) {
             this.posterUrl = poster
             this.plot      = description
             this.year      = year
             this.tags      = tags
-            // this.rating    = rating
             addActors(actors)
             addTrailer(trailer)
         }
@@ -100,52 +117,71 @@ class DiziYou : MainAPI() {
         Log.d("DZY", "data » $data")
         val document = app.get(data).document
 
-        val itemId     = document.selectFirst("iframe#diziyouPlayer")?.attr("src")?.split("/")?.lastOrNull()?.substringBefore(".html") ?: return false
-        Log.d("DZY", "itemId » $itemId")
-
-        val subTitles  = mutableListOf<DiziyouSubtitle>()
-        val streamUrls = mutableListOf<DiziyouStream>()
-        val storage    = mainUrl.replace("www", "storage")
-
-        document.select("span.diziyouOption").forEach {
-            val optId   = it.attr("id")
-
-            if (optId == "turkceAltyazili") {
-                subTitles.add(DiziyouSubtitle("Turkish", "${storage}/subtitles/${itemId}/tr.vtt"))
-                streamUrls.add(DiziyouStream("Orjinal Dil", "${storage}/episodes/${itemId}/play.m3u8"))
-            }
-
-            if (optId == "ingilizceAltyazili") {
-                subTitles.add(DiziyouSubtitle("English", "${storage}/subtitles/${itemId}/en.vtt"))
-                streamUrls.add(DiziyouStream("Orjinal Dil", "${storage}/episodes/${itemId}/play.m3u8"))
-            }
-
-            if (optId == "turkceDublaj") {
-                streamUrls.add(DiziyouStream("Türkçe Dublaj", "${storage}/episodes/${itemId}_tr/play.m3u8"))
-            }
-        }
-
-        for (sub in subTitles) {
-            subtitleCallback.invoke(
-                SubtitleFile(
-                    lang = sub.name,
-                    url  = fixUrl(sub.url)
+        val playerIframe = document.selectFirst("iframe#diziyouPlayer, iframe")?.attr("src")
+        if (playerIframe != null) {
+            val playerDoc = app.get(playerIframe, referer = "$mainUrl/").text
+            Regex("""(?:file|source|src):\s*["']([^"']+\.(?:m3u8|mp4)[^"']*)["']""").findAll(playerDoc).forEach {
+                val mediaUrl = it.groupValues[1]
+                callback.invoke(
+                    newExtractorLink(
+                        source = this.name,
+                        name = this.name,
+                        url = mediaUrl,
+                        type = if (mediaUrl.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                    ) {
+                        this.referer = playerIframe
+                        this.quality = Qualities.Unknown.value
+                    }
                 )
-            )
+            }
         }
 
-        for (stream in streamUrls) {
-            callback.invoke(
-                newExtractorLink(
-                    source  = stream.name,
-                    name    = stream.name,
-                    url     = stream.url,
-                    ExtractorLinkType.M3U8
-                ) {
-                    this.referer = "${mainUrl}/"
-                    this.quality = Qualities.Unknown.value
+        val itemId = playerIframe?.split("/")?.lastOrNull()?.substringBefore(".html")
+        if (itemId != null) {
+            val subTitles  = mutableListOf<DiziyouSubtitle>()
+            val streamUrls = mutableListOf<DiziyouStream>()
+            val storage    = mainUrl.replace("www", "storage")
+
+            document.select("span.diziyouOption").forEach {
+                val optId   = it.attr("id")
+
+                if (optId == "turkceAltyazili") {
+                    subTitles.add(DiziyouSubtitle("Turkish", "${storage}/subtitles/${itemId}/tr.vtt"))
+                    streamUrls.add(DiziyouStream("Orjinal Dil", "${storage}/episodes/${itemId}/play.m3u8"))
                 }
-            )
+
+                if (optId == "ingilizceAltyazili") {
+                    subTitles.add(DiziyouSubtitle("English", "${storage}/subtitles/${itemId}/en.vtt"))
+                    streamUrls.add(DiziyouStream("Orjinal Dil", "${storage}/episodes/${itemId}/play.m3u8"))
+                }
+
+                if (optId == "turkceDublaj") {
+                    streamUrls.add(DiziyouStream("Türkçe Dublaj", "${storage}/episodes/${itemId}_tr/play.m3u8"))
+                }
+            }
+
+            for (sub in subTitles) {
+                subtitleCallback.invoke(
+                    SubtitleFile(
+                        lang = sub.name,
+                        url  = fixUrl(sub.url)
+                    )
+                )
+            }
+
+            for (stream in streamUrls) {
+                callback.invoke(
+                    newExtractorLink(
+                        source  = stream.name,
+                        name    = stream.name,
+                        url     = stream.url,
+                        ExtractorLinkType.M3U8
+                    ) {
+                        this.referer = "${mainUrl}/"
+                        this.quality = Qualities.Unknown.value
+                    }
+                )
+            }
         }
 
         return true

@@ -3,100 +3,172 @@ package com.cloudstream.anthologycloudstream
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import com.fasterxml.jackson.annotation.JsonProperty
-import org.jsoup.Jsoup
-
-data class DiziWatchSearchItem(
-    @JsonProperty("object_name") val objectName: String? = null,
-    @JsonProperty("object_alternative_name") val objectAlternativeName: String? = null,
-    @JsonProperty("used_slug") val usedSlug: String? = null,
-    @JsonProperty("object_type") val objectType: String? = null,
-    @JsonProperty("object_image") val objectImage: String? = null
-)
-
-data class DiziWatchSearchData(
-    @JsonProperty("state") val state: Boolean? = null,
-    @JsonProperty("result") val result: List<DiziWatchSearchItem>? = null
-)
-
-data class DiziWatchSearchResponse(
-    @JsonProperty("data") val data: DiziWatchSearchData? = null
-)
+import org.json.JSONObject
+import org.json.JSONArray
 
 class DiziWatch : MainAPI() {
-    override var mainUrl = "https://diziwatch.ac"
+    override var mainUrl = "https://diziwatch.net"
     override var name = "DiziWatch"
     override val hasMainPage = true
     override var lang = "tr"
-    override val supportedTypes = setOf(TvType.TvSeries, TvType.Anime)
+    override val hasQuickSearch = true
+    override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
+
+    companion object {
+        private const val TMDB_API = "https://api.themoviedb.org/3"
+        private const val TMDB_KEY = "500330721680edb6d5f7f12ba7cd9023"
+        private const val IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
+    }
 
     override val mainPage = mainPageOf(
-        "$mainUrl/diziler" to "Tüm Diziler",
-        "$mainUrl/animeler" to "Animeler",
-        "$mainUrl/episodes" to "Son Bölümler"
+        "$TMDB_API/trending/all/day?api_key=$TMDB_KEY&language=tr-TR&page=" to "Günün Trendleri",
+        "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Filmler",
+        "$TMDB_API/tv/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Diziler",
+        "$TMDB_API/movie/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "En Çok Beğenilen Filmler"
     )
 
-    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
-        val document = app.get(request.data).document
-        val items = document.select("div.post-card, article.post, div.show-card").mapNotNull { el ->
-            val title = el.selectFirst("h2, h3, .title, a.title")?.text()?.trim() ?: return@mapNotNull null
-            val href = fixUrlNull(el.selectFirst("a")?.attr("href")) ?: return@mapNotNull null
-            val poster = fixUrlNull(el.selectFirst("img")?.let { it.attr("data-src").ifEmpty { it.attr("src") } })
-            newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
-                this.posterUrl = poster
+    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
+        val res = app.get(
+            "${request.data}$page",
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept" to "application/json"
+            )
+        )
+        val json = JSONObject(res.text)
+        val results = json.optJSONArray("results") ?: JSONArray()
+        val items = mutableListOf<SearchResponse>()
+        for (i in 0 until results.length()) {
+            val item = results.getJSONObject(i)
+            val id = item.optInt("id", 0)
+            if (id == 0) continue
+            val isTv = item.has("name") || item.optString("media_type") == "tv"
+            val title = item.optString("title").ifEmpty { item.optString("name") }
+            if (title.isEmpty()) continue
+            val posterPath = item.optString("poster_path")
+            val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+            val typeStr = if (isTv) "tv" else "movie"
+            val linkUrl = "$mainUrl/tmdb/$typeStr/$id"
+
+            if (isTv) {
+                items.add(newTvSeriesSearchResponse(title, linkUrl, TvType.TvSeries) {
+                    this.posterUrl = poster
+                })
+            } else {
+                items.add(newMovieSearchResponse(title, linkUrl, TvType.Movie) {
+                    this.posterUrl = poster
+                })
             }
         }
         return newHomePageResponse(request.name, items)
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val res = app.post(
-            "$mainUrl/bg/searchcontent",
-            data = mapOf("searchterm" to query),
+        val url = "$TMDB_API/search/multi?api_key=$TMDB_KEY&language=tr-TR&query=$query"
+        val res = app.get(
+            url,
             headers = mapOf(
-                "X-Requested-With" to "XMLHttpRequest",
-                "Referer" to "$mainUrl/"
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept" to "application/json"
             )
-        ).parsedSafe<DiziWatchSearchResponse>()
+        )
+        val json = JSONObject(res.text)
+        val results = json.optJSONArray("results") ?: JSONArray()
+        val items = mutableListOf<SearchResponse>()
+        for (i in 0 until results.length()) {
+            val item = results.getJSONObject(i)
+            val id = item.optInt("id", 0)
+            if (id == 0) continue
+            val mediaType = item.optString("media_type")
+            if (mediaType != "movie" && mediaType != "tv") continue
+            val isTv = mediaType == "tv"
+            val title = item.optString("title").ifEmpty { item.optString("name") }
+            if (title.isEmpty()) continue
+            val posterPath = item.optString("poster_path")
+            val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+            val typeStr = if (isTv) "tv" else "movie"
+            val linkUrl = "$mainUrl/tmdb/$typeStr/$id"
 
-        return res?.data?.result?.mapNotNull { item ->
-            val name = item.objectName ?: return@mapNotNull null
-            val slug = item.usedSlug?.removePrefix("/") ?: return@mapNotNull null
-            val href = "$mainUrl/$slug"
-            val poster = item.objectImage
-            val type = if (item.objectType?.contains("anime", ignoreCase = true) == true) TvType.Anime else TvType.TvSeries
-            newTvSeriesSearchResponse(name, href, type) {
-                this.posterUrl = poster
+            if (isTv) {
+                items.add(newTvSeriesSearchResponse(title, linkUrl, TvType.TvSeries) {
+                    this.posterUrl = poster
+                })
+            } else {
+                items.add(newMovieSearchResponse(title, linkUrl, TvType.Movie) {
+                    this.posterUrl = poster
+                })
             }
-        } ?: emptyList()
+        }
+        return items
     }
 
+    override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
+
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url).document
-        val title = document.selectFirst("h1")?.text()?.trim() ?: name
-        val poster = fixUrlNull(document.selectFirst("div.show-poster img, img.poster")?.attr("src"))
-        val description = document.selectFirst("div.show-desc, div.description")?.text()?.trim()
+        val parts = url.substringAfter("/tmdb/").split("/")
+        val type = parts.getOrNull(0) ?: "movie"
+        val id = parts.getOrNull(1)?.toIntOrNull() ?: return null
 
-        val episodes = mutableListOf<Episode>()
-        val epRegex = Regex("""sezon-(\d+)/bolum-(\d+)""")
-
-        document.select("a[href*='sezon-']").forEach { link ->
-            val href = fixUrlNull(link.attr("href")) ?: return@forEach
-            val match = epRegex.find(href)
-            val season = match?.groupValues?.get(1)?.toIntOrNull() ?: 1
-            val episode = match?.groupValues?.get(2)?.toIntOrNull() ?: 1
-            episodes.add(
-                newEpisode(href) {
-                    this.name = "$season. Sezon $episode. Bölüm"
-                    this.season = season
-                    this.episode = episode
-                }
+        val res = app.get(
+            "$TMDB_API/$type/$id?api_key=$TMDB_KEY&language=tr-TR",
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept" to "application/json"
             )
-        }
+        )
+        val json = JSONObject(res.text)
+        val title = json.optString("title").ifEmpty { json.optString("name") }
+        val overview = json.optString("overview")
+        val posterPath = json.optString("poster_path")
+        val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+        val year = json.optString("release_date").ifEmpty { json.optString("first_air_date") }.take(4).toIntOrNull()
+        val rating = json.optDouble("vote_average", 0.0).toFloat()
 
-        return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
-            this.posterUrl = poster
-            this.plot = description
+        if (type == "tv") {
+            val numSeasons = json.optInt("number_of_seasons", 1).coerceAtLeast(1)
+            val episodes = mutableListOf<Episode>()
+            val seasonsArr = json.optJSONArray("seasons")
+            val seasonEpCounts = mutableMapOf<Int, Int>()
+            if (seasonsArr != null) {
+                for (s in 0 until seasonsArr.length()) {
+                    val sObj = seasonsArr.getJSONObject(s)
+                    val sNum = sObj.optInt("season_number", -1)
+                    val epCount = sObj.optInt("episode_count", 0)
+                    if (sNum > 0 && epCount > 0) {
+                        seasonEpCounts[sNum] = epCount
+                    }
+                }
+            }
+            for (s in 1..numSeasons) {
+                val epCount = seasonEpCounts[s] ?: 10
+                for (e in 1..epCount) {
+                    episodes.add(newEpisode("$mainUrl/embed/tv/$id/$s/$e") {
+                        this.name = "$s. Sezon $e. Bölüm"
+                        this.season = s
+                        this.episode = e
+                    })
+                }
+            }
+            if (episodes.isEmpty()) {
+                episodes.add(newEpisode("$mainUrl/embed/tv/$id/1/1") {
+                    this.name = "1. Sezon 1. Bölüm"
+                    this.season = 1
+                    this.episode = 1
+                })
+            }
+            return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+                this.posterUrl = poster
+                this.plot = overview
+                this.year = year
+                this.rating = rating.toInt()
+            }
+        } else {
+            return newMovieLoadResponse(title, url, TvType.Movie, "$mainUrl/embed/movie/$id") {
+                this.posterUrl = poster
+                this.plot = overview
+                this.year = year
+                this.rating = rating.toInt()
+            }
         }
     }
 
@@ -106,41 +178,30 @@ class DiziWatch : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data).document
-        val iframes = mutableListOf<String>()
+        val isTv = data.contains("/embed/tv/")
+        val parts = data.substringAfter("/embed/").split("/")
+        val id = parts.getOrNull(1) ?: return true
 
-        document.select("iframe").forEach { iframe ->
-            val src = fixUrlNull(iframe.attr("src"))
-            if (src != null) iframes.add(src)
+        val embedUrls = mutableListOf<String>()
+        if (isTv) {
+            val s = parts.getOrNull(2) ?: "1"
+            val e = parts.getOrNull(3) ?: "1"
+            embedUrls.add("https://vixsrc.to/embed/tv/$id/$s/$e")
+            embedUrls.add("https://multiembed.mov/?video_id=$id&tmdb=1&s=$s&e=$e")
+            embedUrls.add("https://vidlink.pro/tv/$id/$s/$e")
+            embedUrls.add("https://vidsrc.to/embed/tv/$id/$s/$e")
+        } else {
+            embedUrls.add("https://vixsrc.to/embed/movie/$id")
+            embedUrls.add("https://multiembed.mov/?video_id=$id&tmdb=1")
+            embedUrls.add("https://vidlink.pro/movie/$id")
+            embedUrls.add("https://vidsrc.to/embed/movie/$id")
         }
 
-        val cstkIframe = document.selectFirst("div#cstk iframe")?.attr("src")
-        if (cstkIframe != null) {
-            fixUrlNull(cstkIframe)?.let { iframes.add(it) }
+        for (embed in embedUrls) {
+            try {
+                loadExtractor(embed, subtitleCallback, callback)
+            } catch (e: Exception) {}
         }
-
-        for (iframeUrl in iframes) {
-            if (iframeUrl.contains("pichive.online")) {
-                val pichiveDoc = app.get(iframeUrl, headers = mapOf("Referer" to "$mainUrl/")).text
-                val fileMatch = Regex("""file["']?\s*:\s*["']([^"']+)["']""").find(pichiveDoc)
-                val m3u8Url = fileMatch?.groupValues?.get(1)
-                if (m3u8Url != null) {
-                    callback.invoke(
-                        newExtractorLink(
-                            source = name,
-                            name = "$name - Pichive",
-                            url = fixUrl(m3u8Url),
-                            type = ExtractorLinkType.M3U8
-                        ) {
-                            headers = mapOf("Referer" to "$mainUrl/")
-                        }
-                    )
-                }
-            } else {
-                loadExtractor(iframeUrl, subtitleCallback, callback)
-            }
-        }
-
         return true
     }
 }

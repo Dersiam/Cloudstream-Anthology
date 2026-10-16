@@ -1,292 +1,210 @@
 @file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
-
 package com.keyiflerolsun
 
-import android.util.Log
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.lagradost.cloudstream3.Actor
-import com.lagradost.cloudstream3.HomePageResponse
-import com.lagradost.cloudstream3.LoadResponse
-import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
-import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
-import com.lagradost.cloudstream3.MainAPI
-import com.lagradost.cloudstream3.MainPageRequest
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.SubtitleFile
-import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.app
-import com.lagradost.cloudstream3.fixUrl
-import com.lagradost.cloudstream3.fixUrlNull
-import com.lagradost.cloudstream3.mainPageOf
-import com.lagradost.cloudstream3.network.CloudflareKiller
-import com.lagradost.cloudstream3.newHomePageResponse
-import com.lagradost.cloudstream3.newMovieLoadResponse
-import com.lagradost.cloudstream3.newMovieSearchResponse
-import com.lagradost.cloudstream3.utils.AppUtils
-import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.ExtractorLinkType
-import com.lagradost.cloudstream3.utils.Qualities
-import com.lagradost.cloudstream3.utils.getQualityFromName
-import com.lagradost.cloudstream3.utils.loadExtractor
-import com.lagradost.cloudstream3.utils.newExtractorLink
-import okhttp3.Interceptor
-import okhttp3.Response
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import java.net.URLEncoder
+import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.utils.*
+import org.json.JSONObject
+import org.json.JSONArray
 
 class Webtezle : MainAPI() {
-    override var mainUrl              = "https://webteizle1.xyz"
+    override var mainUrl = "https://webteizle.buzz"
     override var name = "Webteİzle"
-    override val hasMainPage          = true
-    override var lang                 = "tr"
-    override val hasQuickSearch       = false
-    override val supportedTypes       = setOf(TvType.Movie)
+    override val hasMainPage = true
+    override var lang = "tr"
+    override val hasQuickSearch = true
+    override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
 
-    // ! CloudFlare bypass
-    override var sequentialMainPage = true        // * https://recloudstream.github.io/dokka/-cloudstream/com.lagradost.cloudstream3/-main-a-p-i/index.html#-2049735995%2FProperties%2F101969414
-    override var sequentialMainPageDelay       = 50L  // ? 0.05 saniye
-    override var sequentialMainPageScrollDelay = 50L  // ? 0.05 saniye
-
-    // ! CloudFlare v2
-    private val cloudflareKiller by lazy { CloudflareKiller() }
-    private val interceptor      by lazy { CloudflareInterceptor(cloudflareKiller) }
-
-    class CloudflareInterceptor(private val cloudflareKiller: CloudflareKiller): Interceptor {
-        override fun intercept(chain: Interceptor.Chain): Response {
-            val request  = chain.request()
-            val response = chain.proceed(request)
-            val doc      = Jsoup.parse(response.peekBody(1024 * 1024).string())
-
-            if (doc.text().contains("Just a moment")) {
-                return cloudflareKiller.intercept(chain)
-            }
-
-            return response
-        }
+    companion object {
+        private const val TMDB_API = "https://api.themoviedb.org/3"
+        private const val TMDB_KEY = "500330721680edb6d5f7f12ba7cd9023"
+        private const val IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
     }
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/film-izle/"                   to "Güncel",
-        "${mainUrl}/yeni-filmler/"                to "Yeni",
-        "${mainUrl}/tavsiye-filmler/"             to "Tavsiye",
-        "${mainUrl}/filtre/SAYFA?tur=Aile"        to "Aile",
-        "${mainUrl}/filtre/SAYFA?tur=Aksiyon"     to "Aksiyon",
-        "${mainUrl}/filtre/SAYFA?tur=Animasyon"   to "Animasyon",
-        "${mainUrl}/filtre/SAYFA?tur=Belgesel"    to "Belgesel",
-        "${mainUrl}/filtre/SAYFA?tur=Bilim-Kurgu" to "Bilim Kurgu",
-        "${mainUrl}/filtre/SAYFA?tur=Biyografi"   to "Biyografi",
-        "${mainUrl}/filtre/SAYFA?tur=Dram"        to "Dram",
-        "${mainUrl}/filtre/SAYFA?tur=Fantastik"   to "Fantastik",
-        "${mainUrl}/filtre/SAYFA?tur=Gerilim"     to "Gerilim",
-        "${mainUrl}/filtre/SAYFA?tur=Gizem"       to "Gizem",
-        "${mainUrl}/filtre/SAYFA?tur=Komedi"      to "Komedi",
-        "${mainUrl}/filtre/SAYFA?tur=Korku"       to "Korku",
-        "${mainUrl}/filtre/SAYFA?tur=Macera"      to "Macera",
-        "${mainUrl}/filtre/SAYFA?tur=Romantik"    to "Romantik",
-        "${mainUrl}/filtre/SAYFA?tur=Spor"        to "Spor",
-        "${mainUrl}/filtre/SAYFA?tur=Tarihi"      to "Tarihi",
-        "${mainUrl}/filtre/SAYFA?tur=Western"     to "Western"
+        "$TMDB_API/trending/movie/day?api_key=$TMDB_KEY&language=tr-TR&page=" to "Günün Trend Filmleri",
+        "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Filmler",
+        "$TMDB_API/movie/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "En Çok Beğenilen Filmler",
+        "$TMDB_API/trending/tv/day?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val url      = if ("SAYFA" in request.data) request.data.replace("SAYFA", "$page") else "${request.data}$page"
-        val document = app.get(url).document
-        val home     = document.select("div.golgever").mapNotNull { it.toSearchResult() }
+        val res = app.get(
+            "${request.data}$page",
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept" to "application/json"
+            )
+        )
+        val json = JSONObject(res.text)
+        val results = json.optJSONArray("results") ?: JSONArray()
+        val items = mutableListOf<SearchResponse>()
+        for (i in 0 until results.length()) {
+            val item = results.getJSONObject(i)
+            val id = item.optInt("id", 0)
+            if (id == 0) continue
+            val isTv = item.has("name") || item.optString("media_type") == "tv"
+            val title = item.optString("title").ifEmpty { item.optString("name") }
+            if (title.isEmpty()) continue
+            val posterPath = item.optString("poster_path")
+            val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+            val typeStr = if (isTv) "tv" else "movie"
+            val linkUrl = "$mainUrl/tmdb/$typeStr/$id"
 
-        return newHomePageResponse(request.name, home)
-    }
-
-    private fun Element.toSearchResult(): SearchResponse? {
-        val title     = this.selectFirst("div.filmname")?.text() ?: return null
-        val href      = fixUrlNull(this.selectFirst("a")?.attr("href")) ?: return null
-        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("data-src"))
-
-        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
+            if (isTv) {
+                items.add(newTvSeriesSearchResponse(title, linkUrl, TvType.TvSeries) {
+                    this.posterUrl = poster
+                })
+            } else {
+                items.add(newMovieSearchResponse(title, linkUrl, TvType.Movie) {
+                    this.posterUrl = poster
+                })
+            }
+        }
+        return newHomePageResponse(request.name, items)
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        @Suppress("NAME_SHADOWING", "BlockingMethodInNonBlockingContext") val query = URLEncoder.encode(query, "ISO-8859-9")
+        val url = "$TMDB_API/search/multi?api_key=$TMDB_KEY&language=tr-TR&query=$query"
+        val res = app.get(
+            url,
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                "Accept" to "application/json"
+            )
+        )
+        val json = JSONObject(res.text)
+        val results = json.optJSONArray("results") ?: JSONArray()
+        val items = mutableListOf<SearchResponse>()
+        for (i in 0 until results.length()) {
+            val item = results.getJSONObject(i)
+            val id = item.optInt("id", 0)
+            if (id == 0) continue
+            val mediaType = item.optString("media_type")
+            if (mediaType != "movie" && mediaType != "tv") continue
+            val isTv = mediaType == "tv"
+            val title = item.optString("title").ifEmpty { item.optString("name") }
+            if (title.isEmpty()) continue
+            val posterPath = item.optString("poster_path")
+            val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+            val typeStr = if (isTv) "tv" else "movie"
+            val linkUrl = "$mainUrl/tmdb/$typeStr/$id"
 
-        val document = app.get(
-            "${mainUrl}/filtre?a=${query}",
-            referer     = "${mainUrl}/",
-            interceptor = interceptor
-        ).document
-
-        return document.select("div.golgever").mapNotNull { it.toSearchResult() }
+            if (isTv) {
+                items.add(newTvSeriesSearchResponse(title, linkUrl, TvType.TvSeries) {
+                    this.posterUrl = poster
+                })
+            } else {
+                items.add(newMovieSearchResponse(title, linkUrl, TvType.Movie) {
+                    this.posterUrl = poster
+                })
+            }
+        }
+        if (items.isEmpty()) {
+            return getMainPage(1, MainPageRequest(name, "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=")).items
+        }
+        return items
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url).document
+        val parts = url.substringAfter("/tmdb/").split("/")
+        val type = parts.getOrNull(0) ?: "movie"
+        val id = parts.getOrNull(1)?.toIntOrNull() ?: return null
 
-        val title       = document.selectFirst("[property='og:title']")?.attr("content")?.substringBefore(" izle") ?: return null
-        val poster      = fixUrlNull(document.selectFirst("div.card img")?.attr("data-src"))
-        val year        = document.selectXpath("//td[contains(text(), 'Vizyon')]/following-sibling::td").text().trim().split(" ").last().toIntOrNull()
-        val description = document.selectFirst("blockquote")?.text()?.trim()
-        val tags        = document.selectXpath("//a[@itemgroup='genre']").map { it.text() }
-        val rating      = document.selectFirst("div.detail")?.text()?.trim()?.replace(",", ".")?.toIntOrNull()
-        val duration    = document.selectXpath("//td[contains(text(), 'Süre')]/following-sibling::td").text().trim().split(" ").first().toIntOrNull()
-        val trailer     = document.selectFirst("button#fragman")?.attr("data-ytid")
-        val actors      = document.selectXpath("//div[@data-tab='oyuncular']//a").map {
-            Actor(it.selectFirst("span")!!.text().trim(), fixUrlNull(it.selectFirst("img")!!.attr("data-src")))
-        }
+        val res = app.get(
+            "$TMDB_API/$type/$id?api_key=$TMDB_KEY&language=tr-TR",
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                "Accept" to "application/json"
+            )
+        )
+        val json = JSONObject(res.text)
+        val title = json.optString("title").ifEmpty { json.optString("name") }
+        val overview = json.optString("overview")
+        val posterPath = json.optString("poster_path")
+        val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+        val year = json.optString("release_date").ifEmpty { json.optString("first_air_date") }.take(4).toIntOrNull()
+        val rating = json.optDouble("vote_average", 0.0).toFloat()
 
-        return newMovieLoadResponse(title, url, TvType.Movie, url) {
-            this.posterUrl = poster
-            this.year      = year
-            this.plot      = description
-            this.tags      = tags
-            // this.rating    = rating
-            this.duration  = duration
-            addTrailer("https://www.youtube.com/embed/${trailer}")
-            addActors(actors)
-        }
-    }
-
-    override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("WBTI", "data » $data")
-        val document = app.get(data).document
-
-        val filmId  = document.selectFirst("button#wip")?.attr("data-id") ?: return false
-        Log.d("WBTI", "filmId » $filmId")
-
-        val dilList = mutableListOf<String>()
-        if (document.selectFirst("div.golge a[href*=dublaj]")?.attr("src") != null) {
-            dilList.add("0")
-        }
-
-        if (document.selectFirst("div.golge a[href*=altyazi]")?.attr("src") != null) {
-            dilList.add("1")
-        }
-
-        dilList.forEach {
-            val dilAd = if (it == "0") "Dublaj" else "Altyazı"
-
-            val playerApi = app.post(
-                "${mainUrl}/ajax/dataAlternatif3.asp",
-                headers = mapOf("X-Requested-With" to "XMLHttpRequest"),
-                data    = mapOf(
-                    "filmid" to filmId,
-                    "dil"    to it,
-                    "s"      to "",
-                    "b"      to "",
-                    "bot"    to "0"
-                )
-            ).text
-            val playerData = AppUtils.tryParseJson<DataAlternatif>(playerApi) ?: return@forEach
-
-            for (thisEmbed in playerData.data) { 
-                val embedApi = app.post(
-                    "${mainUrl}/ajax/dataEmbed.asp",
-                    headers = mapOf("X-Requested-With" to "XMLHttpRequest"),
-                    data    = mapOf("id" to thisEmbed.id.toString())
-                ).document
-
-                var iframe = fixUrlNull(embedApi.selectFirst("iframe")?.attr("src"))
-
-                if (iframe == null) {
-                    val scriptSource = embedApi.html()
-                    val matchResult  = Regex("""(vidmoly|okru|filemoon)\('([\d\w]+)','""").find(scriptSource)
-
-                    if (matchResult == null) {
-                        Log.d("WBTI", "scriptSource » $scriptSource")
-                    } else {
-                        val platform = matchResult.groupValues[1]
-                        val vidId    = matchResult.groupValues[2]
-
-                        iframe       = when(platform) {
-                            "vidmoly"  -> "https://vidmoly.to/embed-${vidId}.html"
-                            "okru"     -> "https://odnoklassniki.ru/videoembed/${vidId}"
-                            "filemoon" -> "https://filemoon.sx/e/${vidId}"
-                            else       -> null
-                        }
-                    }
-                } else if (iframe.contains(mainUrl)) {
-                    Log.d("WBTI", "iframe » $iframe")
-                    val iSource = app.get(iframe, referer=data).text
-
-                    val encoded  = Regex("""file": "([^"]+)""").find(iSource)?.groupValues?.get(1) ?: continue
-                    val bytes    = encoded.split("\\x").filter { str -> str.isNotEmpty() }.map { char -> char.toInt(16).toByte() }.toByteArray()
-                    val m3uLink = String(bytes, Charsets.UTF_8)
-                    Log.d("WBTI", "m3uLink » $m3uLink")
-
-                    val trackStr = Regex("""tracks = \[([^]]+)""").find(iSource)?.groupValues?.get(1)
-                    if (trackStr != null) {
-                        val tracks:List<Track> = jacksonObjectMapper().readValue("[${trackStr}]")
-
-                        for (track in tracks) {
-                            if (track.file == null || track.label == null) continue
-                            if (track.label.contains("Forced")) continue
-
-                            subtitleCallback.invoke(
-                                SubtitleFile(
-                                    lang = track.label.replace("\\u0131", "ı").replace("\\u0130", "İ").replace("\\u00fc", "ü").replace("\\u00e7", "ç"),
-                                    url  = fixUrl(track.file).replace("\\", "")
-                                )
-                            )
-                        }
-                    }
-
-                    callback.invoke(
-                        newExtractorLink(
-                            source  = "$dilAd - ${this.name}",
-                            name    = "$dilAd - ${this.name}",
-                            url     = m3uLink,
-                            ExtractorLinkType.M3U8
-                        ) {
-                            this.referer = "${mainUrl}/"
-                            this.quality = getQualityFromName("1440p")
-                        }
-                    )
-
-                    continue
-                } else if (iframe.contains("playerjs-three.vercel.app") || iframe.contains("cstkcstk.github.io")) {
-                    val decoded = iframe.substringAfter("&v=").let { query ->
-                        val hexString = query.replace("\\x", "")
-                        val bytes     = hexString.chunked(2).map { chunk -> chunk.toInt(16).toByte() }.toByteArray()
-
-                        bytes.toString(Charsets.UTF_8)
-                    }
-
-                    callback.invoke(
-                        newExtractorLink(
-                            source  = "$dilAd - ${this.name}",
-                            name    = "$dilAd - ${this.name}",
-                            url     = fixUrl(decoded),
-                            ExtractorLinkType.M3U8
-                        ) {
-                            this.referer = "${mainUrl}/"
-                            this.quality = Qualities.Unknown.value
-                        }
-                    )
-                }
-
-                if (iframe != null) {
-                    Log.d("WBTI", "iframe » $iframe")
-                    loadExtractor(iframe, "${mainUrl}/", subtitleCallback) { link ->
-                        callback.invoke(
-                            ExtractorLink(
-                                source        = "$dilAd - ${link.name}",
-                                name          = "$dilAd - ${link.name}",
-                                url           = link.url,
-                                referer       = link.referer,
-                                quality       = link.quality,
-                                headers       = link.headers,
-                                extractorData = link.extractorData,
-                                type          = link.type
-                            )
-                        )
+        if (type == "tv") {
+            val numSeasons = json.optInt("number_of_seasons", 1).coerceAtLeast(1)
+            val episodes = mutableListOf<Episode>()
+            val seasonsArr = json.optJSONArray("seasons")
+            val seasonEpCounts = mutableMapOf<Int, Int>()
+            if (seasonsArr != null) {
+                for (s in 0 until seasonsArr.length()) {
+                    val sObj = seasonsArr.getJSONObject(s)
+                    val sNum = sObj.optInt("season_number", -1)
+                    val epCount = sObj.optInt("episode_count", 0)
+                    if (sNum > 0 && epCount > 0) {
+                        seasonEpCounts[sNum] = epCount
                     }
                 }
             }
+            for (s in 1..numSeasons) {
+                val epCount = seasonEpCounts[s] ?: 10
+                for (e in 1..epCount) {
+                    episodes.add(newEpisode("$mainUrl/embed/tv/$id/$s/$e") {
+                        this.name = "$s. Sezon $e. Bölüm"
+                        this.season = s
+                        this.episode = e
+                    })
+                }
+            }
+            if (episodes.isEmpty()) {
+                episodes.add(newEpisode("$mainUrl/embed/tv/$id/1/1") {
+                    this.name = "1. Sezon 1. Bölüm"
+                    this.season = 1
+                    this.episode = 1
+                })
+            }
+            return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+                this.posterUrl = poster
+                this.plot = overview
+                this.year = year
+                this.rating = rating.toInt()
+            }
+        } else {
+            return newMovieLoadResponse(title, url, TvType.Movie, "$mainUrl/embed/movie/$id") {
+                this.posterUrl = poster
+                this.plot = overview
+                this.year = year
+                this.rating = rating.toInt()
+            }
+        }
+    }
+
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        val isTv = data.contains("/embed/tv/")
+        val parts = data.substringAfter("/embed/").split("/")
+        val id = parts.getOrNull(1) ?: return true
+
+        val embedUrls = mutableListOf<String>()
+        if (isTv) {
+            val s = parts.getOrNull(2) ?: "1"
+            val e = parts.getOrNull(3) ?: "1"
+            embedUrls.add("https://vixsrc.to/embed/tv/$id/$s/$e")
+            embedUrls.add("https://multiembed.mov/?video_id=$id&tmdb=1&s=$s&e=$e")
+            embedUrls.add("https://vidlink.pro/tv/$id/$s/$e")
+            embedUrls.add("https://vidsrc.to/embed/tv/$id/$s/$e")
+        } else {
+            embedUrls.add("https://vixsrc.to/embed/movie/$id")
+            embedUrls.add("https://multiembed.mov/?video_id=$id&tmdb=1")
+            embedUrls.add("https://vidlink.pro/movie/$id")
+            embedUrls.add("https://vidsrc.to/embed/movie/$id")
         }
 
-
+        for (embed in embedUrls) {
+            try {
+                loadExtractor(embed, subtitleCallback, callback)
+            } catch (e: Exception) {}
+        }
         return true
     }
 }

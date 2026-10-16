@@ -10,7 +10,7 @@ import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 
 class DiziMom : MainAPI() {
-    override var mainUrl              = "https://www.dizimom.plus"
+    override var mainUrl              = "https://www.dizidad.com"
     override var name = "DiziMom"
     override val hasMainPage          = true
     override var lang                 = "tr"
@@ -124,7 +124,7 @@ class DiziMom : MainAPI() {
         val document = app.get(data, headers=ua).document
 
         val iframes     = mutableListOf<String>()
-        val mainIframe = document.selectFirst("div.video p iframe")?.attr("src") ?: return false
+        val mainIframe = document.selectFirst("div.video p iframe, div.video iframe, iframe")?.attr("src") ?: return false
         iframes.add(mainIframe)
 
         document.select("div.sources a").forEach {

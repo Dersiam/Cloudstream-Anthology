@@ -16,7 +16,7 @@ import com.lagradost.cloudstream3.extractors.JWPlayer
 import org.jsoup.Jsoup
 
 class TvDiziler : MainAPI() {
-    override var mainUrl              = "https://tvdiziler.cc"
+    override var mainUrl              = "https://tvdiziler.tv"
     override var name = "TvDiziler"
     override val hasMainPage          = true
     override var lang                 = "tr"
@@ -124,7 +124,7 @@ class TvDiziler : MainAPI() {
 
         val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        val searchResult: SearchResult = objectMapper.readValue(searchReq.toString())
+        val searchResult: SearchResult = objectMapper.readValue(searchReq.text)
 
         if (searchResult.success != 1) {
             throw ErrorLoadingException("Invalid Json response")

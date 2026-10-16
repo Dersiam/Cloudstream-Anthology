@@ -1,205 +1,207 @@
 @file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
-
 package com.keyiflerolsun
 
-import android.util.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
+import org.json.JSONObject
+import org.json.JSONArray
 
 class SineWix : MainAPI() {
-    override var mainUrl              = "https://ythls.kekikakademi.org"
+    override var mainUrl = "https://sinewix.net"
     override var name = "SineWix"
-    override val hasMainPage          = true
-    override var lang                 = "tr"
-    override val hasQuickSearch       = false
-    override val supportedTypes       = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
+    override val hasMainPage = true
+    override var lang = "tr"
+    override val hasQuickSearch = true
+    override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
+
+    companion object {
+        private const val TMDB_API = "https://api.themoviedb.org/3"
+        private const val TMDB_KEY = "500330721680edb6d5f7f12ba7cd9023"
+        private const val IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
+    }
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/sinewix/movies"        to "Filmler",
-        "${mainUrl}/sinewix/series"        to "Diziler",
-        "${mainUrl}/sinewix/animes"        to "Animeler",
-        "${mainUrl}/sinewix/movies/10751"  to "Aile",
-        "${mainUrl}/sinewix/movies/28"     to "Aksiyon",
-        "${mainUrl}/sinewix/movies/16"     to "Animasyon",
-        "${mainUrl}/sinewix/movies/99"     to "Belgesel",
-        "${mainUrl}/sinewix/movies/10765"  to "Bilim Kurgu & Fantazi",
-        "${mainUrl}/sinewix/movies/878"    to "Bilim-Kurgu",
-        "${mainUrl}/sinewix/movies/18"     to "Dram",
-        "${mainUrl}/sinewix/movies/14"     to "Fantastik",
-        "${mainUrl}/sinewix/movies/53"     to "Gerilim",
-        "${mainUrl}/sinewix/movies/9648"   to "Gizem",
-        "${mainUrl}/sinewix/movies/35"     to "Komedi",
-        "${mainUrl}/sinewix/movies/27"     to "Korku",
-        "${mainUrl}/sinewix/movies/12"     to "Macera",
-        "${mainUrl}/sinewix/movies/10402"  to "Müzik",
-        "${mainUrl}/sinewix/movies/10749"  to "Romantik",
-        "${mainUrl}/sinewix/movies/10752"  to "Savaş",
-        "${mainUrl}/sinewix/movies/80"     to "Suç",
-        "${mainUrl}/sinewix/movies/10770"  to "TV film",
-        "${mainUrl}/sinewix/movies/36"     to "Tarih",
+        "$TMDB_API/trending/all/day?api_key=$TMDB_KEY&language=tr-TR&page=" to "Günün Trendleri",
+        "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Filmler",
+        "$TMDB_API/tv/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Diziler",
+        "$TMDB_API/movie/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "En Çok Beğenilen Filmler"
     )
 
-    private val twitter = "https://twitter.com/"
-
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val url  = "${request.data}/${page}"
-        val home = when {
-            request.data.contains("/movies") -> {
-                app.get(url).parsedSafe<GenresMovie>()?.data?.map { item ->
-                    newMovieSearchResponse(item.title, "?type=${item.type}&id=${item.id}", TvType.Movie) { this.posterUrl = item.posterPath }
-                } ?: listOf()
-            }
-            request.data.contains("/series") -> {
-                app.get(url).parsedSafe<GenresSerie>()?.data?.map { item ->
-                    newTvSeriesSearchResponse(item.name, "?type=${item.type}&id=${item.id}", TvType.TvSeries) { this.posterUrl = item.posterPath }
-                } ?: listOf()
-            }
-            request.data.contains("/animes") -> {
-                app.get(url).parsedSafe<GenresSerie>()?.data?.map { item ->
-                    newAnimeSearchResponse(item.name, "?type=${item.type}&id=${item.id}", TvType.Anime) { this.posterUrl = item.posterPath }
-                } ?: listOf()
-            }
-            else -> listOf()
-        }
+        val res = app.get(
+            "${request.data}$page",
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept" to "application/json"
+            )
+        )
+        val json = JSONObject(res.text)
+        val results = json.optJSONArray("results") ?: JSONArray()
+        val items = mutableListOf<SearchResponse>()
+        for (i in 0 until results.length()) {
+            val item = results.getJSONObject(i)
+            val id = item.optInt("id", 0)
+            if (id == 0) continue
+            val isTv = item.has("name") || item.optString("media_type") == "tv"
+            val title = item.optString("title").ifEmpty { item.optString("name") }
+            if (title.isEmpty()) continue
+            val posterPath = item.optString("poster_path")
+            val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+            val typeStr = if (isTv) "tv" else "movie"
+            val linkUrl = "$mainUrl/tmdb/$typeStr/$id"
 
-        return newHomePageResponse(request.name, home)
+            if (isTv) {
+                items.add(newTvSeriesSearchResponse(title, linkUrl, TvType.TvSeries) {
+                    this.posterUrl = poster
+                })
+            } else {
+                items.add(newMovieSearchResponse(title, linkUrl, TvType.Movie) {
+                    this.posterUrl = poster
+                })
+            }
+        }
+        return newHomePageResponse(request.name, items)
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val request = app.get("${mainUrl}/sinewix/search/${query}")
-        val reqData = request.parsedSafe<Search>()?.search
+        val url = "$TMDB_API/search/multi?api_key=$TMDB_KEY&language=tr-TR&query=$query"
+        val res = app.get(
+            url,
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept" to "application/json"
+            )
+        )
+        val json = JSONObject(res.text)
+        val results = json.optJSONArray("results") ?: JSONArray()
+        val items = mutableListOf<SearchResponse>()
+        for (i in 0 until results.length()) {
+            val item = results.getJSONObject(i)
+            val id = item.optInt("id", 0)
+            if (id == 0) continue
+            val mediaType = item.optString("media_type")
+            if (mediaType != "movie" && mediaType != "tv") continue
+            val isTv = mediaType == "tv"
+            val title = item.optString("title").ifEmpty { item.optString("name") }
+            if (title.isEmpty()) continue
+            val posterPath = item.optString("poster_path")
+            val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+            val typeStr = if (isTv) "tv" else "movie"
+            val linkUrl = "$mainUrl/tmdb/$typeStr/$id"
 
-        return reqData?.mapNotNull { item ->
-            when (item.type) {
-                "movie" -> newMovieSearchResponse(item.name,    "?type=${item.type}&id=${item.id}", TvType.Movie)    { this.posterUrl = item.posterPath }
-                "serie" -> newTvSeriesSearchResponse(item.name, "?type=${item.type}&id=${item.id}", TvType.TvSeries) { this.posterUrl = item.posterPath }
-                "anime" -> newAnimeSearchResponse(item.name,    "?type=${item.type}&id=${item.id}", TvType.Anime)    { this.posterUrl = item.posterPath }
-                else -> null
+            if (isTv) {
+                items.add(newTvSeriesSearchResponse(title, linkUrl, TvType.TvSeries) {
+                    this.posterUrl = poster
+                })
+            } else {
+                items.add(newMovieSearchResponse(title, linkUrl, TvType.Movie) {
+                    this.posterUrl = poster
+                })
             }
-        } ?: mutableListOf()
+        }
+        return items
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val itemType = url.substringAfter("?type=").substringBefore("&id=")
-        val itemId   = url.substringAfter("&id=")
+        val parts = url.substringAfter("/tmdb/").split("/")
+        val type = parts.getOrNull(0) ?: "movie"
+        val id = parts.getOrNull(1)?.toIntOrNull() ?: return null
 
-        if (itemType == "movie") {
-            val request = app.get("${mainUrl}/sinewix/movie/${itemId}")
-            val media   = request.parsedSafe<MovieDetail>() ?: return null
+        val res = app.get(
+            "$TMDB_API/$type/$id?api_key=$TMDB_KEY&language=tr-TR",
+            headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept" to "application/json"
+            )
+        )
+        val json = JSONObject(res.text)
+        val title = json.optString("title").ifEmpty { json.optString("name") }
+        val overview = json.optString("overview")
+        val posterPath = json.optString("poster_path")
+        val poster = if (posterPath.isNotEmpty() && posterPath != "null") "$IMAGE_BASE$posterPath" else null
+        val year = json.optString("release_date").ifEmpty { json.optString("first_air_date") }.take(4).toIntOrNull()
+        val rating = json.optDouble("vote_average", 0.0).toFloat()
 
-            val orgTitle        = media.title
-            val altTitle        = media.originalName ?: ""
-            val title           = if (altTitle.isNotEmpty() && orgTitle != altTitle) "$orgTitle - $altTitle" else orgTitle
-
-            val poster          = fixUrlNull(media.posterPath)
-            val description     = media.overview
-            val year            = media.releaseDate.split("-").first().toIntOrNull()
-            val tags            = media.genres?.map { it.name }
-            val rating          = "${media.voteAverage}"?.toIntOrNull()
-            val recommendations = media.relateds?.map { newMovieSearchResponse(it.title, "?type=${it.type}&id=${it.id}", TvType.Movie) { this.posterUrl = it.posterPath } }
-            val actors          = media.casterslist?.map { Actor(it.name, it.profilePath) }
-
-            return newMovieLoadResponse(title, url, TvType.Movie, url) {
-                this.posterUrl       = poster
-                this.plot            = description
-                this.year            = year
-                this.tags            = tags
-                // this.rating          = rating
-                this.recommendations = recommendations
-                addActors(actors)
+        if (type == "tv") {
+            val numSeasons = json.optInt("number_of_seasons", 1).coerceAtLeast(1)
+            val episodes = mutableListOf<Episode>()
+            val seasonsArr = json.optJSONArray("seasons")
+            val seasonEpCounts = mutableMapOf<Int, Int>()
+            if (seasonsArr != null) {
+                for (s in 0 until seasonsArr.length()) {
+                    val sObj = seasonsArr.getJSONObject(s)
+                    val sNum = sObj.optInt("season_number", -1)
+                    val epCount = sObj.optInt("episode_count", 0)
+                    if (sNum > 0 && epCount > 0) {
+                        seasonEpCounts[sNum] = epCount
+                    }
+                }
             }
-        } else {
-            val request = app.get("${mainUrl}/sinewix/${itemType}/${itemId}")
-            val media   = request.parsedSafe<SerieDetail>() ?: return null
-
-            val orgTitle        = media.name
-            val altTitle        = media.originalName ?: ""
-            val title           = if (altTitle.isNotEmpty() && orgTitle != altTitle) "$orgTitle - $altTitle" else orgTitle
-
-            val poster          = fixUrlNull(media.posterPath)
-            val description     = media.overview
-            val year            = media.firstAirDate.split("-").first().toIntOrNull()
-            val tags            = media.genres?.map { it.name }
-            val rating          = "${media.voteAverage}"?.toIntOrNull()
-            val recommendations = media.relateds?.map { newMovieSearchResponse(it.name, "?type=${it.type}&id=${it.id}", TvType.Movie) { this.posterUrl = it.posterPath } }
-            val actors          = media.casterslist?.map { Actor(it.name, it.profilePath) }
-
-            val episodeList     = mutableListOf<Episode>()
-
-            media.seasons.forEach { season ->
-                season.episodes.forEach { episode ->
-                    episodeList.add(newEpisode(url + "&source=" + episode.videos.firstOrNull()?.link) {
-                        this.name = episode.name
-                        this.season = season.seasonNumber
-                        this.episode = episode.episodeNumber
-                        this.description = episode.overview
-                        this.posterUrl = episode.stillPath
+            for (s in 1..numSeasons) {
+                val epCount = seasonEpCounts[s] ?: 10
+                for (e in 1..epCount) {
+                    episodes.add(newEpisode("$mainUrl/embed/tv/$id/$s/$e") {
+                        this.name = "$s. Sezon $e. Bölüm"
+                        this.season = s
+                        this.episode = e
                     })
                 }
             }
-
-            return newTvSeriesLoadResponse(title, url, if (itemType == "serie") TvType.TvSeries else TvType.Anime, episodeList) {
-                this.posterUrl       = poster
-                this.plot            = description
-                this.year            = year
-                this.tags            = tags
-                // this.rating          = rating
-                this.recommendations = recommendations
-                addActors(actors)
+            if (episodes.isEmpty()) {
+                episodes.add(newEpisode("$mainUrl/embed/tv/$id/1/1") {
+                    this.name = "1. Sezon 1. Bölüm"
+                    this.season = 1
+                    this.episode = 1
+                })
+            }
+            return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+                this.posterUrl = poster
+                this.plot = overview
+                this.year = year
+                this.rating = rating.toInt()
+            }
+        } else {
+            return newMovieLoadResponse(title, url, TvType.Movie, "$mainUrl/embed/movie/$id") {
+                this.posterUrl = poster
+                this.plot = overview
+                this.year = year
+                this.rating = rating.toInt()
             }
         }
     }
 
-    override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        if (!data.contains("&source=")) {
-            val itemId  = data.substringAfter("&id=").substringBefore("&source=")
-            val request = app.get("${mainUrl}/sinewix/movie/${itemId}")
-            val media   = request.parsedSafe<MovieDetail>() ?: return false
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        val isTv = data.contains("/embed/tv/")
+        val parts = data.substringAfter("/embed/").split("/")
+        val id = parts.getOrNull(1) ?: return true
 
-            media.videos.forEach { video ->
-                Log.d("SNWX", "video » $video")
-
-                if (video.link.contains("mediafire.com")) {
-                    loadExtractor(video.link, twitter, subtitleCallback, callback)
-                } else {
-                    callback.invoke(
-                        newExtractorLink(
-                            source  = this.name,
-                            name    = this.name,
-                            url     = video.link,
-                            type    = INFER_TYPE
-                        ) {
-                            this.referer = twitter
-                            this.quality = Qualities.Unknown.value
-                        }
-                    )
-                }
-
-            }
+        val embedUrls = mutableListOf<String>()
+        if (isTv) {
+            val s = parts.getOrNull(2) ?: "1"
+            val e = parts.getOrNull(3) ?: "1"
+            embedUrls.add("https://vixsrc.to/embed/tv/$id/$s/$e")
+            embedUrls.add("https://multiembed.mov/?video_id=$id&tmdb=1&s=$s&e=$e")
+            embedUrls.add("https://vidlink.pro/tv/$id/$s/$e")
+            embedUrls.add("https://vidsrc.to/embed/tv/$id/$s/$e")
         } else {
-
-            if (data.substringAfter("&source=").contains("mediafire.com")) {
-                loadExtractor(data.substringAfter("&source="), twitter, subtitleCallback, callback)
-            } else {
-                callback.invoke(
-                    newExtractorLink(
-                        source  = this.name,
-                        name    = this.name,
-                        url     = data.substringAfter("&source="),
-                        type    = INFER_TYPE
-                    ) {
-                        this.referer = twitter
-                        this.quality = Qualities.Unknown.value
-                    }
-                )
-            }
-
+            embedUrls.add("https://vixsrc.to/embed/movie/$id")
+            embedUrls.add("https://multiembed.mov/?video_id=$id&tmdb=1")
+            embedUrls.add("https://vidlink.pro/movie/$id")
+            embedUrls.add("https://vidsrc.to/embed/movie/$id")
         }
 
+        for (embed in embedUrls) {
+            try {
+                loadExtractor(embed, subtitleCallback, callback)
+            } catch (e: Exception) {}
+        }
         return true
     }
 }
