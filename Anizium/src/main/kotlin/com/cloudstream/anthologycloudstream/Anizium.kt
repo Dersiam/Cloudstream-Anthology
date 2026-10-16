@@ -285,12 +285,10 @@ class Anizium : MainAPI() {
                             else -> "${quality}p"
                         }
                         val qualVal = when (quality) {
-                            2160 -> Qualities.UHD.value
-                            1440 -> Qualities.QHD.value
                             1080 -> Qualities.P1080.value
                             720 -> Qualities.P720.value
                             480 -> Qualities.P480.value
-                            else -> Qualities.P1080.value
+                            else -> quality
                         }
                         callback.invoke(
                             newExtractorLink(
