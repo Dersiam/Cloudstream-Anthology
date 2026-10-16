@@ -9,9 +9,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import org.jsoup.nodes.Element
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
-import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
-import com.lagradost.cloudstream3.extractors.JWPlayer
 import org.jsoup.Jsoup
 
 class AnthologyDizi : MainAPI() {
@@ -41,14 +38,16 @@ class AnthologyDizi : MainAPI() {
             app.get("$mainUrl/dizi-izle", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         }
 
-        val items = doc.select("div.poster-media, div.poster-md, div.poster-long, div.poster-xs, a[href*='dizi/']").mapNotNull {
+        val items = doc.select("a[href*='dizi/']").mapNotNull {
             it.toSearchResult()
         }.distinctBy { it.url }
 
         val finalItems = if (items.isNotEmpty()) {
             items
         } else {
-            doc.select("a[href*='/dizi/']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+            doc.select("div.poster-media, div.poster-md, div.poster-long, div.poster-xs").mapNotNull {
+                it.toSearchResult()
+            }.distinctBy { it.url }
         }
 
         return newHomePageResponse(request.name, finalItems)
@@ -56,9 +55,9 @@ class AnthologyDizi : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse? {
         val linkElem = if (this.tagName() == "a") this else this.selectFirst("a[href]") ?: return null
-        val href = fixUrlNull(linkElem.attr("href")) ?: return null
-        if (!href.contains("/dizi/") && !href.contains("dizi/")) return null
-        if (href.endsWith("/dizi") || href.endsWith("/dizi/") || href.contains("/tur/")) return null
+        val rawHref = linkElem.attr("href").trim()
+        if (rawHref.isEmpty() || rawHref.endsWith("/dizi-izle") || rawHref.contains("/tur/")) return null
+        val href = fixUrlNull(rawHref) ?: return null
 
         val title = this.selectFirst("h2, h3, h4, .poster-md-subject h3, .poster-subject h2, .truncate")?.text()?.replace(" izle", "")?.trim()
             ?: linkElem.attr("title").ifEmpty { linkElem.text() }.replace(" izle", "").trim().ifEmpty { null }
@@ -126,38 +125,25 @@ class AnthologyDizi : MainAPI() {
         val year = doc.selectFirst("h1 span")?.text()?.substringAfter("(")?.substringBefore(")")?.toIntOrNull()
 
         val episodes = mutableListOf<Episode>()
-        var szn = 1
-        val seasonContainers = doc.select("div.series-profile-episode-list")
-        if (seasonContainers.isNotEmpty()) {
-            for (sezon in seasonContainers) {
-                var blm = 1
-                for (bolum in sezon.select("li, a[href*='bolum']")) {
-                    val aTag = if (bolum.tagName() == "a") bolum else bolum.selectFirst("a") ?: continue
-                    val epHref = fixUrlNull(aTag.attr("href")) ?: continue
-                    val epName = aTag.text().trim().ifEmpty { "$szn. Sezon $blm. Bölüm" }
-                    val epNum = blm++
-                    val epSeason = szn
+        val added = mutableSetOf<String>()
 
-                    episodes.add(newEpisode(epHref) {
-                        this.name = epName
-                        this.season = epSeason
-                        this.episode = epNum
-                    })
-                }
-                szn++
-            }
-        }
+        // Find episode links
+        val epLinks = doc.select("a[href*='bolum-izle'], a[href*='-bolum'], div.series-profile-episode-list a")
+        for (a in epLinks) {
+            val href = fixUrlNull(a.attr("href")) ?: continue
+            if (!added.add(href)) continue
 
-        if (episodes.isEmpty()) {
-            // Check direct episode links
-            doc.select("a[href*='bolum']").forEachIndexed { idx, a ->
-                val epHref = fixUrlNull(a.attr("href")) ?: return@forEachIndexed
-                episodes.add(newEpisode(epHref) {
-                    this.name = a.text().trim().ifEmpty { "1. Bölüm" }
-                    this.season = 1
-                    this.episode = idx + 1
-                })
-            }
+            val epNum = Regex("""(?:-|/|^)(\d+)-bolum""").find(href)?.groupValues?.get(1)?.toIntOrNull()
+                ?: Regex("""\b(\d+)\. Bölüm""").find(a.text())?.groupValues?.get(1)?.toIntOrNull()
+                ?: (episodes.size + 1)
+
+            val epName = a.text().trim().ifEmpty { "$epNum. Bölüm" }
+
+            episodes.add(newEpisode(href) {
+                this.name = epName
+                this.season = 1
+                this.episode = epNum
+            })
         }
 
         if (episodes.isEmpty()) {
@@ -168,7 +154,7 @@ class AnthologyDizi : MainAPI() {
             })
         }
 
-        return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+        return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes.sortedBy { it.episode }) {
             this.posterUrl = poster
             this.plot = description
             this.year = year
@@ -183,27 +169,70 @@ class AnthologyDizi : MainAPI() {
     ): Boolean {
         try {
             val doc = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"), referer = "$mainUrl/").document
-            val iframe = fixUrlNull(
-                doc.selectFirst("li.series-alter-active button, button[data-hhs]")?.attr("data-hhs")
-                    ?: doc.selectFirst("iframe")?.attr("src")
-            )
+            val hhs = doc.selectFirst("button[data-hhs], li.series-alter-active button, [data-hhs]")?.attr("data-hhs")
+            val plyUrl = fixUrlNull(hhs)
 
-            if (iframe != null) {
-                if (iframe.contains("youtube.com")) {
-                    val id = iframe.substringAfter("/embed/").substringBefore("?")
-                    loadExtractor("https://youtube.com/watch?v=$id", subtitleCallback, callback)
-                } else {
-                    try {
-                        loadExtractor(iframe, subtitleCallback, callback)
-                    } catch (e: Exception) {}
-                }
+            if (!plyUrl.isNullOrEmpty()) {
+                try {
+                    val plyHtml = app.get(
+                        plyUrl,
+                        headers = mapOf(
+                            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                            "Referer" to data
+                        )
+                    ).text
+
+                    val fileRegex = Regex("""\{file:\s*["']([^"']+)["'],\s*label:\s*["']([^"']+)["']""")
+                    val matches = fileRegex.findAll(plyHtml).toList()
+                    for (match in matches) {
+                        val videoFile = match.groupValues[1]
+                        val label = match.groupValues[2]
+                        if (videoFile.isNotEmpty()) {
+                            callback.invoke(
+                                newExtractorLink(
+                                    source = name,
+                                    name = "$name - $label",
+                                    url = videoFile,
+                                    type = if (videoFile.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                                ) {
+                                    headers = mapOf(
+                                        "Referer" to "$mainUrl/",
+                                        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    if (matches.isEmpty()) {
+                        val m3u8 = Regex("""(https?://[^\s"'<>]+\.m3u8[^\s"'<>]*)""").find(plyHtml)?.groupValues?.get(1)
+                        if (m3u8 != null) {
+                            callback.invoke(
+                                newExtractorLink(
+                                    source = name,
+                                    name = "$name - HLS",
+                                    url = m3u8,
+                                    type = ExtractorLinkType.M3U8
+                                ) {
+                                    headers = mapOf(
+                                        "Referer" to "$mainUrl/",
+                                        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                                    )
+                                }
+                            )
+                        }
+                    }
+                } catch (e: Exception) {}
+            }
+
+            // Fallback to iframes
+            val iframes = doc.select("iframe").mapNotNull { fixUrlNull(it.attr("src")) }
+            for (iframe in iframes) {
+                try {
+                    loadExtractor(iframe, subtitleCallback, callback)
+                } catch (e: Exception) {}
             }
         } catch (e: Exception) {}
         return true
     }
-}
-
-class TvDizilerOynat : JWPlayer() {
-    override val name = "TvDizilerOynat"
-    override val mainUrl = "https://tvdiziler.cc/player/oynat/"
 }

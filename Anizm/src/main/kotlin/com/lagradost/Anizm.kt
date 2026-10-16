@@ -132,7 +132,12 @@ class Anizm : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val animeId = url.substringAfterLast("/anime/").substringAfterLast("/").trim()
+        val cleanUrl = url.removeSuffix("/").substringBefore("?")
+        val animeId = if (cleanUrl.contains("/anime/")) {
+            cleanUrl.substringAfterLast("/anime/").substringAfterLast("/").trim()
+        } else {
+            cleanUrl.substringAfterLast("/").trim()
+        }
         val res = app.get("$mainUrl/anime/get?id=$animeId", headers = getHeaders()).text
         val json = JSONObject(res)
         val data = json.optJSONObject("data") ?: return null

@@ -65,7 +65,8 @@ class AnimePraX : MainAPI() {
                     "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
                     "X-Requested-With" to "XMLHttpRequest",
                     "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
-                    "Referer" to "$fallbackSource/"
+                    "Referer" to "$fallbackSource/",
+                    "Origin" to fallbackSource
                 ),
                 data = mapOf("query" to query.trim())
             )
@@ -104,17 +105,19 @@ class AnimePraX : MainAPI() {
         val plot = doc.selectFirst("meta[property='og:description']")?.attr("content")
             ?: doc.selectFirst("div.description, p.overview, div.content p")?.text()?.trim()
 
-        val epElements = doc.select("a[href*='-bolum']")
         val episodes = mutableListOf<Episode>()
         val added = mutableSetOf<String>()
-        val epRegex = Regex("""-(\d+)-bolum""")
 
-        for (a in epElements) {
+        val candidateLinks = doc.select("a:has(data), a[href*='bolum']")
+        for (a in candidateLinks) {
+            if (a.parents().any { it.hasClass("series-profile-episode-buttons") }) continue
+
             val href = fixUrlNull(a.attr("href")) ?: continue
             if (!added.add(href)) continue
 
-            val epNum = epRegex.find(href)?.groupValues?.get(1)?.toIntOrNull()
-                ?: Regex("""\b(\d+)\b""").find(a.text())?.groupValues?.get(1)?.toIntOrNull()
+            val epNum = a.selectFirst("data")?.text()?.trim()?.toIntOrNull()
+                ?: Regex("""-(\d+)-bolum""").find(href)?.groupValues?.get(1)?.toIntOrNull()
+                ?: Regex("""\b(\d+)\. Bölüm""").find(a.text())?.groupValues?.get(1)?.toIntOrNull()
                 ?: (episodes.size + 1)
 
             val epName = a.text().trim().ifEmpty { "$epNum. Bölüm" }
@@ -124,6 +127,19 @@ class AnimePraX : MainAPI() {
                 this.season = 1
                 this.episode = epNum
             })
+        }
+
+        if (episodes.isEmpty()) {
+            doc.select("a[href*='bolum']").forEach { a ->
+                val href = fixUrlNull(a.attr("href")) ?: return@forEach
+                if (added.add(href)) {
+                    episodes.add(newEpisode(href) {
+                        this.name = a.text().trim().ifEmpty { "1. Bölüm" }
+                        this.season = 1
+                        this.episode = episodes.size + 1
+                    })
+                }
+            }
         }
 
         if (episodes.isEmpty()) {
@@ -161,14 +177,14 @@ class AnimePraX : MainAPI() {
 
             for (url in frameUrls) {
                 if (url.contains("hdplayersystem.com")) {
-                    val hash = Regex("""data=([a-f0-9]+)""").find(url)?.groupValues?.get(1)
+                    val hash = Regex("""(?:embed/|data=)([a-zA-Z0-9_-]+)""").find(url)?.groupValues?.get(1)
                     if (hash != null) {
                         try {
                             val vRes = app.post(
                                 "https://hdplayersystem.com/player/index.php?data=$hash&do=getVideo",
                                 headers = mapOf(
                                     "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
-                                    "Referer" to "https://hdplayersystem.com/video/$hash",
+                                    "Referer" to "https://hdplayersystem.com/embed/$hash",
                                     "Origin" to "https://hdplayersystem.com",
                                     "X-Requested-With" to "XMLHttpRequest",
                                     "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
