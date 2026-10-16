@@ -23,14 +23,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnimePraX.cs3",
         "status": 1,
-        "version": 3,
+        "version": 4,
         "name": "AnimePraX",
         "internalName": "AnimePraX",
         "authors": [
             "falsisdev"
         ],
         "description": "Sibnet, OK.ru ve Dailymotion \u00fczerinden T\u00fcrk\u00e7e anime ak\u0131\u015flar\u0131.",
-        "fileSize": 12625,
+        "fileSize": 15028,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -40,19 +40,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animeprax.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-a0afcc1d5ea546f89f481139926cb882416a841382d97265ac8577d00822a985"
+        "fileHash": "sha256-5f69337e718d78dc87b9065d9c9b2da7043b9a1e4bebb678f400f4d17aa73195"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AniMOM.cs3",
         "status": 1,
-        "version": 3,
+        "version": 4,
         "name": "AniMOM",
         "internalName": "AniMOM",
         "authors": [
             "falsisdev"
         ],
         "description": "HDPlayer HLS, Sibnet ve YourUpload \u00fczerinden T\u00fcrk\u00e7e anime ak\u0131\u015flar\u0131.",
-        "fileSize": 12626,
+        "fileSize": 14973,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -62,7 +62,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animom.org&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-dbae1941d40b46c655d4d0acac3e5a120482e094a4e57646ce6466b6af9aa2fe"
+        "fileHash": "sha256-cc168cb68baa699a6e13ba0c1facf599acb513d476624b55473fde3ae7103297"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizium.cs3",
@@ -89,14 +89,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizm.cs3",
         "status": 1,
-        "version": 3,
+        "version": 4,
         "name": "Anizm",
         "internalName": "Anizm",
         "authors": [
             "falsisdev"
         ],
         "description": "AnizmPlayer (FirePlayer HLS), OK.ru ve Sibnet \u00fczerinden T\u00fcrk\u00e7e anime ak\u0131\u015flar\u0131.",
-        "fileSize": 16315,
+        "fileSize": 16526,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -106,7 +106,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=anizm.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-f8eebcfa8fd3a414933ca405cb061eb80323c6965d2e96d95a7d1812d3c613fa"
+        "fileHash": "sha256-044e60cef992beb66216753c790b28031e6fa8d1b78f8148857f6725c7476ed9"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyBelgeselocuk.cs3",
@@ -195,14 +195,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyDizi.cs3",
         "status": 1,
-        "version": 3,
+        "version": 4,
         "name": "AnthologyDizi",
         "internalName": "AnthologyDizi",
         "authors": [
             "falsisdev"
         ],
         "description": "NOW / Show TV / KanalD / Star TV / ATV / TRT1 resmi yay\u0131n ar\u015fivlerinden dinamik b\u00f6l\u00fcm ak\u0131\u015flar\u0131 \u2014 TMDB e\u015fle\u015ftirmeli, sabit harita yok.",
-        "fileSize": 26679,
+        "fileSize": 22537,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -211,7 +211,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=nowtv.com.tr&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-76e642634ebe641e3fb3b4c6277e4557c4273cdefd7a19f3ad59522f5eeea044"
+        "fileHash": "sha256-4a513a1728b146f3aae09bb209c322bb76d4e65c0ac8223a0f58053b0e521245"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnthologyM3U.cs3",
