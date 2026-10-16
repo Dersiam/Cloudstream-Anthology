@@ -70,10 +70,10 @@ class SeiCode : MainAPI() {
             } ?: emptyList()
 
             if (results.isNotEmpty()) results else {
-                getMainPage(1, MainPageRequest(name, mainUrl, false))?.items ?: emptyList()
+                getMainPage(1, MainPageRequest(name, mainUrl, false))?.items?.flatMap { it.list } ?: emptyList()
             }
         } catch (e: Exception) {
-            getMainPage(1, MainPageRequest(name, mainUrl, false))?.items ?: emptyList()
+            getMainPage(1, MainPageRequest(name, mainUrl, false))?.items?.flatMap { it.list } ?: emptyList()
         }
     }
 

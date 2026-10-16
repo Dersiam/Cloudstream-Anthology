@@ -56,9 +56,9 @@ class DDizi : MainAPI() {
             val results = document.select("div.dizi-boxpost-cat, div.dizi-boxpost, a[href*='/diziler/'], a[href*='/izle/']").mapNotNull {
                 it.toSearchResult()
             }.distinctBy { it.url }
-            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, mainUrl, false)).items
+            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
         } catch (e: Exception) {
-            getMainPage(1, MainPageRequest(name, mainUrl, false)).items
+            getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
         }
     }
 

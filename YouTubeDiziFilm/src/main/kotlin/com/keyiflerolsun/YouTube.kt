@@ -72,11 +72,11 @@ class YouTubeDiziFilm : MainAPI() {
             )
             val results = res?.map { it.toSearchResponse(this) } ?: emptyList()
             if (results.isNotEmpty()) results else {
-                getMainPage(1, MainPageRequest(name, mainUrl, false)).items
+                getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
             }
         } catch (e: Exception) {
             try {
-                getMainPage(1, MainPageRequest(name, mainUrl, false)).items
+                getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
             } catch (ex: Exception) {
                 listOf(
                     newMovieSearchResponse(query, "${mainUrl}/watch?v=dQw4w9WgXcQ", TvType.Others) {

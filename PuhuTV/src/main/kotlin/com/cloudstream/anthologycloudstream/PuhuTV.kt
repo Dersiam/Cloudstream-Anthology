@@ -52,10 +52,10 @@ class PuhuTV : MainAPI() {
             val document = app.get(searchUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
             val results = document.select("a[href*='-detay'], a[href*='-izle']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
             if (results.isNotEmpty()) results else {
-                getMainPage(1, MainPageRequest(name, mainUrl, false))?.items ?: emptyList()
+                getMainPage(1, MainPageRequest(name, mainUrl, false))?.items?.flatMap { it.list } ?: emptyList()
             }
         } catch (e: Exception) {
-            getMainPage(1, MainPageRequest(name, mainUrl, false))?.items ?: emptyList()
+            getMainPage(1, MainPageRequest(name, mainUrl, false))?.items?.flatMap { it.list } ?: emptyList()
         }
     }
 
