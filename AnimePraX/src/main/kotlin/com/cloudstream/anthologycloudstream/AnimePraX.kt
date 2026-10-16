@@ -18,19 +18,18 @@ class AnimePraX : MainAPI() {
     private val fallbackSource = "https://animom.org"
 
     override val mainPage = mainPageOf(
-        "$fallbackSource/home" to "Son Eklenenler",
-        "$fallbackSource/trendler" to "Trend Animeler",
+        "$fallbackSource/trendler" to "Günün Trendleri",
+        "$fallbackSource/kesfet" to "Popüler & Keşfet",
         "$fallbackSource/anime-filmleri" to "Anime Filmleri",
-        "$fallbackSource/kesfet" to "Keşfet",
         "$fallbackSource/anime-izle" to "Tüm Animeler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val targetUrl = if (request.data.startsWith("http")) request.data else "$fallbackSource/trendler"
         val doc = try {
-            app.get(targetUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            app.get(targetUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
         } catch (e: Exception) {
-            app.get("$fallbackSource/trendler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            app.get("$fallbackSource/trendler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
         }
 
         val items = doc.select("a[href*='/anime/']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
@@ -64,7 +63,7 @@ class AnimePraX : MainAPI() {
             val res = app.post(
                 "$fallbackSource/search",
                 headers = mapOf(
-                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
                     "X-Requested-With" to "XMLHttpRequest",
                     "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
                     "Referer" to "$fallbackSource/",
@@ -81,13 +80,13 @@ class AnimePraX : MainAPI() {
                     results.addAll(items)
                 }
             }
-        } catch (e: Exception) {}
+        } catch (_: Exception) {}
 
         if (results.isEmpty()) {
             try {
-                val home = getMainPage(1, MainPageRequest(name, "$fallbackSource/trendler", false))
+                val home = getMainPage(1, MainPageRequest("Günün Trendleri", "$fallbackSource/trendler", false))
                 return home.items.flatMap { it.list }
-            } catch (e: Exception) {}
+            } catch (_: Exception) {}
         }
         return results
     }
@@ -95,7 +94,7 @@ class AnimePraX : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val doc = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val doc = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
         val title = doc.selectFirst("meta[property='og:title']")?.attr("content")?.replace(Regex("""(?i)\s*-\s*animom.*"""), "")?.trim()
             ?: doc.selectFirst("h1")?.text()?.trim()
             ?: name
@@ -110,9 +109,17 @@ class AnimePraX : MainAPI() {
         val episodes = mutableListOf<Episode>()
         val added = mutableSetOf<String>()
 
-        val candidateLinks = doc.select("a:has(data), a[href*='bolum']")
+        val candidateLinks = doc.select(
+            ".profile-episode-list li a[href*='bolum'], .series-profile-episode-list a[href*='bolum']"
+        ).ifEmpty {
+            doc.select("a:has(data), a[href*='bolum']")
+        }
         for (a in candidateLinks) {
-            if (a.parents().any { it.hasClass("series-profile-episode-buttons") }) continue
+            if (a.parents().any { it.hasClass("series-profile-episode-buttons") } ||
+                a.attr("class").contains("series-profile-episode-buttons") ||
+                a.select("[class*='series-profile-episode-buttons']").isNotEmpty() ||
+                a.text().contains("İlk Bölüm") ||
+                a.text().contains("Son Bölüm")) continue
 
             val href = fixUrlNull(a.attr("href")) ?: continue
             if (!added.add(href)) continue
@@ -133,6 +140,12 @@ class AnimePraX : MainAPI() {
 
         if (episodes.isEmpty()) {
             doc.select("a[href*='bolum']").forEach { a ->
+                if (a.parents().any { it.hasClass("series-profile-episode-buttons") } ||
+                    a.attr("class").contains("series-profile-episode-buttons") ||
+                    a.select("[class*='series-profile-episode-buttons']").isNotEmpty() ||
+                    a.text().contains("İlk Bölüm") ||
+                    a.text().contains("Son Bölüm")) return@forEach
+
                 val href = fixUrlNull(a.attr("href")) ?: return@forEach
                 if (added.add(href)) {
                     episodes.add(newEpisode(href) {
@@ -165,7 +178,7 @@ class AnimePraX : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         try {
-            val doc = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            val doc = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
 
             val frameUrls = mutableListOf<String>()
             doc.select("[data-frame]").forEach { btn ->
@@ -189,7 +202,7 @@ class AnimePraX : MainAPI() {
                                     "Referer" to "https://hdplayersystem.com/embed/$hash",
                                     "Origin" to "https://hdplayersystem.com",
                                     "X-Requested-With" to "XMLHttpRequest",
-                                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                                 ),
                                 data = mapOf(
                                     "hash" to hash,
@@ -198,30 +211,33 @@ class AnimePraX : MainAPI() {
                             )
                             val vJson = JSONObject(vRes.text)
                             val securedLink = vJson.optString("securedLink")
-                            if (securedLink.isNotEmpty()) {
+                            val videoSource = vJson.optString("videoSource")
+                            val finalStreamUrl = securedLink.ifEmpty { videoSource }
+                            if (finalStreamUrl.isNotEmpty()) {
                                 callback.invoke(
                                     newExtractorLink(
                                         name = "$name - HDPlayer",
                                         source = name,
-                                        url = securedLink,
+                                        url = finalStreamUrl,
                                         type = ExtractorLinkType.M3U8
                                     ) {
                                         this.headers = mapOf(
                                             "Referer" to "https://hdplayersystem.com/",
-                                            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                                            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                                         )
+                                        this.quality = Qualities.P1080.value
                                     }
                                 )
                             }
-                        } catch (e: Exception) {}
+                        } catch (_: Exception) {}
                     }
                 } else {
                     try {
                         loadExtractor(url, subtitleCallback, callback)
-                    } catch (e: Exception) {}
+                    } catch (_: Exception) {}
                 }
             }
-        } catch (e: Exception) {}
+        } catch (_: Exception) {}
         return true
     }
 }

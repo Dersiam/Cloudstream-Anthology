@@ -15,13 +15,14 @@ class DDizi : MainAPI() {
     override val supportedTypes = setOf(TvType.TvSeries)
 
     override val mainPage = mainPageOf(
-        "$mainUrl" to "Son Eklenen Bölümler",
+        mainUrl to "Son Eklenen Bölümler",
+        "$mainUrl/yeni-eklenenler8" to "Yeni Eklenenler",
         "$mainUrl/yabanci-dizi-izle" to "Yabancı Diziler",
-        "$mainUrl/eski.diziler" to "Eski Diziler"
+        "$mainUrl/eski.diziler" to "Eski Dizi Arşivi"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val document = app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val document = app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
         val items = document.select("div.dizi-boxpost-cat, div.dizi-boxpost, a[href*='/diziler/'], a[href*='/izle/']").mapNotNull {
             it.toSearchResult()
         }.distinctBy { it.url }
@@ -31,7 +32,7 @@ class DDizi : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse? {
         val linkElem = if (this.tagName() == "a") this else this.selectFirst("a") ?: return null
         val href = fixUrlNull(linkElem.attr("href")) ?: return null
-        if (href == mainUrl || href == "$mainUrl/" || href.contains("/iletisim") || href.contains("/kategori/")) return null
+        if (href == mainUrl || href == "$mainUrl/" || href.contains("/iletisim") || href.contains("/kategori/") || href.contains("/dmca")) return null
 
         val img = this.selectFirst("img")
         val title = this.selectFirst("div.title, h2, h3, h4, .title")?.text()?.trim()
@@ -50,22 +51,26 @@ class DDizi : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        return try {
-            val searchUrl = "$mainUrl/?s=$query"
-            val document = app.get(searchUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val searchResults = mutableListOf<SearchResponse>()
+        try {
+            val searchUrl = "$mainUrl/?s=${query.trim()}"
+            val document = app.get(searchUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
             val results = document.select("div.dizi-boxpost-cat, div.dizi-boxpost, a[href*='/diziler/'], a[href*='/izle/']").mapNotNull {
                 it.toSearchResult()
             }.distinctBy { it.url }
-            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
-        } catch (e: Exception) {
-            getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
+            searchResults.addAll(results)
+        } catch (_: Exception) {}
+
+        if (searchResults.isEmpty()) {
+            return getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
         }
+        return searchResults
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
         val title = document.selectFirst("h1")?.text()?.trim() ?: name
         val poster = fixUrlNull(document.selectFirst("div.dizi-detay-resim img, div.poster img, img")?.attr("src"))
         val description = document.selectFirst("div.dizi-ozet, div.description, p")?.text()?.trim()
@@ -80,9 +85,10 @@ class DDizi : MainAPI() {
             if (!added.add(epHref)) continue
             val match = epRegex.find(epHref)
             val eNum = match?.groupValues?.get(1)?.toIntOrNull() ?: (eps.size + 1)
+            val epName = a.text().trim().ifEmpty { "$eNum. Bölüm" }
 
             eps.add(newEpisode(epHref) {
-                this.name = a.text().trim().ifEmpty { "$eNum. Bölüm" }
+                this.name = epName
                 this.season = 1
                 this.episode = eNum
             })
@@ -90,7 +96,7 @@ class DDizi : MainAPI() {
 
         if (eps.isEmpty()) {
             eps.add(newEpisode(url) {
-                this.name = "1. Bölüm"
+                this.name = title
                 this.season = 1
                 this.episode = 1
             })
@@ -108,15 +114,49 @@ class DDizi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
+        var foundStream = false
         try {
-            val document = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            val document = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
             val iframes = document.select("iframe").mapNotNull { fixUrlNull(it.attr("src").ifEmpty { it.attr("data-src") }) }
+
             for (iframe in iframes) {
+                if (iframe.contains("/player/oynat/")) {
+                    try {
+                        val plyDoc = app.get(
+                            iframe,
+                            referer = data,
+                            headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                        ).text
+
+                        val sourceRegex = Regex("""file\s*:\s*["']([^"']+)["'](?:\s*,\s*label\s*:\s*["']([^"']+)["'])?(?:\s*,\s*type\s*:\s*["']([^"']+)["'])?""")
+                        val matches = sourceRegex.findAll(plyDoc).toList()
+                        for (match in matches) {
+                            val fileUrl = match.groupValues[1].replace("\\/", "/").trim()
+                            val label = match.groupValues.getOrNull(2) ?: ""
+                            val isM3u8 = fileUrl.contains(".m3u8")
+
+                            callback.invoke(
+                                newExtractorLink(
+                                    source = this.name,
+                                    name = if (label.isNotBlank()) "${this.name} $label" else this.name,
+                                    url = fileUrl,
+                                    type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                                ) {
+                                    this.referer = "$mainUrl/"
+                                    this.quality = getQualityFromName(label)
+                                }
+                            )
+                            foundStream = true
+                        }
+                    } catch (_: Exception) {}
+                }
+
                 try {
-                    loadExtractor(iframe, subtitleCallback, callback)
-                } catch (e: Exception) {}
+                    loadExtractor(iframe, data, subtitleCallback, callback)
+                } catch (_: Exception) {}
             }
-        } catch (e: Exception) {}
+        } catch (_: Exception) {}
+
         return true
     }
 }

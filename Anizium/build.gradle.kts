@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "4K & 1080p Türkçe Dublaj ve Altyazılı Anime Kaynağı (Doğrudan MP4 + WebVTT)."
