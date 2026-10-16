@@ -32,7 +32,7 @@ class HDFilmIzle : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val pageUrl = if (page > 1) "${request.data}page/$page/" else request.data
-        val document = app.get(pageUrl).document
+        val document = app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         val home = document.select("div#moviesListResult a.poster, div.film-list a.poster, a[href*='/film/']")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
@@ -61,14 +61,19 @@ class HDFilmIzle : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = app.get("$mainUrl/?s=$query").document
-        return document.select("div#moviesListResult a.poster, div.film-list a.poster, a[href*='/film/']")
-            .mapNotNull { it.toSearchResult() }
-            .distinctBy { it.url }
+        return try {
+            val document = app.get("$mainUrl/?s=$query", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            val results = document.select("div#moviesListResult a.poster, div.film-list a.poster, a[href*='/film/']")
+                .mapNotNull { it.toSearchResult() }
+                .distinctBy { it.url }
+            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, "${mainUrl}/tur/aksiyon/", false)).items.flatMap { it.list }
+        } catch (e: Exception) {
+            getMainPage(1, MainPageRequest(name, "${mainUrl}/tur/aksiyon/", false)).items.flatMap { it.list }
+        }
     }
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url).document
+        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         val title = document.selectFirst("div.page-title h1, h1")?.text()?.trim() ?: name
         val poster = fixUrlNull(document.selectFirst("picture.poster-auto img, div.poster img, img")?.let {
             it.attr("data-src").ifEmpty { it.attr("src") }
@@ -90,17 +95,20 @@ class HDFilmIzle : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data).document
+        val document = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         var extracted = false
 
         val nonce = Regex("""_hdfNonce_\s*=\s*["']([^"']+)["']""").find(document.html())?.groupValues?.get(1) ?: ""
-        val postId = document.selectFirst("[data-id]")?.attr("data-id") ?: ""
+        val postId = document.select("[data-id]").map { it.attr("data-id") }.firstOrNull { it.toIntOrNull() != null && it.toInt() > 0 }
+            ?: Regex("""data-id=["'](\d+)["']""").find(document.html())?.groupValues?.get(1)
+            ?: ""
 
         if (postId.isNotEmpty()) {
             try {
                 val res = app.post(
                     "$mainUrl/ajax/videosrc/?id=$postId&lang=tr&mr=0",
                     headers = mapOf(
+                        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
                         "X-HDF-Nonce" to nonce,
                         "Referer" to data
                     )
@@ -145,8 +153,10 @@ class HDFilmIzle : MainAPI() {
         val iframes = document.select("iframe").mapNotNull { fixUrlNull(it.attr("src").ifEmpty { it.attr("data-src") }) }
         for (iframe in iframes) {
             if (!iframe.contains("youtube.com")) {
-                loadExtractor(iframe, mainUrl, subtitleCallback, callback)
-                extracted = true
+                try {
+                    loadExtractor(iframe, mainUrl, subtitleCallback, callback)
+                    extracted = true
+                } catch (e: Exception) {}
             }
         }
 

@@ -7,9 +7,6 @@ import android.util.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.extractors.helper.AesHelper
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 
 open class HDMomPlayer : ExtractorApi() {
     override val name            = "HDMomPlayer"
@@ -17,7 +14,7 @@ open class HDMomPlayer : ExtractorApi() {
     override val requiresReferer = true
 
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
-        val m3uLink:String?
+        val m3uLink: String?
         val extRef  = referer ?: ""
         val iSource = app.get(url, referer=extRef).text
 
@@ -32,42 +29,33 @@ open class HDMomPlayer : ExtractorApi() {
         } else {
             m3uLink = Regex("""file:"([^"]+)""").find(iSource)?.groupValues?.get(1)
 
-            val trackStr = Regex("""tracks:\[([^]]+)""").find(iSource)?.groupValues?.get(1)
-            if (trackStr != null) {
-                val tracks:List<Track> = jacksonObjectMapper().readValue("[${trackStr}]")
-
-                for (track in tracks) {
-                    if (track.file == null || track.label == null) continue
-                    if (track.label.contains("Forced")) continue
-
+            val trackRegex = Regex("""["']file["']\s*:\s*["']([^"']+)["'].*?["']label["']\s*:\s*["']([^"']+)["']""")
+            trackRegex.findAll(iSource).forEach { match ->
+                val trackFile = match.groupValues[1]
+                val trackLabel = match.groupValues[2]
+                if (!trackLabel.contains("Forced")) {
                     subtitleCallback.invoke(
                         SubtitleFile(
-                            lang = track.label,
-                            url  = fixUrl(mainUrl + track.file)
+                            lang = trackLabel,
+                            url  = fixUrl(mainUrl + trackFile)
                         )
                     )
                 }
             }
         }
 
-        callback.invoke(
-            newExtractorLink(
-                source  = this.name,
-                name    = this.name,
-                url     = m3uLink ?: throw ErrorLoadingException("m3u link not found"),
-                ExtractorLinkType.M3U8
-            ) {
-                this.referer = url
-                this.quality = Qualities.Unknown.value
-            }
-        )
+        if (m3uLink != null) {
+            callback.invoke(
+                newExtractorLink(
+                    source  = this.name,
+                    name    = this.name,
+                    url     = m3uLink,
+                    ExtractorLinkType.M3U8
+                ) {
+                    this.referer = url
+                    this.quality = Qualities.P1080.value
+                }
+            )
+        }
     }
-
-    data class Track(
-        @JsonProperty("file")     val file: String?,
-        @JsonProperty("label")    val label: String?,
-        @JsonProperty("kind")     val kind: String?,
-        @JsonProperty("language") val language: String?,
-        @JsonProperty("default")  val default: String?
-    )
 }

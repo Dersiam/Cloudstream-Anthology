@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "Popüler yabancı diziler arşivi, güncel bölümler kataloğu ve doğrudan 1080p Fire HLS master akışları."

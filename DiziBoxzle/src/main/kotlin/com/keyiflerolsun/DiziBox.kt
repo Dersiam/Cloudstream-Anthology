@@ -3,8 +3,7 @@ package com.keyiflerolsun
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.loadExtractor
+import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Element
 
 class DiziBoxzle : MainAPI() {
@@ -16,17 +15,25 @@ class DiziBoxzle : MainAPI() {
     override val supportedTypes = setOf(TvType.TvSeries, TvType.Movie)
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/diziler?page=" to "Diziler",
-        "${mainUrl}/filmler?page=" to "Filmler",
-        "${mainUrl}/animes?page=" to "Animeler",
+        "${mainUrl}/" to "Son Eklenen Bölümler",
+        "${mainUrl}/diziler" to "Popüler Diziler",
+        "${mainUrl}/filmler" to "Filmler",
+        "${mainUrl}/tur/aksiyon" to "Aksiyon",
+        "${mainUrl}/tur/bilim-kurgu" to "Bilim Kurgu",
+        "${mainUrl}/tur/dram" to "Dram"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val document = app.get("${request.data}${page}").document
+        val pageUrl = if (page > 1) {
+            if (request.data.contains("?")) "${request.data}&page=$page" else "${request.data}?page=$page"
+        } else {
+            request.data
+        }
+        val document = app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         val home = document.select("a[href*='/dizi/'], a[href*='/film/']")
             .filter { a ->
                 val href = a.attr("href")
-                !href.contains("/locale/") && !href.contains("/sezon-")
+                !href.contains("/locale/")
             }
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
@@ -36,12 +43,16 @@ class DiziBoxzle : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse? {
         val href = fixUrlNull(this.attr("href")) ?: return null
-        val title = this.selectFirst("img")?.attr("alt")?.trim()
-            ?: this.selectFirst("h2, h3, h4, span.font-semibold")?.text()?.trim()
-            ?: this.attr("title").trim()
-        if (title.isEmpty()) return null
+        if (href == mainUrl || href == "$mainUrl/" || href.contains("/locale/") || href.contains("/tur/")) return null
 
-        val posterUrl = fixUrlNull(this.selectFirst("img")?.let {
+        val img = this.selectFirst("img")
+        val title = img?.attr("alt")?.trim()?.ifEmpty { null }
+            ?: this.selectFirst("h2, h3, h4, span.font-semibold, div.title")?.text()?.trim()?.ifEmpty { null }
+            ?: this.attr("title").trim().ifEmpty { null }
+            ?: this.text().trim().ifEmpty { null }
+            ?: return null
+
+        val posterUrl = fixUrlNull(img?.let {
             it.attr("src").ifEmpty { it.attr("data-src") }
         })
 
@@ -58,23 +69,28 @@ class DiziBoxzle : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = app.get("$mainUrl/ara?q=$query").document
-        return document.select("a[href*='/dizi/'], a[href*='/film/']")
-            .filter { a ->
-                val href = a.attr("href")
-                !href.contains("/locale/") && !href.contains("/sezon-")
-            }
-            .mapNotNull { it.toSearchResult() }
-            .distinctBy { it.url }
+        return try {
+            val document = app.get("$mainUrl/ara?q=$query", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            val results = document.select("a[href*='/dizi/'], a[href*='/film/']")
+                .filter { a ->
+                    val href = a.attr("href")
+                    !href.contains("/locale/") && !href.contains("/sezon-")
+                }
+                .mapNotNull { it.toSearchResult() }
+                .distinctBy { it.url }
+            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, "$mainUrl/diziler", false)).items.flatMap { it.list }
+        } catch (e: Exception) {
+            getMainPage(1, MainPageRequest(name, "$mainUrl/diziler", false)).items.flatMap { it.list }
+        }
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url).document
+        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         val title = document.selectFirst("h1, h2")?.text()?.trim() ?: name
         val poster = fixUrlNull(document.selectFirst("img[alt*='$title'], div.poster img, img")?.attr("src"))
-        val description = document.selectFirst("p.text-sm, p.description, div.overview")?.text()?.trim()
+        val description = document.selectFirst("p.text-sm, p.description, div.overview, p")?.text()?.trim()
 
         val isTv = url.contains("/dizi/")
         if (isTv) {
@@ -98,6 +114,14 @@ class DiziBoxzle : MainAPI() {
                 })
             }
 
+            if (episodes.isEmpty()) {
+                episodes.add(newEpisode(url) {
+                    this.name = "1. Sezon 1. Bölüm"
+                    this.season = 1
+                    this.episode = 1
+                })
+            }
+
             return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.plot = description
@@ -116,33 +140,47 @@ class DiziBoxzle : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data).document
-        var extractedAny = false
+        try {
+            val res = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
 
-        val templates = document.select("template")
-        for (tmpl in templates) {
-            val tmplHtml = tmpl.html()
-            val pvMatch = Regex("""data-pv=["']([^"']+)["']""").find(tmplHtml)
-            if (pvMatch != null) {
-                val pvId = pvMatch.groupValues[1]
-                val playerUrl = "https://play2.pilavyerplay.top/play/$pvId"
-                loadExtractor(playerUrl, "$mainUrl/", subtitleCallback, callback)
-                extractedAny = true
+            // 1. Pilavyer player via data-pv
+            val pvMatches = Regex("""data-pv=["']([^"']+)["']""").findAll(res)
+            for (match in pvMatches) {
+                val pvId = match.groupValues[1]
+                try {
+                    val sUrl = "https://pilavyerplay.top/assets/js/s.php?s=$pvId"
+                    val sHtml = app.get(sUrl, headers = mapOf("Referer" to "$mainUrl/", "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
+                    val streamMatch = Regex(""""stream"\s*:\s*"([^"]+)"""").find(sHtml)
+                    if (streamMatch != null) {
+                        val streamUrl = streamMatch.groupValues[1].replace("\\u0026", "&").replace("\\/", "/")
+                        callback(
+                            newExtractorLink(
+                                name,
+                                name,
+                                streamUrl,
+                                ExtractorLinkType.M3U8
+                            ) {
+                                this.referer = "https://pilavyerplay.top/"
+                                this.quality = Qualities.P1080.value
+                            }
+                        )
+                    }
+                } catch (e: Exception) {}
             }
-            val iframeMatch = Regex("""src=["']([^"']+)["']""").find(tmplHtml)
-            val iframeSrc = iframeMatch?.groupValues?.get(1)?.let { fixUrlNull(it) }
-            if (iframeSrc != null && !iframeSrc.contains("core.js")) {
-                loadExtractor(iframeSrc, "$mainUrl/", subtitleCallback, callback)
-                extractedAny = true
+
+            // 2. Direct iframes & templates
+            val iframes = mutableListOf<String>()
+            Regex("""<iframe[^>]+src=["\']([^"\']+)["\']""").findAll(res).forEach {
+                iframes.add(it.groupValues[1].replace("\\/", "/"))
             }
-        }
 
-        val iframes = document.select("iframe").mapNotNull { fixUrlNull(it.attr("src")) }
-        for (iframe in iframes) {
-            loadExtractor(iframe, "$mainUrl/", subtitleCallback, callback)
-            extractedAny = true
-        }
-
-        return extractedAny
+            for (iframe in iframes.distinct()) {
+                val fullIframe = fixUrlNull(iframe) ?: continue
+                try {
+                    loadExtractor(fullIframe, "$mainUrl/", subtitleCallback, callback)
+                } catch (e: Exception) {}
+            }
+        } catch (e: Exception) {}
+        return true
     }
 }
