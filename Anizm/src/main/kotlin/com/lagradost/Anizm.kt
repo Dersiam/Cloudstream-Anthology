@@ -1,122 +1,209 @@
 @file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 package com.lagradost
 
-import android.util.Log
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import org.json.JSONObject
+import org.json.JSONArray
+import java.util.Calendar
+import java.util.TimeZone
 
 class Anizm : MainAPI() {
-    override var mainUrl = "https://api.sonanime.com"
+    override var mainUrl = "https://api.anizium.co"
     override var name = "Anizm"
     override val hasMainPage = true
     override var lang = "tr"
-    override val hasDownloadSupport = true
+    override val hasQuickSearch = true
+    override val supportedTypes = setOf(TvType.Anime, TvType.AnimeMovie, TvType.OVA)
 
-    override val supportedTypes = setOf(
-        TvType.Anime,
-        TvType.AnimeMovie,
-        TvType.OVA
-    )
+    private val siteOrigin = "https://anizium.co"
+    private val tokenKey = "hlxjl1c2w281ax473rt1ofgrvhyjvi"
 
-    private data class AnimeItem(
-        @JsonProperty("anime_id") val animeId: Int? = null,
-        @JsonProperty("anime_name") val animeName: String? = null,
-        @JsonProperty("anime_name_en") val animeNameEn: String? = null,
-        @JsonProperty("anime_type") val animeType: String? = null,
-        @JsonProperty("anime_description") val animeDescription: String? = null,
-        @JsonProperty("anime_year") val animeYear: String? = null,
-        @JsonProperty("anime_malScore") val animeMalScore: Double? = null,
-        @JsonProperty("anime_photo") val animePhoto: String? = null,
-        @JsonProperty("anime_link") val animeLink: String? = null
-    )
+    private fun getIstanbulDay(): String {
+        val days = listOf("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday")
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+3"))
+        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1
+        return days[if (dayOfWeek in 0..6) dayOfWeek else 0]
+    }
 
-    private data class EpisodeItem(
-        @JsonProperty("id") val id: Int? = null,
-        @JsonProperty("anime_id") val animeId: Int? = null,
-        @JsonProperty("anime_season") val animeSeason: Int? = null,
-        @JsonProperty("episode_number") val episodeNumber: Int? = null,
-        @JsonProperty("episode_link_1080") val link1080: String? = null,
-        @JsonProperty("episode_link_720") val link720: String? = null,
-        @JsonProperty("episode_link_480") val link480: String? = null,
-        @JsonProperty("episode_link_360") val link360: String? = null
-    )
+    private fun xorEncryptHex(text: String, key: String): String {
+        val sb = StringBuilder()
+        for (i in text.indices) {
+            val code = text[i].code xor key[i % key.length].code
+            val hex = code.toString(16)
+            if (hex.length < 2) sb.append('0')
+            sb.append(hex)
+        }
+        return sb.toString()
+    }
 
-    private data class AnimeDetail(
-        @JsonProperty("anime_id") val animeId: Int? = null,
-        @JsonProperty("anime_name") val animeName: String? = null,
-        @JsonProperty("anime_description") val animeDescription: String? = null,
-        @JsonProperty("anime_year") val animeYear: String? = null,
-        @JsonProperty("anime_photo") val animePhoto: String? = null,
-        @JsonProperty("anime_link") val animeLink: String? = null,
-        @JsonProperty("episodes") val episodes: List<EpisodeItem>? = null
-    )
+    private fun generateCfControl(): String {
+        val key = tokenKey + "_" + getIstanbulDay()
+        val randomKey = (1..6).map { (('a'..'z') + ('0'..'9')).random() }.joinToString("")
+        val payload = "{\"$randomKey\":${System.currentTimeMillis()}}"
+        return xorEncryptHex(payload, key)
+    }
+
+    private fun getHeaders(): Map<String, String> {
+        return mapOf(
+            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Origin" to siteOrigin,
+            "Referer" to "$siteOrigin/",
+            "Cf-Control" to generateCfControl(),
+            "device" to "browser",
+            "language" to "tr",
+            "site" to "main"
+        )
+    }
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/api/anime" to "Son Eklenen Animeler"
+        "$mainUrl/page/home" to "Popüler Animeler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val animes = app.get(request.data).parsedSafe<List<AnimeItem>>() ?: emptyList()
-        val home = animes.mapNotNull { item ->
-            val link = item.animeLink ?: return@mapNotNull null
-            val title = item.animeName ?: item.animeNameEn ?: link
-            val url = "${mainUrl}/api/anime/link/$link"
+        val homeItems = mutableListOf<SearchResponse>()
+        try {
+            val res = app.get("$mainUrl/page/home", headers = getHeaders()).text
+            val json = JSONObject(res)
+            val sections = listOf("settlement_top", "settlement_middle", "settlement_lower")
+            for (sec in sections) {
+                val arr = json.optJSONArray(sec) ?: continue
+                for (i in 0 until arr.length()) {
+                    val item = arr.optJSONObject(i) ?: continue
+                    val id = item.optString("ID").ifEmpty { item.optString("id") }
+                    val title = item.optString("name").ifEmpty { item.optString("title") }
+                    if (id.isEmpty() || title.isEmpty()) continue
+                    val poster = item.optString("poster").ifEmpty { item.optString("banner") }
+                    val isTv = item.optString("type") != "movie"
 
-            newAnimeSearchResponse(title, url, TvType.Anime) {
-                this.posterUrl = item.animePhoto
+                    if (isTv) {
+                        homeItems.add(newTvSeriesSearchResponse(title, "$siteOrigin/anime/$id", TvType.Anime) {
+                            this.posterUrl = poster
+                        })
+                    } else {
+                        homeItems.add(newMovieSearchResponse(title, "$siteOrigin/anime/$id", TvType.AnimeMovie) {
+                            this.posterUrl = poster
+                        })
+                    }
+                }
             }
-        }
-        return newHomePageResponse(request.name, home)
+        } catch (e: Exception) {}
+
+        return newHomePageResponse(request.name, homeItems.distinctBy { it.url })
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val searchUrl = "${mainUrl}/api/anime/search?q=${query.trim()}"
-        val animes = app.get(searchUrl).parsedSafe<List<AnimeItem>>() ?: emptyList()
-        return animes.mapNotNull { item ->
-            val link = item.animeLink ?: return@mapNotNull null
-            val title = item.animeName ?: item.animeNameEn ?: link
-            val url = "${mainUrl}/api/anime/link/$link"
+        val results = mutableListOf<SearchResponse>()
+        try {
+            val res = app.get("$mainUrl/page/search?value=${query.trim()}&page=1", headers = getHeaders()).text
+            val json = JSONObject(res)
+            val data = json.optJSONObject("page")?.optJSONArray("data")
+            if (data != null) {
+                for (i in 0 until data.length()) {
+                    val item = data.optJSONObject(i) ?: continue
+                    val id = item.optString("ID").ifEmpty { item.optString("id") }
+                    val title = item.optString("name").ifEmpty { item.optString("title") }
+                    if (id.isEmpty() || title.isEmpty()) continue
+                    val poster = item.optString("poster").ifEmpty { item.optString("banner") }
+                    val isTv = item.optString("type") != "movie"
 
-            newAnimeSearchResponse(title, url, TvType.Anime) {
-                this.posterUrl = item.animePhoto
+                    if (isTv) {
+                        results.add(newTvSeriesSearchResponse(title, "$siteOrigin/anime/$id", TvType.Anime) {
+                            this.posterUrl = poster
+                        })
+                    } else {
+                        results.add(newMovieSearchResponse(title, "$siteOrigin/anime/$id", TvType.AnimeMovie) {
+                            this.posterUrl = poster
+                        })
+                    }
+                }
             }
+        } catch (e: Exception) {}
+
+        if (results.isEmpty()) {
+            try {
+                val home = getMainPage(1, MainPageRequest(name, "$mainUrl/page/home", false))
+                return home.items.flatMap { it.list }
+            } catch (e: Exception) {}
         }
+        return results
     }
 
+    override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
+
     override suspend fun load(url: String): LoadResponse? {
-        val apiUrl = if (url.startsWith("http")) url else "${mainUrl}/api/anime/link/$url"
-        val detail = app.get(apiUrl).parsedSafe<AnimeDetail>() ?: return null
+        val animeId = url.substringAfterLast("/anime/").substringAfterLast("/").trim()
+        val res = app.get("$mainUrl/anime/get?id=$animeId", headers = getHeaders()).text
+        val json = JSONObject(res)
+        val data = json.optJSONObject("data") ?: return null
 
-        val title = detail.animeName ?: "Anime"
-        val poster = detail.animePhoto
-        val plot = detail.animeDescription
-        val year = detail.animeYear?.toIntOrNull()
+        val title = data.optString("name").ifEmpty { name }
+        val poster = data.optString("poster").ifEmpty { data.optString("banner") }
+        val plot = data.optString("overview")
+        val isMovie = data.optString("type") == "movie"
 
-        val episodeList = detail.episodes?.mapNotNull { ep ->
-            val epNum = ep.episodeNumber ?: return@mapNotNull null
-            val season = ep.animeSeason ?: 1
-
-            val linksJson = JSONObject().apply {
-                ep.link1080?.let { put("1080", it) }
-                ep.link720?.let { put("720", it) }
-                ep.link480?.let { put("480", it) }
-                ep.link360?.let { put("360", it) }
+        if (isMovie) {
+            val streamData = JSONObject().apply {
+                put("id", animeId)
+                put("season", 1)
+                put("episode", 1)
+                put("isMovie", true)
             }.toString()
-
-            newEpisode(linksJson) {
-                this.name = "Bölüm $epNum"
-                this.season = season
-                this.episode = epNum
+            return newMovieLoadResponse(title, url, TvType.AnimeMovie, streamData) {
+                this.posterUrl = poster
+                this.plot = plot
             }
-        } ?: emptyList()
+        }
 
-        return newAnimeLoadResponse(title, url, TvType.Anime) {
+        val seasons = data.optJSONArray("seasons")
+        val episodes = mutableListOf<Episode>()
+
+        if (seasons != null) {
+            for (s in 0 until seasons.length()) {
+                val sObj = seasons.optJSONObject(s) ?: continue
+                val sNum = sObj.optInt("number", s + 1)
+                val epsArr = sObj.optJSONArray("episodes") ?: continue
+
+                for (e in 0 until epsArr.length()) {
+                    val epObj = epsArr.optJSONObject(e) ?: continue
+                    val eNum = epObj.optInt("number", e + 1)
+                    val epName = epObj.optString("name", "$sNum. Sezon $eNum. Bölüm")
+                    val epPoster = epObj.optString("banner_link")
+
+                    val streamData = JSONObject().apply {
+                        put("id", animeId)
+                        put("season", sNum)
+                        put("episode", eNum)
+                        put("isMovie", false)
+                    }.toString()
+
+                    episodes.add(newEpisode(streamData) {
+                        this.name = epName
+                        this.season = sNum
+                        this.episode = eNum
+                        this.posterUrl = epPoster
+                    })
+                }
+            }
+        }
+
+        if (episodes.isEmpty()) {
+            val streamData = JSONObject().apply {
+                put("id", animeId)
+                put("season", 1)
+                put("episode", 1)
+                put("isMovie", false)
+            }.toString()
+            episodes.add(newEpisode(streamData) {
+                this.name = "1. Sezon 1. Bölüm"
+                this.season = 1
+                this.episode = 1
+            })
+        }
+
+        return newTvSeriesLoadResponse(title, url, TvType.Anime, episodes) {
             this.posterUrl = poster
             this.plot = plot
-            this.year = year
-            addEpisodes(DubStatus.Subbed, episodeList)
         }
     }
 
@@ -126,41 +213,65 @@ class Anizm : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        try {
-            if (data.startsWith("{")) {
-                val json = JSONObject(data)
-                listOf("1080", "720", "480", "360").forEach { quality ->
-                    val videoUrl = json.optString(quality, null)
-                    if (!videoUrl.isNullOrBlank()) {
+        val obj = try { JSONObject(data) } catch (e: Exception) { return false }
+        val animeId = obj.optString("id")
+        val season = obj.optInt("season", 1)
+        val episode = obj.optInt("episode", 1)
+
+        val sourceUrl = "$mainUrl/anime/source?id=$animeId&site=main&server=1&season=$season&episode=$episode"
+        val res = app.get(sourceUrl, headers = getHeaders()).text
+        val json = JSONObject(res)
+        if (!json.optBoolean("success", false)) return false
+
+        // Subtitles
+        val subsArr = json.optJSONArray("subtitles")
+        if (subsArr != null) {
+            for (i in 0 until subsArr.length()) {
+                val sub = subsArr.optJSONObject(i) ?: continue
+                val link = sub.optString("link")
+                val langName = sub.optString("name", "Türkçe")
+                if (link.isNotEmpty()) {
+                    subtitleCallback.invoke(newSubtitleFile(langName, link))
+                }
+            }
+        }
+
+        // Videos
+        val groupsArr = json.optJSONArray("groups")
+        if (groupsArr != null) {
+            for (g in 0 until groupsArr.length()) {
+                val group = groupsArr.optJSONObject(g) ?: continue
+                val groupName = group.optString("name", "Japonca")
+                val itemsArr = group.optJSONArray("items") ?: continue
+
+                for (it in 0 until itemsArr.length()) {
+                    val item = itemsArr.optJSONObject(it) ?: continue
+                    val videoLink = item.optString("link")
+                    val quality = item.optInt("quality", 1080)
+                    if (videoLink.isNotEmpty()) {
+                        val qString = when (quality) {
+                            2160 -> "4K UHD"
+                            1440 -> "2K QHD"
+                            else -> "${quality}p"
+                        }
                         callback.invoke(
                             newExtractorLink(
-                                source = this.name,
-                                name = "${this.name} $quality",
-                                url = videoUrl,
+                                name = "$name - $groupName ($qString)",
+                                source = name,
+                                url = videoLink,
                                 type = ExtractorLinkType.VIDEO
                             ) {
-                                this.referer = "https://sonanime.com/"
-                                this.quality = getQualityFromName(quality)
+                                this.headers = mapOf(
+                                    "Referer" to "$siteOrigin/",
+                                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                                )
                             }
                         )
                     }
                 }
-            } else if (data.startsWith("http")) {
-                callback.invoke(
-                    newExtractorLink(
-                        source = this.name,
-                        name = this.name,
-                        url = data,
-                        type = ExtractorLinkType.VIDEO
-                    ) {
-                        this.referer = "https://sonanime.com/"
-                        this.quality = Qualities.Unknown.value
-                    }
-                )
             }
-        } catch (e: Exception) {
-            Log.e("Anizm", "loadLinks error: ${e.message}")
         }
+
         return true
     }
 }

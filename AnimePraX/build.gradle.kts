@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "Sibnet, OK.ru ve Dailymotion üzerinden Türkçe anime akışları."
