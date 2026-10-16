@@ -187,7 +187,7 @@ class AnthologyDizi : MainAPI() {
                 val sourceRegex = Regex("""file\s*:\s*["']([^"']+)["'](?:\s*,\s*label\s*:\s*["']([^"']+)["'])?(?:\s*,\s*type\s*:\s*["']([^"']+)["'])?""")
                 val matches = sourceRegex.findAll(plyDoc).toList()
                 for (match in matches) {
-                    val fileUrl = match.groupValues[1]
+                    val fileUrl = match.groupValues[1].replace("\\/", "/").trim()
                     val label = match.groupValues.getOrNull(2) ?: ""
                     val isM3u8 = fileUrl.contains(".m3u8")
 
@@ -209,7 +209,7 @@ class AnthologyDizi : MainAPI() {
                 if (!foundStream) {
                     val directMp4Regex = Regex("""["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""")
                     directMp4Regex.findAll(plyDoc).forEach { m ->
-                        val url = m.groupValues[1]
+                        val url = m.groupValues[1].replace("\\/", "/").trim()
                         val isM3u8 = url.contains(".m3u8")
                         callback.invoke(
                             newExtractorLink(
