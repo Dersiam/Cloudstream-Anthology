@@ -108,11 +108,19 @@ class AniMOM : MainAPI() {
         val episodes = mutableListOf<Episode>()
         val added = mutableSetOf<String>()
 
-        // Find episode links, prioritizing items with data tag or specific episode links
-        val candidateLinks = doc.select("a:has(data), a[href*='bolum']")
+        // 1. Select episode links from the actual episode lists
+        val candidateLinks = doc.select(
+            ".profile-episode-list li a[href*='bolum'], .series-profile-episode-list a[href*='bolum']"
+        ).ifEmpty {
+            doc.select("a:has(data), a[href*='bolum']")
+        }
         for (a in candidateLinks) {
-            // Avoid series header button if it leads to 404
-            if (a.parents().any { it.hasClass("series-profile-episode-buttons") }) continue
+            // Avoid series header button which leads to 404
+            if (a.parents().any { it.hasClass("series-profile-episode-buttons") } ||
+                a.attr("class").contains("series-profile-episode-buttons") ||
+                a.select("[class*='series-profile-episode-buttons']").isNotEmpty() ||
+                a.text().contains("İlk Bölüm") ||
+                a.text().contains("Son Bölüm")) continue
 
             val href = fixUrlNull(a.attr("href")) ?: continue
             if (!added.add(href)) continue
@@ -133,6 +141,12 @@ class AniMOM : MainAPI() {
 
         if (episodes.isEmpty()) {
             doc.select("a[href*='bolum']").forEach { a ->
+                if (a.parents().any { it.hasClass("series-profile-episode-buttons") } ||
+                    a.attr("class").contains("series-profile-episode-buttons") ||
+                    a.select("[class*='series-profile-episode-buttons']").isNotEmpty() ||
+                    a.text().contains("İlk Bölüm") ||
+                    a.text().contains("Son Bölüm")) return@forEach
+
                 val href = fixUrlNull(a.attr("href")) ?: return@forEach
                 if (added.add(href)) {
                     episodes.add(newEpisode(href) {
@@ -199,12 +213,14 @@ class AniMOM : MainAPI() {
                             )
                             val vJson = JSONObject(vRes.text)
                             val securedLink = vJson.optString("securedLink")
-                            if (securedLink.isNotEmpty()) {
+                            val videoSource = vJson.optString("videoSource")
+                            val finalStreamUrl = securedLink.ifEmpty { videoSource }
+                            if (finalStreamUrl.isNotEmpty()) {
                                 callback.invoke(
                                     newExtractorLink(
                                         name = "$name - HDPlayer",
                                         source = name,
-                                        url = securedLink,
+                                        url = finalStreamUrl,
                                         type = ExtractorLinkType.M3U8
                                     ) {
                                         this.headers = mapOf(

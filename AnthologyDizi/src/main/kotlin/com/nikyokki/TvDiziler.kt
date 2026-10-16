@@ -119,14 +119,29 @@ class AnthologyDizi : MainAPI() {
                 seasonNum++
             }
         } else {
-            // Check direct links on episode page or page itself
+            // If the current page itself has a player, add it as episode 1
+            if (doc.select("button[data-hhs], #player_area, [data-hhs]").isNotEmpty() || url.contains("bolum-izle")) {
+                episodes.add(newEpisode(url) {
+                    this.name = title
+                    this.season = 1
+                    this.episode = 1
+                })
+            }
+            // Check direct links on episode page (excluding series overview links)
             doc.select("a[href*='bolum-izle']").forEach { a ->
-                val epHref = fixUrlNull(a.attr("href")) ?: return@forEach
-                val epName = a.text().trim().ifEmpty { "1. Bölüm" }
+                val rawHref = a.attr("href").trim()
+                if (rawHref.contains("/dizi/")) return@forEach
+                val epHref = when {
+                    rawHref.startsWith("http") -> rawHref
+                    rawHref.startsWith("//") -> "https:$rawHref"
+                    rawHref.startsWith("/") -> "$mainUrl$rawHref"
+                    else -> "$mainUrl/$rawHref"
+                }
+                val epName = a.text().trim().ifEmpty { "${episodes.size + 1}. Bölüm" }
                 episodes.add(newEpisode(epHref) {
                     this.name = epName
                     this.season = 1
-                    this.episode = 1
+                    this.episode = episodes.size + 1
                 })
             }
         }
@@ -163,10 +178,16 @@ class AnthologyDizi : MainAPI() {
         } else {
             val doc = app.get(data, headers = headers).document
             // Find button data-hhs
-            doc.select("button[data-hhs], li.series-alter-active button").forEach { btn ->
+            doc.select("button[data-hhs], li.series-alter-active button, [data-hhs]").forEach { btn ->
                 val hhs = btn.attr("data-hhs").trim()
                 if (hhs.isNotEmpty()) {
-                    plyUrls.add(fixUrl(hhs))
+                    val fixed = when {
+                        hhs.startsWith("http") -> hhs
+                        hhs.startsWith("//") -> "https:$hhs"
+                        hhs.startsWith("/") -> "$mainUrl$hhs"
+                        else -> "$mainUrl/$hhs"
+                    }
+                    plyUrls.add(fixed)
                 }
             }
             // Also check direct iframes
