@@ -68,9 +68,9 @@ class HDFilmCehennemi : MainAPI() {
                 )
             )
             val results = parseJsonResults(res.text)
-            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, mainUrl)).items
+            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, mainUrl, false)).items
         } catch (e: Exception) {
-            getMainPage(1, MainPageRequest(name, mainUrl)).items
+            getMainPage(1, MainPageRequest(name, mainUrl, false)).items
         }
     }
 

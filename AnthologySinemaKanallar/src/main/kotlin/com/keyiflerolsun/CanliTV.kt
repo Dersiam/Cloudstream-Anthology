@@ -183,12 +183,12 @@ class IptvPlaylistParser {
         while (line != null) {
             if (line.isNotEmpty()) {
                 if (line.startsWith("#EXTINF")) {
-                    val title = line.split(",").lastOrNull()?.replace(""", "")?.trim()
+                    val title = line.split(",").lastOrNull()?.replace("\"", "")?.trim()
                     val extInfRegex = Regex("(#EXTINF:.?[0-9]+)", RegexOption.IGNORE_CASE)
-                    val attributesString = line.replace(extInfRegex, "").replace(""", "").trim().split(",").first()
+                    val attributesString = line.replace(extInfRegex, "").replace("\"", "").trim().split(",").first()
                     val attributes = attributesString.split(Regex("\\s")).mapNotNull {
                         val pair = it.split("=")
-                        if (pair.size == 2) pair.first() to pair.last().replace(""", "").trim() else null
+                        if (pair.size == 2) pair.first() to pair.last().replace("\"", "").trim() else null
                     }.toMap()
 
                     playlistItems.add(PlaylistItem(title, attributes))
@@ -197,10 +197,10 @@ class IptvPlaylistParser {
                         val item = playlistItems[currentIndex]
                         val headers = item.headers.toMutableMap()
                         if (line.contains("http-user-agent=")) {
-                            headers["user-agent"] = line.substringAfter("http-user-agent=").replace(""", "").trim()
+                            headers["user-agent"] = line.substringAfter("http-user-agent=").replace("\"", "").trim()
                         }
                         if (line.contains("http-referrer=")) {
-                            headers["referrer"] = line.substringAfter("http-referrer=").replace(""", "").trim()
+                            headers["referrer"] = line.substringAfter("http-referrer=").replace("\"", "").trim()
                         }
                         playlistItems[currentIndex] = item.copy(headers = headers)
                     }
@@ -208,7 +208,7 @@ class IptvPlaylistParser {
                     if (!line.startsWith("#")) {
                         if (currentIndex < playlistItems.size) {
                             val item = playlistItems[currentIndex]
-                            val cleanUrl = line.split("|").firstOrNull()?.replace(""", "")?.trim()
+                            val cleanUrl = line.split("|").firstOrNull()?.replace("\"", "")?.trim()
                             playlistItems[currentIndex] = item.copy(url = cleanUrl)
                             currentIndex++
                         }

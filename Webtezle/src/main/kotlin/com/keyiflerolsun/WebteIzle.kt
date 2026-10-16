@@ -100,7 +100,7 @@ class Webtezle : MainAPI() {
             }
         }
         if (items.isEmpty()) {
-            return getMainPage(1, MainPageRequest(name, "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=")).items
+            return getMainPage(1, MainPageRequest(name, "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=", false)).items
         }
         return items
     }
