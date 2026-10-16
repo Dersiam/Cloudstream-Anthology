@@ -62,7 +62,7 @@ class AsyaAnimeleri : MainAPI() {
             .distinctBy { it.url }
 
         if (results.isEmpty()) {
-            return getMainPage(1, MainPageRequest("Popüler Seriler", "$mainUrl/series/?order=popular"))?.items ?: emptyList()
+            return getMainPage(1, MainPageRequest("Popüler Seriler", "$mainUrl/series/?order=popular", false))?.items?.flatMap { it.list } ?: emptyList()
         }
         return results
     }

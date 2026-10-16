@@ -83,7 +83,7 @@ class AnthologyDizi : MainAPI() {
         } catch (_: Exception) {}
 
         if (results.isEmpty()) {
-            return getMainPage(1, MainPageRequest("Son Bölümler", mainUrl)).items
+            return getMainPage(1, MainPageRequest("Son Bölümler", mainUrl, false)).items.flatMap { it.list }
         }
         return results.distinctBy { it.url }
     }
