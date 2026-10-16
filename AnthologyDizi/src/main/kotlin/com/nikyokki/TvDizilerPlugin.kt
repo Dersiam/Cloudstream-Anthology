@@ -9,5 +9,6 @@ import android.content.Context
 class AnthologyDiziPlugin: Plugin() {
     override fun load(context: Context) {
         registerMainAPI(AnthologyDizi())
+        registerExtractorAPI(TvDizilerOynat())
     }
 }
