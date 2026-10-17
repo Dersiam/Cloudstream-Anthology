@@ -1,4 +1,4 @@
-version = 5
+version = 6
 
 cloudstream {
     description = "Binlerce HD film - Türkçe dublaj & altyazı, 1080p CloseLoad adaptif HLS akışları."

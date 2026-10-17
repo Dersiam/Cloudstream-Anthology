@@ -6,6 +6,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.URLEncoder
 
 class SonAnime : MainAPI() {
     override var mainUrl = "https://api.sonanime.com"
@@ -17,25 +18,32 @@ class SonAnime : MainAPI() {
     override val supportedTypes = setOf(
         TvType.Anime,
         TvType.AnimeMovie,
-        TvType.OVA
+        TvType.TvSeries
     )
 
     override val mainPage = mainPageOf(
         "${mainUrl}/api/anime?filter=latest" to "Son Eklenen Animeler",
         "${mainUrl}/api/anime?filter=top" to "En Çok Beğenilenler (MAL)",
-        "${mainUrl}/api/anime?filter=movie" to "Anime Filmleri",
         "${mainUrl}/api/anime?filter=popular" to "Popüler Animeler",
+        "${mainUrl}/api/anime?filter=movie" to "Anime Filmleri",
+        "${mainUrl}/api/anime?filter=action" to "Aksiyon Animeleri",
+        "${mainUrl}/api/anime?filter=comedy" to "Komedi Animeleri",
+        "${mainUrl}/api/anime?filter=drama" to "Dram Animeleri",
         "${mainUrl}/api/anime?filter=all" to "Tüm Animeler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val filter = request.data.substringAfter("?filter=", "latest")
-        val res = app.get(
-            "${mainUrl}/api/anime",
-            headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-        ).text
+        val res = try {
+            app.get(
+                "${mainUrl}/api/anime",
+                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+            ).text
+        } catch (_: Exception) {
+            "[]"
+        }
 
-        val array = JSONArray(res)
+        val array = try { JSONArray(res) } catch (_: Exception) { JSONArray() }
         val list = mutableListOf<JSONObject>()
         for (i in 0 until array.length()) {
             list.add(array.getJSONObject(i))
@@ -45,10 +53,14 @@ class SonAnime : MainAPI() {
             "top" -> list.sortedByDescending { it.optDouble("anime_malScore", 0.0) }
             "movie" -> list.filter { it.optString("anime_type").contains("movie", ignoreCase = true) }
             "popular" -> list.filter { it.optDouble("anime_malScore", 0.0) >= 7.5 }
+            "action" -> list.filter { it.optString("anime_genres").contains("Action", ignoreCase = true) || it.optString("anime_genres").contains("Aksiyon", ignoreCase = true) }
+            "comedy" -> list.filter { it.optString("anime_genres").contains("Comedy", ignoreCase = true) || it.optString("anime_genres").contains("Komedi", ignoreCase = true) }
+            "drama" -> list.filter { it.optString("anime_genres").contains("Drama", ignoreCase = true) || it.optString("anime_genres").contains("Dram", ignoreCase = true) }
             else -> list
         }
 
-        val home = filtered.take(40).mapNotNull { obj ->
+        val finalList = if (filtered.isNotEmpty()) filtered else list
+        val home = finalList.take(40).mapNotNull { obj ->
             val link = obj.optString("anime_link").ifEmpty { return@mapNotNull null }
             val title = obj.optString("anime_name").ifEmpty { obj.optString("anime_name_en") }.ifEmpty { link }
             val photo = obj.optString("anime_photo")
@@ -65,7 +77,8 @@ class SonAnime : MainAPI() {
 
     override suspend fun search(query: String): List<SearchResponse> {
         return try {
-            val searchUrl = "${mainUrl}/api/anime/search?q=${query.trim()}"
+            val encoded = URLEncoder.encode(query.trim(), "UTF-8")
+            val searchUrl = "${mainUrl}/api/anime/search?q=$encoded"
             val res = app.get(searchUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
             val array = JSONArray(res)
             val items = mutableListOf<SearchResponse>()
@@ -87,10 +100,16 @@ class SonAnime : MainAPI() {
         }
     }
 
+    override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
+
     override suspend fun load(url: String): LoadResponse? {
         val apiUrl = if (url.startsWith("http")) url else "${mainUrl}/api/anime/link/$url"
-        val res = app.get(apiUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
-        val detail = JSONObject(res)
+        val res = try {
+            app.get(apiUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
+        } catch (e: Exception) {
+            ""
+        }
+        val detail = try { JSONObject(res) } catch (_: Exception) { JSONObject() }
 
         val title = detail.optString("anime_name").ifEmpty { detail.optString("anime_name_en") }.ifEmpty { "Anime" }
         val poster = detail.optString("anime_photo")
@@ -134,12 +153,10 @@ class SonAnime : MainAPI() {
             })
         }
 
-        val tvType = if (isMovie) TvType.AnimeMovie else TvType.Anime
-        return newAnimeLoadResponse(title, url, tvType) {
+        return newTvSeriesLoadResponse(title, url, if (isMovie) TvType.AnimeMovie else TvType.Anime, episodeList) {
             this.posterUrl = poster
             this.plot = plot
             this.year = year
-            addEpisodes(DubStatus.Subbed, episodeList)
         }
     }
 

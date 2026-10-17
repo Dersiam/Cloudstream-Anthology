@@ -12,6 +12,7 @@ import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import java.net.URLEncoder
 
 class YabancDizi : MainAPI() {
     override var mainUrl = "https://yabanci-dizi.now"
@@ -124,12 +125,13 @@ class YabancDizi : MainAPI() {
     override suspend fun search(query: String): List<SearchResponse> {
         val results = mutableListOf<SearchResponse>()
         try {
+            val encoded = URLEncoder.encode(query.trim(), "UTF-8")
             val res = app.post(
-                "$mainUrl/api/bg/searchContent?searchterm=$query",
+                "$mainUrl/api/bg/searchContent?searchterm=$encoded",
                 data = mapOf(),
                 headers = mapOf(
                     "Content-Type" to "application/json",
-                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                 ),
                 referer = "$mainUrl/"
             ).text
@@ -175,10 +177,14 @@ class YabancDizi : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(
-            url,
-            headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-        ).document
+        val document = try {
+            app.get(
+                url,
+                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+            ).document
+        } catch (e: Exception) {
+            return newMovieLoadResponse(name, url, TvType.Movie, url)
+        }
         val script = document.selectFirst("script#__NEXT_DATA__")?.html()
         val isTv = url.contains("/dizi/")
 
@@ -289,8 +295,10 @@ class YabancDizi : MainAPI() {
             val iframes = document.select("iframe").mapNotNull { fixUrlNull(it.attr("src")) }
             for (iframe in iframes) {
                 try {
-                    loadExtractor(iframe, subtitleCallback, callback)
-                    foundStream = true
+                    loadExtractor(iframe, subtitleCallback) { link ->
+                        callback(link)
+                        foundStream = true
+                    }
                 } catch (_: Exception) {}
             }
         } catch (_: Exception) {}

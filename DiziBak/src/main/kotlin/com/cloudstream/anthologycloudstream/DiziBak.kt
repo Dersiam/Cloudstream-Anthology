@@ -4,6 +4,7 @@ package com.cloudstream.anthologycloudstream
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Element
+import java.net.URLEncoder
 
 class DiziBak : MainAPI() {
     override var mainUrl = "https://dizibak.net"
@@ -15,17 +16,25 @@ class DiziBak : MainAPI() {
 
     override val mainPage = mainPageOf(
         "$mainUrl/tum-bolumler/" to "Son Bölümler",
-        "$mainUrl/diziler/" to "Diziler",
-        "$mainUrl/filmler/" to "Filmler",
-        "$mainUrl/tur/aksiyon/" to "Aksiyon",
+        "$mainUrl/diziler/" to "Tüm Diziler",
+        "$mainUrl/filmler/" to "Tüm Filmler",
+        "$mainUrl/tur/aksiyon/" to "Aksiyon Dizileri",
         "$mainUrl/tur/bilim-kurgu/" to "Bilim Kurgu",
-        "$mainUrl/tur/dram/" to "Dram",
-        "$mainUrl/tur/komedi/" to "Komedi"
+        "$mainUrl/tur/dram/" to "Dram Dizileri",
+        "$mainUrl/tur/komedi/" to "Komedi Dizileri",
+        "$mainUrl/tur/gerilim/" to "Gerilim Dizileri",
+        "$mainUrl/tur/korku/" to "Korku Dizileri",
+        "$mainUrl/tur/macera/" to "Macera Dizileri"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page > 1) "${request.data}page/$page/" else request.data
-        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val document = try {
+            app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get("$mainUrl/tum-bolumler/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+
         val items = document.select("a[href*='/diziler/'], a[href*='/filmler/'], a[href*='-sezon-'], a[href*='-bolum-'], div.article-episode-card a, div.article-series-card a")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
@@ -63,7 +72,8 @@ class DiziBak : MainAPI() {
 
     override suspend fun search(query: String): List<SearchResponse> {
         return try {
-            val searchUrl = "$mainUrl/?s=$query"
+            val encoded = URLEncoder.encode(query.trim(), "UTF-8")
+            val searchUrl = "$mainUrl/?s=$encoded"
             val document = app.get(searchUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
             val results = document.select("a[href*='/diziler/'], a[href*='/filmler/'], a[href*='-sezon-']")
                 .mapNotNull { it.toSearchResult() }
@@ -77,7 +87,12 @@ class DiziBak : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val document = try {
+            app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (e: Exception) {
+            return newMovieLoadResponse(name, url, TvType.Movie, url)
+        }
+
         val title = document.selectFirst("h1")?.text()?.replace(" izle", "")?.trim() ?: name
         val poster = fixUrlNull(document.selectFirst("div.poster img, img")?.attr("src"))
         val description = document.selectFirst("div.description, p.overview, div.summary, p")?.text()?.trim()
@@ -145,7 +160,6 @@ class DiziBak : MainAPI() {
         var foundStream = false
         try {
             val res = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
-
             val iframes = mutableListOf<String>()
 
             // 1. Check for async player content
@@ -220,7 +234,10 @@ class DiziBak : MainAPI() {
                     } catch (_: Exception) {}
                 }
                 try {
-                    loadExtractor(fullIframe, "$mainUrl/", subtitleCallback, callback)
+                    loadExtractor(fullIframe, "$mainUrl/", subtitleCallback) { link ->
+                        callback(link)
+                        foundStream = true
+                    }
                 } catch (_: Exception) {}
             }
         } catch (_: Exception) {}

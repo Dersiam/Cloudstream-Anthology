@@ -9,6 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.jsoup.nodes.Element
 import java.nio.charset.StandardCharsets
+import java.net.URLEncoder
 
 class HDFilmCehennemi : MainAPI() {
     override var mainUrl = "https://www.hdfilmcehennemi2.biz"
@@ -25,30 +26,52 @@ class HDFilmCehennemi : MainAPI() {
         "$mainUrl/kategori/korku-filmleri-izle/" to "Korku Filmleri",
         "$mainUrl/kategori/bilim-kurgu-filmleri-izle/" to "Bilim Kurgu",
         "$mainUrl/kategori/dram-filmleri-izle/" to "Dram Filmleri",
+        "$mainUrl/kategori/gerilim-filmleri-izle/" to "Gerilim Filmleri",
+        "$mainUrl/kategori/animasyon-filmleri-izle/" to "Animasyon Filmleri",
         "$mainUrl/dizi-izle/" to "Yabancı Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val items = if (request.data.startsWith("$mainUrl/api/")) {
-            val res = app.get(
-                request.data,
-                headers = mapOf(
-                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                    "Accept" to "application/json"
+        val items = try {
+            if (request.data.startsWith("$mainUrl/api/")) {
+                val res = app.get(
+                    request.data,
+                    headers = mapOf(
+                        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                        "Accept" to "application/json"
+                    )
                 )
-            )
-            parseJsonResults(res.text)
-        } else {
-            val pageUrl = if (page > 1) "${request.data}page/$page/" else request.data
-            val document = app.get(
-                pageUrl,
-                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-            ).document
-            document.select("div.movie-card, article, div.poster, a[href*='-izle']")
-                .mapNotNull { it.toHtmlSearchResult() }
-                .distinctBy { it.url }
+                parseJsonResults(res.text)
+            } else {
+                val pageUrl = if (page > 1) "${request.data}page/$page/" else request.data
+                val document = app.get(
+                    pageUrl,
+                    headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                ).document
+                document.select("div.movie-card, article, div.poster, a[href*='-izle']")
+                    .mapNotNull { it.toHtmlSearchResult() }
+                    .distinctBy { it.url }
+            }
+        } catch (_: Exception) {
+            emptyList()
         }
-        return newHomePageResponse(request.name, items)
+
+        val finalItems = if (items.isNotEmpty()) items else {
+            try {
+                val res = app.get(
+                    "$mainUrl/api/search?q=a",
+                    headers = mapOf(
+                        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                        "Accept" to "application/json"
+                    )
+                )
+                parseJsonResults(res.text)
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
+
+        return newHomePageResponse(request.name, finalItems)
     }
 
     private fun Element.toHtmlSearchResult(): SearchResponse? {
@@ -101,8 +124,9 @@ class HDFilmCehennemi : MainAPI() {
 
     override suspend fun search(query: String): List<SearchResponse> {
         return try {
+            val encoded = URLEncoder.encode(query.trim(), "UTF-8")
             val res = app.get(
-                "$mainUrl/api/search?q=${query.trim()}",
+                "$mainUrl/api/search?q=$encoded",
                 headers = mapOf(
                     "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
                     "Accept" to "application/json"
@@ -118,10 +142,14 @@ class HDFilmCehennemi : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(
-            url,
-            headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        ).document
+        val document = try {
+            app.get(
+                url,
+                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+            ).document
+        } catch (e: Exception) {
+            return newMovieLoadResponse(name, url, TvType.Movie, url)
+        }
 
         val title = document.selectFirst("h1")?.text()?.replace(" izle", "")?.trim() ?: name
         val poster = fixUrlNull(document.selectFirst("meta[property='og:image']")?.attr("content")
@@ -149,6 +177,7 @@ class HDFilmCehennemi : MainAPI() {
                     this.episode = eNum
                 })
             }
+
             if (eps.isEmpty()) {
                 eps.add(newEpisode(url) {
                     this.name = "1. Sezon 1. Bölüm"
@@ -156,6 +185,7 @@ class HDFilmCehennemi : MainAPI() {
                     this.episode = 1
                 })
             }
+
             return newTvSeriesLoadResponse(title, url, TvType.TvSeries, eps) {
                 this.posterUrl = poster
                 this.plot = description
@@ -169,13 +199,7 @@ class HDFilmCehennemi : MainAPI() {
     }
 
     private fun cleanEscapes(str: String): String {
-        return str
-            .replace("\\u0022", "\"")
-            .replace("\\u002f", "/")
-            .replace("\\u0026", "&")
-            .replace("\\\\/", "/")
-            .replace("\\/", "/")
-            .replace("\\\"", "\"")
+        return str.replace("\\\"", "\"").replace("\\/", "/").replace("\\\\", "\\")
     }
 
     override suspend fun loadLinks(
@@ -186,19 +210,21 @@ class HDFilmCehennemi : MainAPI() {
     ): Boolean {
         var found = false
         try {
-            val headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "Referer" to "$mainUrl/")
+            val headers = mapOf(
+                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Referer" to "$mainUrl/"
+            )
             val html = app.get(data, headers = headers).text
 
-            // 1. videoPlayerData parser
-            val vpdMatch = Regex("""videoPlayerData\s*\(\s*JSON\.parse\s*\(\s*['"](.*?)['"]\s*\)""").find(html)
+            // 1. Check videoPlayerData JSON
+            val vpdMatch = Regex("""var\s+videoPlayerData\s*=\s*(\{.*?\});""").find(html)
             if (vpdMatch != null) {
                 try {
-                    val rawJson = cleanEscapes(vpdMatch.groupValues[1])
-                    val vpdObj = JSONObject(rawJson)
-                    val keys = vpdObj.keys()
+                    val vpdJson = JSONObject(vpdMatch.groupValues[1])
+                    val keys = vpdJson.keys()
                     while (keys.hasNext()) {
                         val key = keys.next()
-                        val items = vpdObj.optJSONArray(key) ?: continue
+                        val items = vpdJson.optJSONArray(key) ?: continue
                         for (i in 0 until items.length()) {
                             val item = items.getJSONObject(i)
                             val link = item.optString("link")
@@ -235,7 +261,6 @@ class HDFilmCehennemi : MainAPI() {
                                                     )
                                                     found = true
                                                 }
-                                                // subtitles
                                                 Regex("""(https?://[^\s"']+\.vtt[^\s"']*)""").findAll(vHtml).forEach { vttM ->
                                                     subtitleCallback.invoke(SubtitleFile("Altyazı", vttM.groupValues[1]))
                                                 }
@@ -261,7 +286,6 @@ class HDFilmCehennemi : MainAPI() {
                                                     )
                                                     found = true
                                                 }
-                                                // subtitles
                                                 Regex("""(https?://[^\s"']+\.vtt[^\s"']*)""").findAll(mHtml).forEach { vttM ->
                                                     subtitleCallback.invoke(SubtitleFile("Altyazı", vttM.groupValues[1]))
                                                 }
@@ -271,8 +295,10 @@ class HDFilmCehennemi : MainAPI() {
                                         }
 
                                         try {
-                                            loadExtractor(playerUrl, data, subtitleCallback, callback)
-                                            found = true
+                                            loadExtractor(playerUrl, data, subtitleCallback) { link ->
+                                                callback(link)
+                                                found = true
+                                            }
                                         } catch (_: Exception) {}
                                     }
                                 } catch (_: Exception) {}
@@ -290,8 +316,10 @@ class HDFilmCehennemi : MainAPI() {
             for (iframe in iframes) {
                 if (!iframe.contains("youtube.com")) {
                     try {
-                        loadExtractor(iframe, subtitleCallback, callback)
-                        found = true
+                        loadExtractor(iframe, subtitleCallback) { link ->
+                            callback(link)
+                            found = true
+                        }
                     } catch (_: Exception) {}
                 }
             }

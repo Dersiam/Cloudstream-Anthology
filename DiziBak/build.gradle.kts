@@ -1,4 +1,4 @@
-version = 7
+version = 8
 
 cloudstream {
     description = "Yabancı dizi arşivi, güncel bölümler kataloğu ve doğrudan d1iz-b0ok.xyz 1080p HLS master akışları."

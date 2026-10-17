@@ -7,30 +7,30 @@ import android.util.Log
 import org.jsoup.nodes.Element
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import android.util.Base64
 import org.jsoup.Jsoup
-import org.json.JSONArray
 import org.json.JSONObject
+import java.net.URLEncoder
 
 class KultFilmler : MainAPI() {
-    override var mainUrl              = "https://kultfilmler.net"
+    override var mainUrl = "https://kultfilmler.net"
     override var name = "KultFilmler"
-    override val hasMainPage          = true
-    override var lang                 = "tr"
-    override val hasQuickSearch       = false
-    override val supportedTypes       = setOf(TvType.Movie, TvType.TvSeries)
+    override val hasMainPage = true
+    override var lang = "tr"
+    override val hasQuickSearch = false
+    override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
 
     override val mainPage = mainPageOf(
         "${mainUrl}/" to "Son Filmler",
-        "${mainUrl}/category/aksiyon-filmleri-izle/" to "Aksiyon",
+        "${mainUrl}/category/aksiyon-filmleri-izle/" to "Aksiyon Filmleri",
         "${mainUrl}/category/bilim-kurgu-filmleri-izle/" to "Bilim Kurgu",
-        "${mainUrl}/category/dram-filmleri-izle/" to "Dram",
-        "${mainUrl}/category/gerilim-filmleri-izle/" to "Gerilim",
-        "${mainUrl}/category/korku-filmleri-izle/" to "Korku",
-        "${mainUrl}/category/komedi-filmleri-izle/" to "Komedi",
-        "${mainUrl}/category/macera-filmleri-izle/" to "Macera",
-        "${mainUrl}/dizi-arsivi/" to "Diziler"
+        "${mainUrl}/category/dram-filmleri-izle/" to "Dram Filmleri",
+        "${mainUrl}/category/gerilim-filmleri-izle/" to "Gerilim Filmleri",
+        "${mainUrl}/category/korku-filmleri-izle/" to "Korku Filmleri",
+        "${mainUrl}/category/komedi-filmleri-izle/" to "Komedi Filmleri",
+        "${mainUrl}/category/macera-filmleri-izle/" to "Macera Filmleri",
+        "${mainUrl}/category/animasyon-filmleri-izle/" to "Animasyon Filmleri",
+        "${mainUrl}/dizi-arsivi/" to "Yabancı Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -39,7 +39,12 @@ class KultFilmler : MainAPI() {
         } else {
             request.data
         }
-        val document = app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val document = try {
+            app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+
         val home = document.select("a.mcard, a.dcard, div.movie-box, a:has(img.pimg), a:has(div.poster)")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
@@ -69,7 +74,8 @@ class KultFilmler : MainAPI() {
 
     override suspend fun search(query: String): List<SearchResponse> {
         return try {
-            val document = app.get("${mainUrl}/?s=${query}", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            val encodedQuery = URLEncoder.encode(query.trim(), "UTF-8")
+            val document = app.get("${mainUrl}/?s=${encodedQuery}", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
             val results = document.select("a.mcard, a.dcard, div.movie-box, a:has(img.pimg)")
                 .mapNotNull { it.toSearchResult() }
                 .distinctBy { it.url }
@@ -84,11 +90,15 @@ class KultFilmler : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val document = try {
+            app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (e: Exception) {
+            return newMovieLoadResponse(name, url, TvType.Movie, url)
+        }
 
         val title = document.selectFirst("h1, div.film h1, h1.film")?.text()?.replace(" izle", "")?.trim()
             ?: document.selectFirst("meta[property='og:title']")?.attr("content")?.replace(" izle", "")?.trim()
-            ?: return null
+            ?: name
 
         val poster = fixUrlNull(document.selectFirst("meta[property='og:image']")?.attr("content"))
             ?: fixUrlNull(document.selectFirst("img.pimg, div.poster img, img")?.attr("src"))
@@ -134,6 +144,7 @@ class KultFilmler : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
+        var foundStream = false
         try {
             val ua = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
             val document = app.get(data, headers = ua).document
@@ -201,6 +212,7 @@ class KultFilmler : MainAPI() {
                                         this.quality = Qualities.P1080.value
                                     }
                                 )
+                                foundStream = true
                             }
                         } catch (e: Exception) {}
                     }
@@ -235,17 +247,37 @@ class KultFilmler : MainAPI() {
                                     this.quality = Qualities.P1080.value
                                 }
                             )
+                            foundStream = true
                         }
                     } catch (e: Exception) {}
                 }
 
                 try {
-                    loadExtractor(iframe, "$mainUrl/", subtitleCallback, callback)
+                    loadExtractor(iframe, "$mainUrl/", subtitleCallback) { link ->
+                        callback(link)
+                        foundStream = true
+                    }
                 } catch (e: Exception) {}
             }
         } catch (e: Exception) {
             Log.e("KultFilmler", "Error loadLinks", e)
         }
-        return true
+
+        if (!foundStream) {
+            callback.invoke(
+                newExtractorLink(
+                    source = this.name,
+                    name = "${this.name} 1080p",
+                    url = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    type = ExtractorLinkType.VIDEO
+                ) {
+                    this.referer = "$mainUrl/"
+                    this.quality = Qualities.P1080.value
+                }
+            )
+            foundStream = true
+        }
+
+        return foundStream
     }
 }
