@@ -59,7 +59,15 @@ class Anizm : MainAPI() {
     override val mainPage = mainPageOf(
         "settlement_middle" to "Son Eklenen Bölümler",
         "settlement_top" to "Öne Çıkan Animeler",
-        "settlement_lower" to "Popüler Animeler"
+        "settlement_lower" to "Popüler Animeler",
+        "special_list" to "Trendler & Özel Listeler",
+        "genre:Aksiyon" to "Aksiyon Animeleri",
+        "genre:Macera" to "Macera Animeleri",
+        "genre:Komedi" to "Komedi Animeleri",
+        "genre:Dram" to "Dram Animeleri",
+        "genre:Fantastik" to "Fantastik Animeleri",
+        "genre:Bilim Kurgu" to "Bilim Kurgu Animeleri",
+        "genre:Romantik" to "Romantik Animeleri"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -67,25 +75,64 @@ class Anizm : MainAPI() {
         try {
             val res = app.get("$mainUrl/page/home", headers = getHeaders()).text
             val json = JSONObject(res)
-            val sec = request.data
-            val arr = json.optJSONArray(sec) ?: json.optJSONArray("settlement_top")
-            if (arr != null) {
-                for (i in 0 until arr.length()) {
-                    val item = arr.optJSONObject(i) ?: continue
-                    val id = item.optString("ID").ifEmpty { item.optString("id") }
-                    val title = item.optString("name").ifEmpty { item.optString("title") }
-                    if (id.isEmpty() || title.isEmpty()) continue
-                    val poster = item.optString("poster").ifEmpty { item.optString("banner") }
-                    val isTv = item.optString("type") != "movie"
 
-                    if (isTv) {
-                        homeItems.add(newTvSeriesSearchResponse(title, "$siteOrigin/anime/$id", TvType.Anime) {
-                            this.posterUrl = poster
-                        })
-                    } else {
-                        homeItems.add(newMovieSearchResponse(title, "$siteOrigin/anime/$id", TvType.AnimeMovie) {
-                            this.posterUrl = poster
-                        })
+            if (request.data.startsWith("genre:")) {
+                val targetGenre = request.data.substringAfter("genre:").trim().lowercase()
+                val allSections = listOf("settlement_top", "settlement_middle", "settlement_lower", "special_list")
+                for (sec in allSections) {
+                    val arr = json.optJSONArray(sec) ?: continue
+                    for (i in 0 until arr.length()) {
+                        val item = arr.optJSONObject(i) ?: continue
+                        val genres = item.optJSONArray("genre")
+                        var matches = false
+                        if (genres != null) {
+                            for (g in 0 until genres.length()) {
+                                val gName = genres.optJSONObject(g)?.optString("name", "")?.lowercase() ?: ""
+                                if (gName.contains(targetGenre)) {
+                                    matches = true
+                                    break
+                                }
+                            }
+                        }
+                        if (matches) {
+                            val id = item.optString("ID").ifEmpty { item.optString("id") }
+                            val title = item.optString("name").ifEmpty { item.optString("title") }
+                            if (id.isEmpty() || title.isEmpty()) continue
+                            val poster = item.optString("poster").ifEmpty { item.optString("banner") }
+                            val isTv = item.optString("type") != "movie"
+                            if (isTv) {
+                                homeItems.add(newTvSeriesSearchResponse(title, "$siteOrigin/anime/$id", TvType.Anime) {
+                                    this.posterUrl = poster
+                                })
+                            } else {
+                                homeItems.add(newMovieSearchResponse(title, "$siteOrigin/anime/$id", TvType.AnimeMovie) {
+                                    this.posterUrl = poster
+                                })
+                            }
+                        }
+                    }
+                }
+            } else {
+                val sec = request.data
+                val arr = json.optJSONArray(sec) ?: json.optJSONArray("settlement_top")
+                if (arr != null) {
+                    for (i in 0 until arr.length()) {
+                        val item = arr.optJSONObject(i) ?: continue
+                        val id = item.optString("ID").ifEmpty { item.optString("id") }
+                        val title = item.optString("name").ifEmpty { item.optString("title") }
+                        if (id.isEmpty() || title.isEmpty()) continue
+                        val poster = item.optString("poster").ifEmpty { item.optString("banner") }
+                        val isTv = item.optString("type") != "movie"
+
+                        if (isTv) {
+                            homeItems.add(newTvSeriesSearchResponse(title, "$siteOrigin/anime/$id", TvType.Anime) {
+                                this.posterUrl = poster
+                            })
+                        } else {
+                            homeItems.add(newMovieSearchResponse(title, "$siteOrigin/anime/$id", TvType.AnimeMovie) {
+                                this.posterUrl = poster
+                            })
+                        }
                     }
                 }
             }

@@ -15,7 +15,25 @@ class YouTubeDiziFilm : MainAPI() {
     override var lang = "tr"
     override val supportedTypes = setOf(TvType.Others)
 
+    override val mainPage = mainPageOf(
+        "all" to "Tüm Kategoriler",
+        "news" to "Gündem & Trend",
+        "movies" to "Filmler & Diziler",
+        "music" to "Müzik Videoları",
+        "gaming" to "Oyun Yayınları"
+    )
+
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
+        if (request.data != "all" && request.data.isNotEmpty()) {
+            val data = try {
+                tryParseJson<List<SearchEntry>>(
+                    app.get("${mainUrl}/api/v1/trending?region=${lang.uppercase()}&type=${request.data}&fields=videoId,title").text
+                )
+            } catch (e: Exception) { null }
+            val items = data?.map { it.toSearchResponse(this) } ?: emptyList()
+            return newHomePageResponse(request.name, items)
+        }
+
         val trending = try {
             tryParseJson<List<SearchEntry>>(
                 app.get("${mainUrl}/api/v1/trending?region=${lang.uppercase()}&type=news&fields=videoId,title").text

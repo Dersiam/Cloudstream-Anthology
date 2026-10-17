@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "Türkçe dublaj ve altyazılı 4K/1080p full HD film akışları (ImgsAPI)."

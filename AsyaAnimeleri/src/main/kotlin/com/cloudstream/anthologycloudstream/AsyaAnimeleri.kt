@@ -17,24 +17,44 @@ class AsyaAnimeleri : MainAPI() {
         "${mainUrl}/series/?order=popular" to "Popüler Seriler",
         "${mainUrl}/series/?order=update" to "Son Güncellenenler",
         "${mainUrl}/series/?order=latest" to "Yeni Eklenenler",
-        mainUrl to "Son Bölümler"
+        mainUrl to "Son Bölümler",
+        "${mainUrl}/genres/aksiyon/" to "Aksiyon Animeleri",
+        "${mainUrl}/genres/fantastik/" to "Fantastik Animeleri",
+        "${mainUrl}/genres/komedi/" to "Komedi Animeleri",
+        "${mainUrl}/genres/macera/" to "Macera Animeleri",
+        "${mainUrl}/genres/romantik/" to "Romantik Animeleri",
+        "${mainUrl}/genres/dram/" to "Dram Animeleri"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
         val pageUrl = if (page > 1) {
-            if (request.data.contains("?")) "${request.data}&page=$page" else "${request.data}/page/$page/"
+            if (request.data.contains("?")) "${request.data}&page=$page" else "${request.data}page/$page/"
         } else {
             request.data
         }
 
-        val document = app.get(
-            pageUrl,
-            headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-        ).document
+        val document = try {
+            app.get(
+                pageUrl,
+                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+            ).document
+        } catch (_: Exception) {
+            app.get(
+                mainUrl,
+                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+            ).document
+        }
 
-        val items = document.select("article.bs, div.bsx, div.movie, article, div.film, div.item")
+        var items = document.select("article.bs, div.bsx, div.movie, article, div.film, div.item")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (items.isEmpty() && request.data != mainUrl) {
+            items = app.get(mainUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"))
+                .document.select("article.bs, div.bsx, div.movie, article, div.film, div.item")
+                .mapNotNull { it.toSearchResult() }
+                .distinctBy { it.url }
+        }
 
         return newHomePageResponse(request.name, items)
     }

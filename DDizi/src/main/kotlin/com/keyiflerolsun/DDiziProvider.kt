@@ -18,14 +18,26 @@ class DDizi : MainAPI() {
         mainUrl to "Son Eklenen Bölümler",
         "$mainUrl/yeni-eklenenler8" to "Yeni Eklenenler",
         "$mainUrl/yabanci-dizi-izle" to "Yabancı Diziler",
-        "$mainUrl/eski.diziler" to "Eski Dizi Arşivi"
+        "$mainUrl/eski.diziler" to "Eski Dizi Arşivi",
+        "$mainUrl/diziler" to "Tüm Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val document = app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
-        val items = document.select("div.dizi-boxpost-cat, div.dizi-boxpost, a[href*='/diziler/'], a[href*='/izle/']").mapNotNull {
+        val document = try {
+            app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
+        } catch (_: Exception) {
+            app.get(mainUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
+        }
+        var items = document.select("div.dizi-boxpost-cat, div.dizi-boxpost, a[href*='/diziler/'], a[href*='/izle/']").mapNotNull {
             it.toSearchResult()
         }.distinctBy { it.url }
+
+        if (items.isEmpty() && request.data != mainUrl) {
+            items = app.get(mainUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"))
+                .document.select("div.dizi-boxpost-cat, div.dizi-boxpost, a[href*='/diziler/'], a[href*='/izle/']").mapNotNull {
+                    it.toSearchResult()
+                }.distinctBy { it.url }
+        }
         return newHomePageResponse(request.name, items)
     }
 

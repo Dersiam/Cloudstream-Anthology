@@ -19,15 +19,32 @@ class DiziWatch : MainAPI() {
         "$mainUrl/yeni-bolumler" to "Yeni Bölümler",
         "$mainUrl/anime-arsivi" to "Anime Arşivi",
         "$mainUrl/" to "Öne Çıkan Anime ve Diziler",
-        "$mainUrl/takvim" to "Yayın Takvimi"
+        "$mainUrl/dizi-arsivi" to "Yabancı Dizi Arşivi",
+        "$mainUrl/tur/aksiyon" to "Aksiyon",
+        "$mainUrl/tur/bilim-kurgu" to "Bilim Kurgu",
+        "$mainUrl/tur/komedi" to "Komedi",
+        "$mainUrl/tur/dram" to "Dram",
+        "$mainUrl/tur/fantastik" to "Fantastik",
+        "$mainUrl/tur/romantik" to "Romantik"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page > 1) "${request.data}?page=$page" else request.data
-        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
-        val items = document.select("a[href*='/dizi/']")
+        val document = try {
+            app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get("$mainUrl/yeni-bolumler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+        var items = document.select("a[href*='/dizi/']")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (items.isEmpty() && request.data != "$mainUrl/yeni-bolumler") {
+            items = app.get("$mainUrl/yeni-bolumler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"))
+                .document.select("a[href*='/dizi/']")
+                .mapNotNull { it.toSearchResult() }
+                .distinctBy { it.url }
+        }
 
         return newHomePageResponse(request.name, items)
     }
