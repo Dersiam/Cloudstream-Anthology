@@ -2,23 +2,25 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnimeciX.cs3",
         "status": 1,
-        "version": 3,
+        "version": 4,
         "name": "AnimeciX",
         "internalName": "AnimeciX",
         "authors": [
             "falsisdev"
         ],
         "description": "TauVideo altyap\u0131s\u0131yla binlerce anime b\u00f6l\u00fcm\u00fc (1080p, 720p, 480p direct MP4).",
-        "fileSize": 23203,
+        "fileSize": 26117,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
             "TvSeries",
-            "Movie"
+            "Movie",
+            "Anime",
+            "AnimeMovie"
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animecix.tv&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-3a9eafbc1cde3fb0cbe2d7614f765f8c5a54270fdeb8c7e50fe2850fbb71ec3d"
+        "fileHash": "sha256-3fe2b5c832b8a27b8de400c28cc9fe36bf5030a9080c30d02f198e5fd1eae866"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AnimePraX.cs3",
@@ -67,24 +69,25 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizium.cs3",
         "status": 1,
-        "version": 5,
+        "version": 6,
         "name": "Anizium",
         "internalName": "Anizium",
         "authors": [
             "falsisdev"
         ],
         "description": "4K & 1080p T\u00fcrk\u00e7e Dublaj ve Altyaz\u0131l\u0131 Anime Kayna\u011f\u0131 (Do\u011frudan MP4 + WebVTT).",
-        "fileSize": 20278,
+        "fileSize": 20290,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
             "TvSeries",
             "Movie",
-            "Anime"
+            "Anime",
+            "AnimeMovie"
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/anizium.png",
         "apiVersion": 1,
-        "fileHash": "sha256-5f112f51f592d07e0783cef72e8def8d36a76962903a1ffc0031edfe0831ecb3"
+        "fileHash": "sha256-5dfdf694a6bbc2f7774a17c511868eefb91ec26d73d02bf753a29a1c52005c5d"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizm.cs3",
@@ -364,14 +367,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziBoxzle.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "DiziBoxzle",
         "internalName": "DiziBoxzle",
         "authors": [
             "falsisdev"
         ],
         "description": "G\u00fcncel yabanc\u0131 dizi ar\u015fivi \u2014 VidMoly ve Ok.ru \u00fczerinden 1080p do\u011frudan HLS ve MP4 ak\u0131\u015flar\u0131.",
-        "fileSize": 17188,
+        "fileSize": 18540,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -380,19 +383,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=diziboxizle.com&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-8da04ec0b7079c3f4fa0cf41ca52754ec7fc61ac7cd974f53dec86c65be525e8"
+        "fileHash": "sha256-e1574fb82ad283c4ae67de8c914de0efe480721513418d2997469ad2a946b7d8"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziMom.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "DiziMom",
         "internalName": "DiziMom",
         "authors": [
             "falsisdev"
         ],
         "description": "Pop\u00fcler yabanc\u0131 diziler ar\u015fivi, g\u00fcncel b\u00f6l\u00fcmler katalo\u011fu ve do\u011frudan 1080p Fire HLS master ak\u0131\u015flar\u0131.",
-        "fileSize": 30290,
+        "fileSize": 31728,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -401,7 +404,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizimom.diy&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-cdf11d52b3733a05780af61d9e7f1a3b98289354f7f8bc5eabb4e78d71606977"
+        "fileHash": "sha256-0a85e62c0c7b5d06a45e5dd752f33bd2e1ea702d990aef4a42548f959906213f"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziPod.cs3",
@@ -619,24 +622,25 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SeiCode.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "SeiCode",
         "internalName": "SeiCode",
         "authors": [
             "falsisdev"
         ],
         "description": "SeiCode anime platformu \u2014 TauVideo, Ok.ru, Sibnet, VidMoly ve MP4Upload \u00fczerinden 1080p do\u011frudan MP4 ve HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 11113,
+        "fileSize": 12318,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
             "TvSeries",
             "Movie",
-            "Anime"
+            "Anime",
+            "AnimeMovie"
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=seicode.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-82b0956eed996375736b2fcf3a050da9b68388b72b65337614bd17d1daf1336e"
+        "fileHash": "sha256-7179e0184d0448bcf0bd11fff54a6bbd22f123ef72f842e92b764ea0ca0c415f"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/SetFilmIzle.cs3",
