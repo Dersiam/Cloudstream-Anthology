@@ -45,14 +45,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AniMOM.cs3",
         "status": 1,
-        "version": 7,
+        "version": 8,
         "name": "AniMOM",
         "internalName": "AniMOM",
         "authors": [
             "falsisdev"
         ],
         "description": "HDPlayer HLS, Sibnet ve YourUpload \u00fczerinden T\u00fcrk\u00e7e anime ak\u0131\u015flar\u0131.",
-        "fileSize": 16383,
+        "fileSize": 16793,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -62,7 +62,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=animom.org&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-3bc60c46d5e7a66d8a60d618efd6294d3c2317d65f4e9944baa2b9053b296062"
+        "fileHash": "sha256-05ced8a0ab9ca46d869cfeccc715dbebeab8b42f036b4ca1f96cbb2af587a0a8"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/Anizium.cs3",
@@ -343,14 +343,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziBak.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "DiziBak",
         "internalName": "DiziBak",
         "authors": [
             "falsisdev"
         ],
         "description": "Yabanc\u0131 dizi ar\u015fivi, g\u00fcncel b\u00f6l\u00fcmler katalo\u011fu ve do\u011frudan d1iz-b0ok.xyz 1080p HLS master ak\u0131\u015flar\u0131.",
-        "fileSize": 16212,
+        "fileSize": 16492,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -359,7 +359,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=dizibak.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-501f7a4aed59b92fbc4da5cd09d557fa2250e40bb8a46e199216b0c6f45af3a2"
+        "fileHash": "sha256-2d5d80aefa9988d464b1ad52063d378763544275bb4e838035205c00a91d2ee8"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziBoxzle.cs3",
@@ -427,14 +427,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziWatch.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "DiziWatch",
         "internalName": "DiziWatch",
         "authors": [
             "falsisdev"
         ],
         "description": "diziwatch.ac ar\u015fivi \u00fczerinden g\u00fcncel anime ve yabanc\u0131 dizi ak\u0131\u015flar\u0131 sunar.",
-        "fileSize": 13902,
+        "fileSize": 15316,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -445,7 +445,7 @@
         ],
         "iconUrl": "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/logo_1_transparent.png",
         "apiVersion": 1,
-        "fileHash": "sha256-505ad5160afd90effbc8dfbf633e8d90b0b22c4fda9158fc13cf18d4186a4a2f"
+        "fileHash": "sha256-f6d4f0df248ce5fe41643f3208fcb821e62a8b853acc656553493ad3b1040d21"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DiziYou.cs3",
@@ -534,14 +534,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/HDFilmIzle.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "HDFilmIzle",
         "internalName": "HDFilmIzle",
         "authors": [
             "falsisdev"
         ],
         "description": "HDFilmIzle (Ink/Vip) ar\u015fivi \u00fczerinden FastPlay 1080p HLS master ak\u0131\u015flar\u0131 ve TR/EN altyaz\u0131lar.",
-        "fileSize": 29326,
+        "fileSize": 29442,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -550,19 +550,19 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=hdfilmizle.ink&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-fba0873a2055122355435836206ce3db7edda3d7c96b5603b3dc35be3ac5b86f"
+        "fileHash": "sha256-863f4daeffc5aa2c9bb63b8ae9eb0eb4e390f5463acaa6d9dd8a13571d62346a"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/KultFilmler.cs3",
         "status": 1,
-        "version": 4,
+        "version": 5,
         "name": "KultFilmler",
         "internalName": "KultFilmler",
         "authors": [
             "falsisdev"
         ],
         "description": "KultFilmler ar\u015fivi \u00fczerinden VidMoly/Vidpapi HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 20076,
+        "fileSize": 21481,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -571,7 +571,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=kultfilmler.net&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-d28451aa674c4452f454b56c99c9c2139dfe39329613a1871210a049dbd29d18"
+        "fileHash": "sha256-0046329b531f9a8cb7bfdbcc4f81f6c3708124ae1cd485980ed8f1a61de663e6"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/LiderFilm.cs3",
