@@ -39,11 +39,22 @@ class AnthologyDizi : MainAPI() {
         ).document
 
         val items = mutableListOf<SearchResponse>()
-        doc.select("div.poster-xs, div.poster-long, article, div.poster").forEach { el ->
-            val title = el.selectFirst("div.poster-xs-subject p, div.poster-long-subject h2, h2, h3, a")?.text()
-                ?.replace(" izle", "")?.trim() ?: return@forEach
-            val rawHref = el.selectFirst("a")?.attr("href") ?: return@forEach
-            val href = fixUrl(rawHref)
+        doc.select("div.poster-xs, div.poster-long, article").forEach { el ->
+            val a = el.selectFirst("a") ?: return@forEach
+            val rawHref = a.attr("href").trim()
+            if (rawHref.isEmpty()) return@forEach
+            val href = when {
+                rawHref.startsWith("http") -> rawHref
+                rawHref.startsWith("//") -> "https:$rawHref"
+                rawHref.startsWith("/") -> "$mainUrl$rawHref"
+                else -> "$mainUrl/$rawHref"
+            }
+            val title = el.selectFirst("div.poster-xs-subject p, div.poster-long-subject h2, p, h2, h3")?.text()
+                ?.replace(" izle", "")?.trim()
+                ?: a.attr("title").replace(" izle", "").trim().ifEmpty { null }
+                ?: el.selectFirst("img")?.attr("alt")?.replace(" izle", "")?.trim()
+                ?: return@forEach
+
             val posterUrl = fixUrlNull(el.selectFirst("img")?.let { it.attr("data-src").ifEmpty { it.attr("src") } })
 
             items.add(newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
@@ -108,7 +119,13 @@ class AnthologyDizi : MainAPI() {
             seasonLists.forEach { seasonEl ->
                 var epNum = 1
                 seasonEl.select("li").forEach { li ->
-                    val epHref = fixUrlNull(li.selectFirst("a[href*='bolum-izle'], a")?.attr("href")) ?: return@forEach
+                    val rawHref = li.selectFirst("a[href*='bolum-izle'], a")?.attr("href")?.trim() ?: return@forEach
+                    val epHref = when {
+                        rawHref.startsWith("http") -> rawHref
+                        rawHref.startsWith("//") -> "https:$rawHref"
+                        rawHref.startsWith("/") -> "$mainUrl$rawHref"
+                        else -> "$mainUrl/$rawHref"
+                    }
                     val epName = li.selectFirst("h6 a, a")?.text()?.trim() ?: "$seasonNum. Sezon $epNum. Bölüm"
                     episodes.add(newEpisode(epHref) {
                         this.name = epName
@@ -119,7 +136,6 @@ class AnthologyDizi : MainAPI() {
                 seasonNum++
             }
         } else {
-            // If the current page itself has a player, add it as episode 1
             if (doc.select("button[data-hhs], #player_area, [data-hhs]").isNotEmpty() || url.contains("bolum-izle")) {
                 episodes.add(newEpisode(url) {
                     this.name = title
@@ -127,7 +143,6 @@ class AnthologyDizi : MainAPI() {
                     this.episode = 1
                 })
             }
-            // Check direct links on episode page (excluding series overview links)
             doc.select("a[href*='bolum-izle']").forEach { a ->
                 val rawHref = a.attr("href").trim()
                 if (rawHref.contains("/dizi/")) return@forEach
@@ -177,7 +192,6 @@ class AnthologyDizi : MainAPI() {
             plyUrls.add(data)
         } else {
             val doc = app.get(data, headers = headers).document
-            // Find button data-hhs
             doc.select("button[data-hhs], li.series-alter-active button, [data-hhs]").forEach { btn ->
                 val hhs = btn.attr("data-hhs").trim()
                 if (hhs.isNotEmpty()) {
@@ -190,9 +204,14 @@ class AnthologyDizi : MainAPI() {
                     plyUrls.add(fixed)
                 }
             }
-            // Also check direct iframes
             doc.select("iframe[src]").forEach { iframe ->
-                val src = fixUrl(iframe.attr("src"))
+                val rawSrc = iframe.attr("src").trim()
+                val src = when {
+                    rawSrc.startsWith("http") -> rawSrc
+                    rawSrc.startsWith("//") -> "https:$rawSrc"
+                    rawSrc.startsWith("/") -> "$mainUrl$rawSrc"
+                    else -> "$mainUrl/$rawSrc"
+                }
                 if (src.contains("/vid/ply/")) {
                     plyUrls.add(src)
                 } else {
@@ -226,11 +245,10 @@ class AnthologyDizi : MainAPI() {
                     foundStream = true
                 }
 
-                // If sources: [...] array regex
                 if (!foundStream) {
                     val directMp4Regex = Regex("""["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""")
-                    directMp4Regex.findAll(plyDoc).forEach { m ->
-                        val url = m.groupValues[1].replace("\\/", "/").trim()
+                    directMp4Regex.findAll(plyDoc.replace("\\/", "/")).forEach { m ->
+                        val url = m.groupValues[1].trim()
                         val isM3u8 = url.contains(".m3u8")
                         callback.invoke(
                             newExtractorLink(

@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "Sinema.gg arşivi üzerinden doğrudan 1080p Filmizle HLS master akışları."

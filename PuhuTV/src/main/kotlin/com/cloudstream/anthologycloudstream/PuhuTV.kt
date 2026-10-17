@@ -1,8 +1,10 @@
 @file:Suppress("DEPRECATION", "DEPRECATION_ERROR", "UNCHECKED_CAST")
 package com.cloudstream.anthologycloudstream
 
+import android.util.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import org.json.JSONObject
 import org.jsoup.nodes.Element
 
 class PuhuTV : MainAPI() {
@@ -13,10 +15,18 @@ class PuhuTV : MainAPI() {
     override val hasQuickSearch = true
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
 
+    override val mainPage = mainPageOf(
+        mainUrl to "Öne Çıkanlar",
+        "$mainUrl/dizi" to "Diziler",
+        "$mainUrl/film" to "Filmler",
+        "$mainUrl/cocuk" to "Çocuk",
+        "$mainUrl/canli-yayin" to "Canlı Yayınlar"
+    )
+
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
-        val document = app.get(mainUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        val document = app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         val items = document.select("a[href*='-detay'], a[href*='-izle']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
-        return newHomePageResponse(name, items)
+        return newHomePageResponse(request.name, items)
     }
 
     private fun Element.toSearchResult(): SearchResponse? {
@@ -115,16 +125,48 @@ class PuhuTV : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
+        var found = false
         try {
-            val document = app.get(data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
-            val iframes = document.select("iframe").mapNotNull { fixUrlNull(it.attr("src")) }
+            val headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "Referer" to "$mainUrl/")
+            val html = app.get(data, headers = headers).text
 
+            val videoId = Regex(""""video_id":\s*"([^"]+)"""").find(html)?.groupValues?.get(1)
+                ?: Regex("""(PUHU_[A-Z0-9_]+)""").find(html)?.groupValues?.get(1)
+
+            if (videoId != null) {
+                try {
+                    val apiUrl = "https://dygvideo.dygdigital.com/api/video_info?akamai=true&PublisherId=29&ReferenceId=$videoId&SecretKey=NtvApiSecret2014*"
+                    val res = app.get(apiUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Referer" to "$mainUrl/")).text
+                    val json = JSONObject(res)
+                    val hls = json.optJSONObject("data")?.optJSONObject("flavors")?.optString("hls")
+                    if (!hls.isNullOrEmpty()) {
+                        callback(
+                            newExtractorLink(
+                                name,
+                                "$name 1080p",
+                                hls,
+                                ExtractorLinkType.M3U8
+                            ) {
+                                this.referer = "$mainUrl/"
+                                this.quality = Qualities.P1080.value
+                            }
+                        )
+                        found = true
+                    }
+                } catch (e: Exception) {
+                    Log.e("PuhuTV", "DYG API error", e)
+                }
+            }
+
+            val document = org.jsoup.Jsoup.parse(html)
+            val iframes = document.select("iframe").mapNotNull { fixUrlNull(it.attr("src")) }
             for (iframe in iframes) {
                 loadExtractor(iframe, subtitleCallback, callback)
+                found = true
             }
         } catch (e: Exception) {
-            // ignore
+            Log.e("PuhuTV", "loadLinks error", e)
         }
-        return true
+        return found
     }
 }

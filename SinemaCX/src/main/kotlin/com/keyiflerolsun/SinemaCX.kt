@@ -8,7 +8,7 @@ import android.util.Log
 import org.jsoup.nodes.Element
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
+import org.json.JSONObject
 
 class SinemaCX : MainAPI() {
     override var mainUrl              = "https://sinemacc.com"
@@ -47,8 +47,12 @@ class SinemaCX : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse? {
         val href = fixUrlNull(this.attr("href").ifEmpty { this.selectFirst("a")?.attr("href") }) ?: return null
         if (!href.contains("/film/")) return null
+        if (href.endsWith("/film/") || href.endsWith("/film") || href == "$mainUrl/film/") return null
 
-        val title = this.attr("title").ifEmpty { this.selectFirst(".title, h2, h3, div.yanac span")?.text() }?.substringBefore(" İzle")?.trim() ?: return null
+        val title = this.attr("title").ifEmpty {
+            this.selectFirst(".title, h2, h3, div.yanac span")?.text() ?: this.selectFirst("img")?.attr("alt")
+        }?.substringBefore(" İzle")?.replace(" Film Posteri", "")?.trim() ?: return null
+
         val posterUrl = fixUrlNull(
             this.selectFirst("img")?.let {
                 it.attr("data-src").ifEmpty { it.attr("src") }
@@ -114,14 +118,64 @@ class SinemaCX : MainAPI() {
             } catch (_: Exception) {}
         }
 
+        var foundStream = false
+
         for (candidate in candidateUrls.distinct()) {
             val cleanUrl = candidate.substringBefore("?img=")
             if (cleanUrl.startsWith("http")) {
                 Log.d("SCX", "Processing candidate: $cleanUrl")
-                loadExtractor(cleanUrl, "${mainUrl}/", subtitleCallback, callback)
+
+                // Handle player.filmizle.in
+                if (cleanUrl.contains("filmizle.in") || cleanUrl.contains("/video/")) {
+                    val videoId = cleanUrl.substringAfter("/video/").substringBefore("?").substringBefore("/")
+                    if (videoId.isNotBlank()) {
+                        try {
+                            val getVideoUrl = "https://player.filmizle.in/player/index.php?data=$videoId&do=getVideo"
+                            val getRes = app.post(
+                                getVideoUrl,
+                                headers = mapOf(
+                                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                                    "Referer" to cleanUrl,
+                                    "X-Requested-With" to "XMLHttpRequest",
+                                    "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8"
+                                ),
+                                data = mapOf(
+                                    "hash" to videoId,
+                                    "r" to "$mainUrl/"
+                                )
+                            ).text
+
+                            val json = JSONObject(getRes)
+                            val securedLink = json.optString("securedLink")
+                            val videoSource = json.optString("videoSource")
+                            val streamUrl = if (securedLink.isNotBlank()) securedLink else videoSource
+
+                            if (streamUrl.isNotBlank()) {
+                                callback(
+                                    newExtractorLink(
+                                        name,
+                                        "$name - 1080p HLS",
+                                        streamUrl,
+                                        ExtractorLinkType.M3U8
+                                    ) {
+                                        this.referer = cleanUrl
+                                        this.quality = Qualities.P1080.value
+                                    }
+                                )
+                                foundStream = true
+                            }
+                        } catch (e: Exception) {
+                            Log.e("SCX", "Error fetching filmizle.in getVideo", e)
+                        }
+                    }
+                }
+
+                try {
+                    loadExtractor(cleanUrl, "${mainUrl}/", subtitleCallback, callback)
+                } catch (_: Exception) {}
             }
         }
 
-        return true
+        return foundStream || candidateUrls.isNotEmpty()
     }
 }

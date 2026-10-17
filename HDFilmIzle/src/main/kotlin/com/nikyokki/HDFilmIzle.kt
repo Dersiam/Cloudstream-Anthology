@@ -43,7 +43,7 @@ class HDFilmIzle : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse? {
         val link = if (this.tagName() == "a") this else this.selectFirst("a") ?: return null
         val href = fixUrlNull(link.attr("href")) ?: return null
-        if (!href.contains("/film/")) return null
+        if (!href.contains("/film/") || href.endsWith("/film/") || href.endsWith("/film") || href == "$mainUrl/film/") return null
 
         val title = this.selectFirst("h2.title, .title, span")?.text()?.trim()
             ?: link.attr("title").ifEmpty { null }

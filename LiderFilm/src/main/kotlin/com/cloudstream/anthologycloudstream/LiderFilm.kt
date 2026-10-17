@@ -7,6 +7,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import org.json.JSONArray
 import org.jsoup.nodes.Element
+import java.nio.charset.StandardCharsets
 
 class LiderFilm : MainAPI() {
     override var mainUrl = "https://liderfilmizle.vip"
@@ -30,7 +31,7 @@ class LiderFilm : MainAPI() {
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
         val pageUrl = if (page > 1) "${request.data}?page=$page" else request.data
         val document = app.get(pageUrl).document
-        val items = document.select("div.movie-card, div.cw-card, a[href]:has(img[src*='image.tmdb.org'])")
+        val items = document.select("a.movie-card, div.movie-card, a.cw-card, div.cw-card, a[href]:has(img)")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
         return newHomePageResponse(request.name, items)
@@ -43,6 +44,7 @@ class LiderFilm : MainAPI() {
 
         val title = this.selectFirst("div.movie-title, h2, h3, h4, .title, a.title")?.text()?.trim()
             ?: linkElem.attr("title").ifEmpty { null }
+            ?: this.selectFirst("img")?.attr("alt")?.trim()?.ifEmpty { null }
             ?: return null
 
         val poster = fixUrlNull(this.selectFirst("img")?.let {
@@ -60,9 +62,9 @@ class LiderFilm : MainAPI() {
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val searchUrl = "$mainUrl/?search=$query"
+        val searchUrl = "$mainUrl/?search=${query.trim()}"
         val document = app.get(searchUrl).document
-        return document.select("div.movie-card, div.cw-card, a[href]:has(img[src*='image.tmdb.org'])")
+        return document.select("a.movie-card, div.movie-card, a.cw-card, div.cw-card, a[href]:has(img)")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
     }
@@ -119,13 +121,42 @@ class LiderFilm : MainAPI() {
         if (vsMatch != null) {
             try {
                 val b64 = vsMatch.groupValues[1]
-                val decoded = String(Base64.decode(b64, Base64.DEFAULT), Charsets.UTF_8)
+                val decoded = String(Base64.decode(b64, Base64.DEFAULT), StandardCharsets.UTF_8)
                 val arr = JSONArray(decoded)
                 for (i in 0 until arr.length()) {
                     val obj = arr.getJSONObject(i)
                     val rawUrl = obj.optString("url")
                     val embedUrl = fixUrlNull(rawUrl.replace("\\/", "/")) ?: continue
                     if (!embedUrl.contains("youtube.com")) {
+                        if (embedUrl.contains("play.liderfilm.cc") || embedUrl.contains("/vod/")) {
+                            try {
+                                val pDoc = app.get(
+                                    embedUrl,
+                                    headers = mapOf(
+                                        "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                                        "Referer" to "$mainUrl/"
+                                    )
+                                ).text
+                                val contentUrl = Regex("""contentUrl["']?\s*:\s*["']([^"']+)["']""").find(pDoc)?.groupValues?.get(1)
+                                if (contentUrl != null) {
+                                    val streamUrl = if (contentUrl.startsWith("http")) contentUrl else "https://play.liderfilm.cc$contentUrl"
+                                    callback(
+                                        newExtractorLink(
+                                            name,
+                                            "$name 1080p",
+                                            streamUrl,
+                                            ExtractorLinkType.M3U8
+                                        ) {
+                                            this.referer = "https://play.liderfilm.cc/"
+                                            this.quality = Qualities.P1080.value
+                                        }
+                                    )
+                                    extracted = true
+                                }
+                            } catch (e: Exception) {
+                                Log.e("LiderFilm", "play.liderfilm.cc error", e)
+                            }
+                        }
                         loadExtractor(embedUrl, "$mainUrl/", subtitleCallback, callback)
                         extracted = true
                     }

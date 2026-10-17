@@ -40,9 +40,15 @@ class AsyaAnimeleri : MainAPI() {
     }
 
     private fun Element.toSearchResult(): SearchResponse? {
-        val title = this.selectFirst(".tt, h2, h3, a.title, .title, a")?.text()?.trim() ?: return null
-        val rawHref = this.selectFirst("a")?.attr("href") ?: return null
+        val a = if (this.tagName() == "a") this else this.selectFirst("a") ?: return null
+        val rawHref = a.attr("href").trim()
+        if (rawHref.isEmpty()) return null
         val href = fixUrl(rawHref)
+
+        val title = a.attr("title").ifEmpty {
+            this.selectFirst("h2, h3, .tt, a.title, .title")?.text()
+        }?.trim() ?: a.text().trim().ifEmpty { return null }
+
         val poster = fixUrlNull(this.selectFirst("img")?.let { it.attr("data-src").ifEmpty { it.attr("src") } })
 
         return newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
@@ -152,7 +158,9 @@ class AsyaAnimeleri : MainAPI() {
                         )
                     ).text
 
-                    val m3u8Match = Regex("""file:\s*["']([^"']+\.m3u8[^"']*)["']""").find(vidmolyDoc)?.groupValues?.get(1)
+                    val cleanDoc = vidmolyDoc.replace("\\/", "/")
+                    val m3u8Match = Regex("""file:\s*["']([^"']+\.m3u8[^"']*)["']""").find(cleanDoc)?.groupValues?.get(1)
+                        ?: Regex("""(https?://[^\s"']+\.m3u8[^\s"']*)""").find(cleanDoc)?.groupValues?.get(1)
                     if (m3u8Match != null) {
                         callback.invoke(
                             newExtractorLink(
@@ -170,23 +178,28 @@ class AsyaAnimeleri : MainAPI() {
                 } else if (iframe.contains("rumble.com")) {
                     val rumbleDoc = app.get(
                         iframe,
-                        headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                        headers = mapOf(
+                            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                            "Referer" to "$mainUrl/"
+                        )
                     ).text
 
-                    val mp4Match = Regex("""["'](https:[^"']+\.mp4[^"']*)["']""").find(rumbleDoc)?.groupValues?.get(1)
-                    val m3u8Match = Regex("""["'](https:[^"']+\.m3u8[^"']*)["']""").find(rumbleDoc)?.groupValues?.get(1)
-                    val vidUrl = m3u8Match ?: mp4Match
+                    val cleanDoc = rumbleDoc.replace("\\/", "/").replace("\\\"", "\"")
+                    val hlsMatch = Regex(""""hls"\s*:\s*\{\s*"url"\s*:\s*"([^"]+)"""").find(cleanDoc)?.groupValues?.get(1)
+                        ?: Regex("""(https?://[^\s"']+\.m3u8[^\s"']*)""").find(cleanDoc)?.groupValues?.get(1)
+                    val mp4Match = Regex("""(https?://[^\s"']+\.mp4[^\s"']*)""").find(cleanDoc)?.groupValues?.get(1)
+                    val vidUrl = hlsMatch ?: mp4Match
                     if (vidUrl != null) {
                         val isM3u8 = vidUrl.contains(".m3u8")
                         callback.invoke(
                             newExtractorLink(
                                 source = this.name,
-                                name = "Rumble",
-                                url = vidUrl.replace("\\/", "/"),
+                                name = if (isM3u8) "Rumble HLS 1080p" else "Rumble 720p",
+                                url = vidUrl,
                                 type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
                             ) {
                                 this.referer = "https://rumble.com/"
-                                this.quality = Qualities.P720.value
+                                this.quality = if (isM3u8) Qualities.P1080.value else Qualities.P720.value
                             }
                         )
                         streamFound = true

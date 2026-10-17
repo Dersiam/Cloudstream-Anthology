@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "LiderFilm.vip - Yerli & yabancı film ve dizi arşivi, 1080p doğrudan HLS akışları."

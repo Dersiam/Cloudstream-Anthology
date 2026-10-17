@@ -3,6 +3,7 @@
 
 package com.keyiflerolsun
 
+import android.util.Base64
 import android.util.Log
 import org.jsoup.nodes.Element
 import com.lagradost.cloudstream3.*
@@ -10,7 +11,6 @@ import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import org.json.JSONObject
-import okhttp3.*
 
 class SetFilmIzle : MainAPI() {
     override var mainUrl              = "https://www.setfilmizle.ltd"
@@ -50,14 +50,21 @@ class SetFilmIzle : MainAPI() {
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val pageUrl = if (page > 1) "${request.data}page/$page/" else request.data
         val document = app.get(pageUrl).document
-        val home     = document.select("a.card-link, div.items article, article.card").mapNotNull { it.toMainPageResult() }
+        val home     = document.select("a.card-link, div.items article, article.card").mapNotNull { it.toMainPageResult() }.distinctBy { it.url }
 
         return newHomePageResponse(request.name, home)
     }
 
     private fun Element.toMainPageResult(): SearchResponse? {
-        val href = fixUrlNull(this.attr("href").ifEmpty { this.selectFirst("a")?.attr("href") }) ?: return null
-        val title = this.selectFirst(".card-ad, h2")?.text()?.trim() ?: this.attr("title").ifEmpty { null } ?: return null
+        val a = if (this.tagName() == "a") this else this.selectFirst("a") ?: return null
+        val href = fixUrlNull(a.attr("href")) ?: return null
+        if (href == mainUrl || href == "$mainUrl/" || href.contains("/tur/") || href.contains("/yil/")) return null
+
+        val title = this.selectFirst(".card-ad, h2, h3")?.text()?.trim()
+            ?: a.attr("title").ifEmpty { null }
+            ?: this.selectFirst("img")?.attr("alt")?.trim()
+            ?: return null
+
         val posterUrl = fixUrlNull(this.selectFirst("img")?.let { it.attr("src").ifEmpty { it.attr("data-src") } })
 
         return if (href.contains("/dizi/")) {
@@ -69,7 +76,7 @@ class SetFilmIzle : MainAPI() {
 
     override suspend fun search(query: String): List<SearchResponse> {
         val searchDoc = app.get("${mainUrl}/?s=${query.trim()}").document
-        return searchDoc.select("a.card-link, div.items article, article.card").mapNotNull { it.toSearchResult() }
+        return searchDoc.select("a.card-link, div.items article, article.card").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
     }
 
     private fun Element.toSearchResult(): SearchResponse? = toMainPageResult()
@@ -82,7 +89,7 @@ class SetFilmIzle : MainAPI() {
         val title           = document.selectFirst("span.fbox-title-tx, h1")?.text()?.substringBefore(" izle")?.trim() ?: "Film"
         val poster          = fixUrlNull(document.selectFirst(".fbox-art img, .poster-art img, div.poster img")?.attr("src"))
         val description     = document.selectFirst("div.fbox-story p, div.wp-content p")?.text()?.trim()
-        var year            = document.selectFirst("span.fbox-date, div.extra span.C a")?.text()?.replace(Regex("""[()]"""), "")?.trim()?.toIntOrNull()
+        val year            = document.selectFirst("span.fbox-date, div.extra span.C a")?.text()?.replace(Regex("""[()]"""), "")?.trim()?.toIntOrNull()
         val tags            = document.select("div.sgeneros a, div.fbox-tags a").map { it.text() }
         val actors          = document.select("span.valor a, div.fbox-actors a").map { Actor(it.text()) }
         val trailer         = Regex("""embed/(.*)\?rel""").find(document.html())?.groupValues?.get(1)?.let { "https://www.youtube.com/embed/$it" }
@@ -125,6 +132,20 @@ class SetFilmIzle : MainAPI() {
         }
     }
 
+    private fun xorDecrypt(t: String, n: String): String {
+        return try {
+            val r = Base64.decode(t, Base64.DEFAULT)
+            val o = Base64.decode(n, Base64.DEFAULT)
+            val sb = java.lang.StringBuilder()
+            for (i in r.indices) {
+                sb.append((r[i].toInt() xor o[i % o.size].toInt()).toChar())
+            }
+            sb.toString()
+        } catch (_: Exception) {
+            ""
+        }
+    }
+
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
         Log.d("STF", "loadLinks data » $data")
         val response = app.get(data, referer = "$mainUrl/")
@@ -135,14 +156,12 @@ class SetFilmIzle : MainAPI() {
             ?: Regex("""nonce:\s*'([^']+)'""").find(html)?.groupValues?.get(1)
             ?: ""
 
-        val postId = document.selectFirst("#stfPlayer, div.fplayer")?.attr("data-post-id")
-            ?: document.selectFirst("[data-post-id]")?.attr("data-post-id")
-            ?: ""
+        val postId = document.selectFirst("#stfPlayer, div.fplayer, [data-post-id]")?.attr("data-post-id") ?: ""
 
-        val buttons = document.select("button.fsrc, nav.player a")
+        val buttons = document.select("button.fsrc, [data-player-name], nav.player a")
         for (btn in buttons) {
             val playerName = btn.attr("data-player-name").ifEmpty { btn.text().trim() }
-            val partKey = btn.attr("data-part-key").ifEmpty { "turkcedublaj" }
+            val partKey = btn.attr("data-part-key")
             val sourceId = btn.attr("data-post-id").ifEmpty { postId }
 
             if (sourceId.isBlank() || playerName.isBlank()) continue
@@ -171,7 +190,48 @@ class SetFilmIzle : MainAPI() {
                         ?: ""
 
                     if (sourceUrl.isNotBlank()) {
-                        Log.d("STF", "Resolved streamUrl » $sourceUrl")
+                        Log.d("STF", "Resolved sourceUrl » $sourceUrl")
+                        // If it is setplay.shop or fastplay, resolve XOR obfuscation
+                        if (sourceUrl.contains("setplay.shop") || sourceUrl.contains("stfplay.php")) {
+                            try {
+                                val stfHtml = app.get(sourceUrl, referer = data).text
+                                val spgMatch = Regex("""SPG\.cerceve\("b2","([^"]+)","([^"]+)"\)""").find(stfHtml)
+                                if (spgMatch != null) {
+                                    val decUrl = xorDecrypt(spgMatch.groupValues[1], spgMatch.groupValues[2])
+                                    if (decUrl.startsWith("http")) {
+                                        val fpHtml = app.get(decUrl, referer = sourceUrl).text
+                                        val kopruMatch = Regex("""window\.STF_KOPRU\s*=\s*(\{.*?\});""", RegexOption.DOT_MATCHES_ALL).find(fpHtml)
+                                        if (kopruMatch != null) {
+                                            val kopruJsonStr = kopruMatch.groupValues[1].replace("\t", "").replace("\n", "")
+                                            val src = Regex("""src:\s*"([^"]+)"""").find(kopruJsonStr)?.groupValues?.get(1)
+                                            if (src != null) {
+                                                val streamUrl = if (src.startsWith("http")) src else "https://fastplay.mom$src"
+                                                callback(
+                                                    newExtractorLink(
+                                                        name,
+                                                        "$name - FastPlay",
+                                                        streamUrl,
+                                                        ExtractorLinkType.M3U8
+                                                    ) {
+                                                        this.referer = "https://fastplay.mom/"
+                                                        this.quality = Qualities.P1080.value
+                                                    }
+                                                )
+                                            }
+                                            // Subtitles
+                                            Regex("""\{"file":"([^"]+)","label":"([^"]+)"""").findAll(kopruJsonStr).forEach { subMatch ->
+                                                val file = subMatch.groupValues[1].replace("\\/", "/")
+                                                val label = subMatch.groupValues[2]
+                                                subtitleCallback(SubtitleFile(label, file))
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("STF", "Error resolving STF bridge: ${e.message}")
+                            }
+                        }
+
                         loadExtractor(sourceUrl, "${mainUrl}/", subtitleCallback, callback)
                     }
                 }

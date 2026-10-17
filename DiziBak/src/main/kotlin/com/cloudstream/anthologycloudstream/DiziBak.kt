@@ -34,7 +34,11 @@ class DiziBak : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse? {
         val href = fixUrlNull(this.attr("href")) ?: return null
-        if (href == mainUrl || href == "$mainUrl/" || href.contains("/kategori/") || href.contains("/tur/") || href.contains("/tum-bolumler") || href.contains("/page/")) return null
+        if (href == mainUrl || href == "$mainUrl/" ||
+            href.endsWith("/diziler/") || href.endsWith("/diziler") ||
+            href.endsWith("/filmler/") || href.endsWith("/filmler") ||
+            href.contains("/kategori/") || href.contains("/tur/") ||
+            href.contains("/tum-bolumler") || href.contains("/page/")) return null
 
         val img = this.selectFirst("img")
         val title = this.attr("title").replace(" izle", "").trim().ifEmpty { null }
@@ -64,9 +68,9 @@ class DiziBak : MainAPI() {
             val results = document.select("a[href*='/diziler/'], a[href*='/filmler/'], a[href*='-sezon-']")
                 .mapNotNull { it.toSearchResult() }
                 .distinctBy { it.url }
-            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
+            if (results.isNotEmpty()) results else getMainPage(1, MainPageRequest(name, "$mainUrl/tum-bolumler/", false)).items.flatMap { it.list }
         } catch (e: Exception) {
-            getMainPage(1, MainPageRequest(name, mainUrl, false)).items.flatMap { it.list }
+            getMainPage(1, MainPageRequest(name, "$mainUrl/tum-bolumler/", false)).items.flatMap { it.list }
         }
     }
 
@@ -85,13 +89,14 @@ class DiziBak : MainAPI() {
             }
         }
 
-        val episodeElements = document.select("a[href*='-sezon-'], a[href*='-bolum-'], a[href*='/bolum/']")
+        val episodeElements = document.select("a[href*='-bolum'], a[href*='/bolum/'], a[href*='-bolum-']")
         val eps = mutableListOf<Episode>()
         val epRegex = Regex("""(\d+)[.-]sezon[.-](\d+)[.-]bolum""")
         val added = mutableSetOf<String>()
 
         for (a in episodeElements) {
             val epHref = fixUrlNull(a.attr("href")) ?: continue
+            if (epHref.contains("/dizi/")) continue // skip series overview links
             if (!added.add(epHref)) continue
             val match = epRegex.find(epHref)
             val sNum = match?.groupValues?.get(1)?.toIntOrNull() ?: 1
