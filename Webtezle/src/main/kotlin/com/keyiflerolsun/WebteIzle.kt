@@ -7,7 +7,9 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URLEncoder
 
-class WebteIzle : MainAPI() {
+typealias WebteIzle = Webtezle
+
+class Webtezle : MainAPI() {
     override var mainUrl = "https://webteizle.vip"
     override var name = "Webteİzle"
     override val hasMainPage = true
