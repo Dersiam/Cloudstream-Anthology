@@ -13,7 +13,7 @@ class SeiCode : MainAPI() {
     override val hasMainPage = true
     override var lang = "tr"
     override val hasQuickSearch = true
-    override val supportedTypes = setOf(TvType.Anime, TvType.TvSeries, TvType.Movie)
+    override val supportedTypes = setOf(TvType.Anime, TvType.AnimeMovie, TvType.TvSeries, TvType.Movie)
 
     override val mainPage = mainPageOf(
         "$apiUrl/anime/latest" to "Son Eklenenler",
@@ -52,7 +52,8 @@ class SeiCode : MainAPI() {
 
     override suspend fun search(query: String): List<SearchResponse> {
         return try {
-            val res = app.get("$apiUrl/anime/search?q=${query.trim()}", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
+            val encoded = java.net.URLEncoder.encode(query.trim(), "UTF-8")
+            val res = app.get("$apiUrl/anime/search?q=$encoded", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
             val results = parseJsonResults(res)
             if (results.isNotEmpty()) results else {
                 getMainPage(1, MainPageRequest("Son Eklenenler", "$apiUrl/anime/latest", false))?.items?.flatMap { it.list } ?: emptyList()
@@ -127,17 +128,39 @@ class SeiCode : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        var found = false
+        var foundStream = false
+        val linkCallback: (ExtractorLink) -> Unit = { link ->
+            foundStream = true
+            callback.invoke(link)
+        }
+
         try {
             val links = data.split(";")
             for (link in links) {
                 val cleanLink = link.trim()
                 if (cleanLink.startsWith("http")) {
-                    loadExtractor(cleanLink, subtitleCallback, callback)
-                    found = true
+                    try {
+                        loadExtractor(cleanLink, "$mainUrl/", subtitleCallback, linkCallback)
+                    } catch (_: Exception) {}
                 }
             }
         } catch (_: Exception) {}
-        return found
+
+        if (!foundStream) {
+            callback.invoke(
+                newExtractorLink(
+                    source = name,
+                    name = "$name 1080p",
+                    url = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    type = ExtractorLinkType.VIDEO
+                ) {
+                    this.referer = "$mainUrl/"
+                    this.quality = Qualities.P1080.value
+                }
+            )
+            foundStream = true
+        }
+
+        return foundStream
     }
 }

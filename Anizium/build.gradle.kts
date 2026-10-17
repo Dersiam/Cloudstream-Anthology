@@ -1,10 +1,10 @@
-version = 5
+version = 6
 
 cloudstream {
     description = "4K & 1080p Türkçe Dublaj ve Altyazılı Anime Kaynağı (Doğrudan MP4 + WebVTT)."
     authors = listOf("falsisdev")
     status = 1
-    tvTypes = listOf("TvSeries", "Movie", "Anime")
+    tvTypes = listOf("TvSeries", "Movie", "Anime", "AnimeMovie")
     language = "tr"
     iconUrl = "https://raw.githubusercontent.com/falsisdev/anthology/main/assets/anizium.png"
 }

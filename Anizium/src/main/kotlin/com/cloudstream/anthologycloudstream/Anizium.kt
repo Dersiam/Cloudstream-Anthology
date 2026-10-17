@@ -15,7 +15,7 @@ class Anizium : MainAPI() {
     override val hasMainPage = true
     override var lang = "tr"
     override val hasQuickSearch = true
-    override val supportedTypes = setOf(TvType.Anime, TvType.Movie, TvType.TvSeries)
+    override val supportedTypes = setOf(TvType.Anime, TvType.AnimeMovie, TvType.Movie, TvType.TvSeries)
 
     private val siteOrigin = "https://anizium.co"
     private val tokenKey = "hlxjl1c2w281ax473rt1ofgrvhyjvi"
