@@ -83,6 +83,7 @@ class SonAnime : MainAPI() {
             val array = JSONArray(res)
             val items = mutableListOf<SearchResponse>()
             for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
                 val link = obj.optString("anime_link")
                 if (link.isEmpty()) continue
                 val title = obj.optString("anime_name").ifEmpty { obj.optString("anime_name_en") }.ifEmpty { link }
