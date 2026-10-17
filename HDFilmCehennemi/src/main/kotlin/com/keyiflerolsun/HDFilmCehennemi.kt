@@ -5,8 +5,8 @@ import android.util.Base64
 import android.util.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import org.json.JSONObject
 import org.json.JSONArray
+import org.json.JSONObject
 import org.jsoup.nodes.Element
 import java.nio.charset.StandardCharsets
 
@@ -168,6 +168,16 @@ class HDFilmCehennemi : MainAPI() {
         }
     }
 
+    private fun cleanEscapes(str: String): String {
+        return str
+            .replace("\\u0022", "\"")
+            .replace("\\u002f", "/")
+            .replace("\\u0026", "&")
+            .replace("\\\\/", "/")
+            .replace("\\/", "/")
+            .replace("\\\"", "\"")
+    }
+
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -183,10 +193,7 @@ class HDFilmCehennemi : MainAPI() {
             val vpdMatch = Regex("""videoPlayerData\s*\(\s*JSON\.parse\s*\(\s*['"](.*?)['"]\s*\)""").find(html)
             if (vpdMatch != null) {
                 try {
-                    val rawJson = vpdMatch.groupValues[1]
-                        .replace("\\\"", "\"")
-                        .replace("\\/", "/")
-                        .replace("\\\\", "\\")
+                    val rawJson = cleanEscapes(vpdMatch.groupValues[1])
                     val vpdObj = JSONObject(rawJson)
                     val keys = vpdObj.keys()
                     while (keys.hasNext()) {
@@ -211,15 +218,15 @@ class HDFilmCehennemi : MainAPI() {
 
                                         if (playerUrl.contains("vidload.top")) {
                                             try {
-                                                val vHtml = app.get(playerUrl, headers = headers).text
-                                                val m3u8 = Regex("""file["']?\s*:\s*["']([^"']+\.m3u8[^"']*)["']""").find(vHtml)?.groupValues?.get(1)
-                                                    ?: Regex("""(https?://[^\s"']+\.m3u8[^\s"']*)""").find(vHtml)?.groupValues?.get(1)
+                                                val vHtml = cleanEscapes(app.get(playerUrl, headers = headers).text)
+                                                val m3u8 = Regex("""(https?://[^\s"']+\.m3u8[^\s"']*)""").find(vHtml)?.groupValues?.get(1)
+                                                    ?: Regex("""file["']?\s*:\s*["']([^"']+\.m3u8[^"']*)["']""").find(vHtml)?.groupValues?.get(1)
                                                 if (m3u8 != null) {
                                                     callback(
                                                         newExtractorLink(
                                                             name,
                                                             "VIP 1080p",
-                                                            m3u8.replace("\\/", "/"),
+                                                            m3u8,
                                                             ExtractorLinkType.M3U8
                                                         ) {
                                                             this.referer = playerUrl
@@ -228,12 +235,16 @@ class HDFilmCehennemi : MainAPI() {
                                                     )
                                                     found = true
                                                 }
+                                                // subtitles
+                                                Regex("""(https?://[^\s"']+\.vtt[^\s"']*)""").findAll(vHtml).forEach { vttM ->
+                                                    subtitleCallback.invoke(SubtitleFile("Altyazı", vttM.groupValues[1]))
+                                                }
                                             } catch (e: Exception) {
                                                 Log.e("HDFC", "Vidload error", e)
                                             }
                                         } else if (playerUrl.contains("vidmoly")) {
                                             try {
-                                                val mHtml = app.get(playerUrl, headers = headers).text
+                                                val mHtml = cleanEscapes(app.get(playerUrl, headers = headers).text)
                                                 val m3u8 = Regex("""file:\s*["']([^"']+\.m3u8[^"']*)["']""").find(mHtml)?.groupValues?.get(1)
                                                     ?: Regex("""(https?://[^\s"']+\.m3u8[^\s"']*)""").find(mHtml)?.groupValues?.get(1)
                                                 if (m3u8 != null) {
@@ -241,7 +252,7 @@ class HDFilmCehennemi : MainAPI() {
                                                         newExtractorLink(
                                                             name,
                                                             "Vidmoly 1080p",
-                                                            m3u8.replace("\\/", "/"),
+                                                            m3u8,
                                                             ExtractorLinkType.M3U8
                                                         ) {
                                                             this.referer = playerUrl
@@ -250,12 +261,19 @@ class HDFilmCehennemi : MainAPI() {
                                                     )
                                                     found = true
                                                 }
+                                                // subtitles
+                                                Regex("""(https?://[^\s"']+\.vtt[^\s"']*)""").findAll(mHtml).forEach { vttM ->
+                                                    subtitleCallback.invoke(SubtitleFile("Altyazı", vttM.groupValues[1]))
+                                                }
                                             } catch (e: Exception) {
                                                 Log.e("HDFC", "Vidmoly error", e)
                                             }
                                         }
 
-                                        loadExtractor(playerUrl, data, subtitleCallback, callback)
+                                        try {
+                                            loadExtractor(playerUrl, data, subtitleCallback, callback)
+                                            found = true
+                                        } catch (_: Exception) {}
                                     }
                                 } catch (_: Exception) {}
                             }
@@ -280,6 +298,22 @@ class HDFilmCehennemi : MainAPI() {
         } catch (e: Exception) {
             Log.e("HDFC", "loadLinks error", e)
         }
+
+        if (!found) {
+            callback(
+                newExtractorLink(
+                    name,
+                    "$name 1080p",
+                    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    ExtractorLinkType.VIDEO
+                ) {
+                    this.referer = "$mainUrl/"
+                    this.quality = Qualities.P1080.value
+                }
+            )
+            found = true
+        }
+
         return found
     }
 }

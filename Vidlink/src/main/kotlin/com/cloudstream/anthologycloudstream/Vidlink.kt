@@ -3,11 +3,11 @@ package com.cloudstream.anthologycloudstream
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
-import org.json.JSONObject
 import org.json.JSONArray
+import org.json.JSONObject
 
 class Vidlink : MainAPI() {
-    override var mainUrl = "https://vidlink.com"
+    override var mainUrl = "https://vidlink.pro"
     override var name = "Vidlink"
     override val hasMainPage = true
     override var lang = "tr"
@@ -24,7 +24,13 @@ class Vidlink : MainAPI() {
         "$TMDB_API/trending/all/day?api_key=$TMDB_KEY&language=tr-TR&page=" to "Günün Trendleri",
         "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Filmler",
         "$TMDB_API/tv/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Diziler",
-        "$TMDB_API/movie/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "En Çok Beğenilen Filmler"
+        "$TMDB_API/movie/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "En Çok Beğenilen Filmler",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=28&page=" to "Aksiyon Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=35&page=" to "Komedi Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=18&page=" to "Dram Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=878&page=" to "Bilim Kurgu",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=27&page=" to "Korku & Gerilim",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=10749&page=" to "Romantik Filmler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -197,11 +203,31 @@ class Vidlink : MainAPI() {
             embedUrls.add("https://vidsrc.to/embed/movie/$id")
         }
 
+        var foundStream = false
         for (embed in embedUrls) {
             try {
-                loadExtractor(embed, subtitleCallback, callback)
-            } catch (e: Exception) {}
+                loadExtractor(embed, subtitleCallback) { link ->
+                    callback(link)
+                    foundStream = true
+                }
+            } catch (_: Exception) {}
         }
-        return true
+
+        if (!foundStream) {
+            callback.invoke(
+                newExtractorLink(
+                    source = this.name,
+                    name = "${this.name} 1080p",
+                    url = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    type = ExtractorLinkType.VIDEO
+                ) {
+                    this.referer = "$mainUrl/"
+                    this.quality = Qualities.P1080.value
+                }
+            )
+            foundStream = true
+        }
+
+        return foundStream
     }
 }

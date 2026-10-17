@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "trdiziizle.xyz yerli dizi arşivi (Cloudflare koruması varsa boş döner)."

@@ -1,4 +1,4 @@
-version = 8
+version = 9
 
 cloudstream {
     description = "NOW / Show TV / KanalD / Star TV / ATV / TRT1 resmi yayın arşivlerinden dinamik bölüm akışları — TMDB eşleştirmeli, sabit harita yok."

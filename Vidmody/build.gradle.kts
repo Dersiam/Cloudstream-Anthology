@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "Doğrudan çoklu dil ve altyazı destekli HLS film ve dizi akış sağlayıcısı (1080p)."
