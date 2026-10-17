@@ -39,12 +39,14 @@ class AniMOM : MainAPI() {
         val href = fixUrlNull(this.attr("href")) ?: return null
         if (!href.contains("/anime/") || href.contains("/tur/") || href.contains("/kategori/")) return null
         if (href.endsWith("/anime") || href.endsWith("/anime/")) return null
+        if (this.parents().any { it.hasClass("trend-week") || it.hasClass("leftbar-box") }) return null
 
-        val title = this.selectFirst("h2, h3, h4, .title, .truncate")?.text()?.trim()
+        val rawTitle = this.selectFirst("h2, h3, h4, .title, .truncate")?.text()?.trim()
             ?: this.selectFirst("img")?.attr("alt")?.trim()
             ?: this.text().trim().ifEmpty { null }
             ?: return null
 
+        val title = rawTitle.removePrefix("#").trim()
         if (title.length < 2 || title.equals("Anime", ignoreCase = true)) return null
 
         val poster = fixUrlNull(this.selectFirst("img")?.let {
@@ -193,15 +195,15 @@ class AniMOM : MainAPI() {
             }
 
             for (url in frameUrls) {
-                if (url.contains("hdplayersystem.com")) {
-                    val hash = Regex("""(?:embed/|data=)([a-zA-Z0-9_-]+)""").find(url)?.groupValues?.get(1)
+                if (url.contains("hdplayersystem.com") || url.contains("chickenbanana")) {
+                    val hash = Regex("""(?:embed/|video/|data=)([a-zA-Z0-9_-]+)""").find(url)?.groupValues?.get(1)
                     if (hash != null) {
                         try {
                             val vRes = app.post(
                                 "https://hdplayersystem.com/player/index.php?data=$hash&do=getVideo",
                                 headers = mapOf(
                                     "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
-                                    "Referer" to "https://hdplayersystem.com/embed/$hash",
+                                    "Referer" to "https://hdplayersystem.com/video/$hash",
                                     "Origin" to "https://hdplayersystem.com",
                                     "X-Requested-With" to "XMLHttpRequest",
                                     "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -223,10 +225,12 @@ class AniMOM : MainAPI() {
                                         url = finalStreamUrl,
                                         type = ExtractorLinkType.M3U8
                                     ) {
+                                        this.referer = "https://hdplayersystem.com/"
                                         this.headers = mapOf(
                                             "Referer" to "https://hdplayersystem.com/",
                                             "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
                                         )
+                                        this.quality = Qualities.P1080.value
                                     }
                                 )
                             }

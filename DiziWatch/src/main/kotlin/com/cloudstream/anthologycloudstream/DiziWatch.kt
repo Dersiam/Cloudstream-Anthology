@@ -33,8 +33,16 @@ class DiziWatch : MainAPI() {
     }
 
     private fun Element.toSearchResult(): SearchResponse? {
-        val href = fixUrlNull(this.attr("href")) ?: return null
-        if (href == mainUrl || href == "$mainUrl/" || href.contains("/sezon-") || href.contains("/bolum-")) return null
+        val rawHref = fixUrlNull(this.attr("href")) ?: return null
+        if (rawHref == mainUrl || rawHref == "$mainUrl/") return null
+        val href = if (rawHref.contains("/sezon-")) {
+            rawHref.substringBefore("/sezon-")
+        } else if (rawHref.contains("/bolum-")) {
+            rawHref.substringBefore("/bolum-")
+        } else {
+            rawHref
+        }
+        if (href == mainUrl || href == "$mainUrl/") return null
 
         val img = this.selectFirst("img")
         val title = this.selectFirst("h2, h3, span, p")?.text()?.trim()
@@ -154,6 +162,25 @@ class DiziWatch : MainAPI() {
             }
 
             for (iframe in iframes.distinct()) {
+                if (iframe.contains("vidmoly")) {
+                    try {
+                        val vHtml = app.get(iframe, referer = "$mainUrl/").text
+                        val m3u8Match = Regex("""file:\s*["']([^"']+\.m3u8[^"']*)["']""").find(vHtml)?.groupValues?.get(1)
+                        if (!m3u8Match.isNullOrEmpty()) {
+                            callback.invoke(
+                                newExtractorLink(
+                                    name = "$name - Vidmoly",
+                                    source = name,
+                                    url = m3u8Match,
+                                    type = ExtractorLinkType.M3U8
+                                ) {
+                                    this.referer = iframe
+                                    this.quality = Qualities.P1080.value
+                                }
+                            )
+                        }
+                    } catch (e: Exception) {}
+                }
                 try {
                     loadExtractor(iframe, "$mainUrl/", subtitleCallback, callback)
                 } catch (e: Exception) {}

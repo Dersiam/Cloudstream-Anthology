@@ -1,4 +1,4 @@
-version = 4
+version = 5
 
 cloudstream {
     description = "HDFilmIzle (Ink/Vip) arşivi üzerinden FastPlay 1080p HLS master akışları ve TR/EN altyazılar."

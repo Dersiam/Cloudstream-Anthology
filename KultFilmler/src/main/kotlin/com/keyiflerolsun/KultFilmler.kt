@@ -97,7 +97,7 @@ class KultFilmler : MainAPI() {
         val year = Regex("""(\d{4})""").find(document.selectFirst("li.release, div.meta, span.year")?.text() ?: "")?.groupValues?.get(1)?.toIntOrNull()
 
         if (url.contains("/dizi/")) {
-            val episodes = document.select("div.episode-box, a[href*='/sezon-'], a[href*='/bolum-']").mapNotNull {
+            val episodes = document.select("div.episode-box, a[href*='/sezon-'], a[href*='/bolum-'], a[href*='/bolum/'], a[href*='-bolum-']").mapNotNull {
                 val a = if (it.tagName() == "a") it else it.selectFirst("a") ?: return@mapNotNull null
                 val epHref = fixUrlNull(a.attr("href")) ?: return@mapNotNull null
                 val epName = a.text().trim().ifEmpty { "Bölüm" }
@@ -170,7 +170,43 @@ class KultFilmler : MainAPI() {
             for (iframe in iframes) {
                 if (iframe.contains("youtube.com")) continue
 
-                if (iframe.contains("vidpapi.xyz") || iframe.contains("vidmoly")) {
+                if (iframe.contains("vidpapi.xyz")) {
+                    val hash = Regex("""(?:video/|data=|embed/)([a-zA-Z0-9_-]+)""").find(iframe)?.groupValues?.get(1)
+                    if (hash != null) {
+                        try {
+                            val vRes = app.post(
+                                "https://vidpapi.xyz/player/index.php?data=$hash&do=getVideo",
+                                headers = mapOf(
+                                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                                    "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8",
+                                    "X-Requested-With" to "XMLHttpRequest",
+                                    "Referer" to "https://vidpapi.xyz/video/$hash"
+                                ),
+                                data = mapOf(
+                                    "hash" to hash,
+                                    "r" to "$mainUrl/"
+                                )
+                            ).text
+                            val json = JSONObject(vRes)
+                            val streamUrl = json.optString("securedLink").ifEmpty { json.optString("videoSource") }
+                            if (streamUrl.isNotEmpty()) {
+                                callback.invoke(
+                                    newExtractorLink(
+                                        source = name,
+                                        name = "$name - VidPapi",
+                                        url = streamUrl,
+                                        type = ExtractorLinkType.M3U8
+                                    ) {
+                                        this.referer = "https://vidpapi.xyz/"
+                                        this.quality = Qualities.P1080.value
+                                    }
+                                )
+                            }
+                        } catch (e: Exception) {}
+                    }
+                }
+
+                if (iframe.contains("vidmoly")) {
                     try {
                         val playerRes = app.get(iframe, headers = mapOf("Referer" to "$mainUrl/", "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
                         val unpacked = getAndUnpack(playerRes)

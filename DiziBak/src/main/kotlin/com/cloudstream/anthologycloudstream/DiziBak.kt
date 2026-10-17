@@ -34,13 +34,15 @@ class DiziBak : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse? {
         val href = fixUrlNull(this.attr("href")) ?: return null
-        if (href == mainUrl || href == "$mainUrl/" || href.contains("/kategori/") || href.contains("/tur/")) return null
+        if (href == mainUrl || href == "$mainUrl/" || href.contains("/kategori/") || href.contains("/tur/") || href.contains("/tum-bolumler") || href.contains("/page/")) return null
 
         val img = this.selectFirst("img")
         val title = this.attr("title").replace(" izle", "").trim().ifEmpty { null }
             ?: img?.attr("alt")?.trim()?.ifEmpty { null }
             ?: this.text().trim().replace(" izle", "").ifEmpty { null }
             ?: return null
+
+        if (title.equals("Tüm Bölümler", ignoreCase = true) || title.length < 2) return null
 
         val poster = fixUrlNull(img?.let { it.attr("data-src").ifEmpty { it.attr("src") } })
 
@@ -147,8 +149,12 @@ class DiziBak : MainAPI() {
                             "nonce" to nonce
                         )
                     ).text
-                    Regex("""src=["\']([^"\']+)["\']""").findAll(ajaxRes).forEach {
-                        iframes.add(it.groupValues[1].replace("\\/", "/"))
+                    val cleanAjax = ajaxRes.replace("\\\"", "\"").replace("\\/", "/")
+                    Regex("""src=["']([^"']+)["']""").findAll(cleanAjax).forEach {
+                        iframes.add(it.groupValues[1])
+                    }
+                    Regex("""(https?://[^"'\s]+player\.dizibak\.net[^"'\s]+)""").findAll(cleanAjax).forEach {
+                        iframes.add(it.groupValues[1])
                     }
                 } catch (e: Exception) {}
             }
@@ -171,12 +177,13 @@ class DiziBak : MainAPI() {
                         ).text
 
                         val unpacked = getAndUnpack(playerRes)
+                        val cleanUnpacked = unpacked.replace("\\/", "/").replace("\\\"", "\"")
 
-                        val m3u8Match = Regex("""(https?://[^\s"'\\]+\.m3u8[^\s"'\\]*)""").find(unpacked)
-                            ?: Regex("""sources:\s*\[\s*\{\s*"file":\s*"([^"]+)""").find(unpacked)
-                            ?: Regex("""file:\s*["']([^"']+\.m3u8[^"']*)["']""").find(unpacked)
+                        val m3u8Match = Regex("""(https?://[^\s"']+\.m3u8[^\s"']*)""").find(cleanUnpacked)
+                            ?: Regex("""sources:\s*\[\s*\{\s*"file":\s*"([^"]+)""").find(cleanUnpacked)
+                            ?: Regex("""file:\s*["']([^"']+\.m3u8[^"']*)["']""").find(cleanUnpacked)
 
-                        val m3u8Url = m3u8Match?.groupValues?.get(1)?.replace("\\/", "/")
+                        val m3u8Url = m3u8Match?.groupValues?.get(1)
                         if (m3u8Url != null) {
                             callback(
                                 newExtractorLink(

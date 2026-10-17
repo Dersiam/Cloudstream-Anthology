@@ -125,7 +125,11 @@ class HDFilmIzle : MainAPI() {
                                 src,
                                 ExtractorLinkType.M3U8
                             ) {
-                                this.referer = data
+                                this.referer = "$mainUrl/"
+                                this.headers = mapOf(
+                                    "Referer" to "$mainUrl/",
+                                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                                )
                                 this.quality = Qualities.P1080.value
                             }
                         )
