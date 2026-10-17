@@ -304,14 +304,14 @@
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/AsyaAnimeleri.cs3",
         "status": 1,
-        "version": 6,
+        "version": 7,
         "name": "AsyaAnimeleri",
         "internalName": "AsyaAnimeleri",
         "authors": [
             "falsisdev"
         ],
         "description": "Anime ve donghua ar\u015fivi \u2014 Sibnet, Ok.ru, Mail.ru ve Rumble \u00fczerinden 1080p do\u011frudan MP4 ve HLS ak\u0131\u015flar\u0131.",
-        "fileSize": 17238,
+        "fileSize": 19514,
         "repositoryUrl": "https://github.com/Dersiam/Cloudstream-Anthology",
         "language": "tr",
         "tvTypes": [
@@ -320,7 +320,7 @@
         ],
         "iconUrl": "https://www.google.com/s2/favicons?domain=asyaanimeleri.top&sz=128",
         "apiVersion": 1,
-        "fileHash": "sha256-6a79d22e58007f3964e9b7db4f466b96b843ae656025df71abb7d6cb75525b26"
+        "fileHash": "sha256-b6925fe96cb6e43c2b423529be9f795bb0e73925ae3840b7232a0c5e27f78c22"
     },
     {
         "url": "https://raw.githubusercontent.com/Dersiam/Cloudstream-Anthology/builds/DDizi.cs3",
