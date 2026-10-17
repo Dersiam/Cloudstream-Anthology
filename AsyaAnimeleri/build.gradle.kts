@@ -1,4 +1,4 @@
-version = 6
+version = 7
 
 cloudstream {
     description = "Anime ve donghua arşivi — Sibnet, Ok.ru, Mail.ru ve Rumble üzerinden 1080p doğrudan MP4 ve HLS akışları."
