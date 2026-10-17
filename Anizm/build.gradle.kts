@@ -1,4 +1,4 @@
-version = 7
+version = 8
 
 cloudstream {
     description = "AnizmPlayer (FirePlayer HLS), OK.ru ve Sibnet üzerinden Türkçe anime akışları."

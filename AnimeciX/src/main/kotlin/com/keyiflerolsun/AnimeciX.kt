@@ -25,7 +25,22 @@ class AnimeciX : MainAPI() {
         "${mainUrl}/secure/titles?type=series&onlyStreamable=true" to "Popüler Anime Serileri",
         "${mainUrl}/secure/titles?type=movie&onlyStreamable=true"  to "Anime Filmleri",
         "${mainUrl}/secure/titles?type=series&onlyStreamable=true&sort=created_at" to "Yeni Eklenen Diziler",
-        "${mainUrl}/secure/titles?type=movie&onlyStreamable=true&sort=created_at" to "Yeni Eklenen Filmler"
+        "${mainUrl}/secure/titles?type=movie&onlyStreamable=true&sort=created_at" to "Yeni Eklenen Filmler",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&sort=rating" to "En Yüksek Puanlılar",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&sort=views" to "En Çok İzlenenler",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Aksiyon" to "Aksiyon Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Macera" to "Macera Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Komedi" to "Komedi Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Dram" to "Dram Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Fantastik" to "Fantastik Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Romantik" to "Romantik Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Korku" to "Korku Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Gizem" to "Gizem Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Bilim+Kurgu" to "Bilim Kurgu",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Spor" to "Spor Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Psikolojik" to "Psikolojik Animeler",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Okul" to "Okul Animeleri",
+        "${mainUrl}/secure/titles?type=series&onlyStreamable=true&genres=Shounen" to "Shounen Animeleri"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -37,7 +52,7 @@ class AnimeciX : MainAPI() {
                 )
             ).parsedSafe<Category>()
 
-            val home = response?.pagination?.data?.map { anime ->
+            var home = response?.pagination?.data?.map { anime ->
                 newAnimeSearchResponse(
                     anime.title,
                     "${mainUrl}/secure/titles/${anime.id}?titleId=${anime.id}",
@@ -46,6 +61,24 @@ class AnimeciX : MainAPI() {
                     this.posterUrl = fixUrlNull(anime.poster)
                 }
             } ?: listOf<SearchResponse>()
+
+            if (home.isEmpty() && !request.data.contains("type=series&onlyStreamable=true")) {
+                val fallbackResp = app.get(
+                    "${mainUrl}/secure/titles?type=series&onlyStreamable=true&page=1&perPage=16",
+                    headers = mapOf(
+                        "x-e-h" to "7Y2ozlO+QysR5w9Q6Tupmtvl9jJp7ThFH8SB+Lo7NvZjgjqRSqOgcT2v4ISM9sP10LmnlYI8WQ==.xrlyOBFS5BHjQ2Lk"
+                    )
+                ).parsedSafe<Category>()
+                home = fallbackResp?.pagination?.data?.map { anime ->
+                    newAnimeSearchResponse(
+                        anime.title,
+                        "${mainUrl}/secure/titles/${anime.id}?titleId=${anime.id}",
+                        TvType.Anime
+                    ) {
+                        this.posterUrl = fixUrlNull(anime.poster)
+                    }
+                } ?: emptyList()
+            }
 
             newHomePageResponse(request.name, home)
         } catch (e: Exception) {

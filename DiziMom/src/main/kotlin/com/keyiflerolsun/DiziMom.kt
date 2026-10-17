@@ -24,15 +24,36 @@ class DiziMom : MainAPI() {
         "${mainUrl}/turkce-dublaj-diziler-hd/" to "Dublajlı Diziler",
         "${mainUrl}/anime-izle/" to "Animeler",
         "${mainUrl}/yerli-dizi-izle/" to "Yerli Diziler",
-        "${mainUrl}/kore-dizileri-izle-hd/" to "Kore Dizileri"
+        "${mainUrl}/kore-dizileri-izle-hd/" to "Kore Dizileri",
+        "${mainUrl}/full-hd-hint-dizileri-izle/" to "Hint Dizileri",
+        "${mainUrl}/pakistan-dizileri-izle/" to "Pakistan Dizileri",
+        "${mainUrl}/tum-filmler/" to "Tüm Filmler",
+        "${mainUrl}/turkce-dublaj-filmler/" to "Türkçe Dublaj Filmler",
+        "${mainUrl}/turkce-altyazili-filmler/" to "Türkçe Altyazılı Filmler",
+        "${mainUrl}/film-tur/netflix-filmleri/" to "Netflix Filmleri",
+        "${mainUrl}/tv-programlari-izle/" to "TV Programları",
+        "${mainUrl}/tum-diziler/" to "Tüm Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val url = if (page > 1) "${request.data}page/$page/" else request.data
-        val document = app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
-        val home = document.select("div.episode-box, div.single-item, a[href*='-bolum-'], a[href*='-sezon-'], div.categorytitle a, a[href*='/diziler/']")
+        val document = try {
+            app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/tum-bolumler/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+        var home = document.select("div.episode-box, div.single-item, a[href*='-bolum-'], a[href*='-sezon-'], div.categorytitle a, a[href*='/diziler/']")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (home.isEmpty() && request.data != "${mainUrl}/tum-bolumler/") {
+            try {
+                val fallbackDoc = app.get("${mainUrl}/tum-bolumler/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+                home = fallbackDoc.select("div.episode-box, div.single-item, a[href*='-bolum-'], a[href*='-sezon-'], div.categorytitle a, a[href*='/diziler/']")
+                    .mapNotNull { it.toSearchResult() }
+                    .distinctBy { it.url }
+            } catch (_: Exception) {}
+        }
 
         return newHomePageResponse(request.name, home)
     }

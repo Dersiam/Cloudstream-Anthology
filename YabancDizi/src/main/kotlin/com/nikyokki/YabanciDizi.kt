@@ -27,7 +27,21 @@ class YabancDizi : MainAPI() {
         "${mainUrl}/#popular-series" to "Popüler Diziler",
         "${mainUrl}/#last-movies" to "Son Eklenen Filmler",
         "${mainUrl}/#trend-movies" to "Trend Filmler",
-        "${mainUrl}/#new-episodes" to "Son Eklenen Bölümler"
+        "${mainUrl}/#new-episodes" to "Son Eklenen Bölümler",
+        "${mainUrl}/aksiyon-dizileri" to "Aksiyon Dizileri",
+        "${mainUrl}/bilim-kurgu-dizileri" to "Bilim Kurgu Dizileri",
+        "${mainUrl}/komedi-dizileri" to "Komedi Dizileri",
+        "${mainUrl}/drama-dizileri" to "Dram Dizileri",
+        "${mainUrl}/gerilim-dizileri" to "Gerilim Dizileri",
+        "${mainUrl}/korku-dizileri" to "Korku Dizileri",
+        "${mainUrl}/fantastik-dizileri" to "Fantastik Dizileri",
+        "${mainUrl}/romantik-dizileri" to "Romantik Dizileri",
+        "${mainUrl}/anime-izle" to "Animeler",
+        "${mainUrl}/asya-dizileri-izle" to "Asya Dizileri",
+        "${mainUrl}/kdrama-izle" to "K-Drama",
+        "${mainUrl}/imdb-top-100" to "IMDb Top 100",
+        "${mainUrl}/turkce-dublaj-dizi-izle" to "Dublajlı Diziler",
+        "${mainUrl}/turkce-altyazili-dizi-izle" to "Altyazılı Diziler"
     )
 
     private fun decryptAes(cipherText: String): String? {
@@ -49,63 +63,84 @@ class YabancDizi : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val items = mutableListOf<SearchResponse>()
-        try {
-            val doc = app.get(
-                mainUrl,
-                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-            ).document
+        if (request.data.contains("#")) {
+            try {
+                val doc = app.get(
+                    mainUrl,
+                    headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                ).document
 
-            val nextDataHtml = doc.selectFirst("script#__NEXT_DATA__")?.html()
-            if (nextDataHtml != null) {
-                val json = JSONObject(nextDataHtml)
-                val pageProps = json.optJSONObject("props")?.optJSONObject("pageProps")
-                val secureData = pageProps?.optString("secureData")
-                if (!secureData.isNullOrEmpty()) {
-                    val decrypted = decryptAes(secureData)
-                    if (decrypted != null) {
-                        val decObj = JSONObject(decrypted)
-                        val key = when {
-                            request.data.contains("trend-series") -> "getTrendSeries"
-                            request.data.contains("popular-series") -> "allPopularSeries"
-                            request.data.contains("last-movies") -> "getLastMovies"
-                            request.data.contains("trend-movies") -> "getTrendMovies"
-                            request.data.contains("new-episodes") -> "getEpisodesOnNewSeries"
-                            else -> "allPopularSeries"
-                        }
+                val nextDataHtml = doc.selectFirst("script#__NEXT_DATA__")?.html()
+                if (nextDataHtml != null) {
+                    val json = JSONObject(nextDataHtml)
+                    val pageProps = json.optJSONObject("props")?.optJSONObject("pageProps")
+                    val secureData = pageProps?.optString("secureData")
+                    if (!secureData.isNullOrEmpty()) {
+                        val decrypted = decryptAes(secureData)
+                        if (decrypted != null) {
+                            val decObj = JSONObject(decrypted)
+                            val key = when {
+                                request.data.contains("trend-series") -> "getTrendSeries"
+                                request.data.contains("popular-series") -> "allPopularSeries"
+                                request.data.contains("last-movies") -> "getLastMovies"
+                                request.data.contains("trend-movies") -> "getTrendMovies"
+                                request.data.contains("new-episodes") -> "getEpisodesOnNewSeries"
+                                else -> "allPopularSeries"
+                            }
 
-                        val arr = decObj.optJSONArray(key) ?: decObj.optJSONArray("allPopularSeries") ?: JSONArray()
-                        for (i in 0 until arr.length()) {
-                            val obj = arr.getJSONObject(i)
-                            val title = obj.optString("culture_title").ifEmpty { obj.optString("original_title") }.ifEmpty { obj.optString("used_title") }
-                            if (title.isEmpty()) continue
-                            val slug = obj.optString("used_slug").ifEmpty { obj.optString("slug") }
-                            if (slug.isEmpty()) continue
-                            val href = if (slug.startsWith("http")) slug else "$mainUrl/$slug"
-                            val poster = fixUrlNull(obj.optString("poster_url").ifEmpty { obj.optString("face_url") })
-                            val isTv = slug.contains("dizi/") || obj.optString("used_type").contains("Series")
+                            val arr = decObj.optJSONArray(key) ?: decObj.optJSONArray("allPopularSeries") ?: JSONArray()
+                            for (i in 0 until arr.length()) {
+                                val obj = arr.getJSONObject(i)
+                                val title = obj.optString("culture_title").ifEmpty { obj.optString("original_title") }.ifEmpty { obj.optString("used_title") }
+                                if (title.isEmpty()) continue
+                                val slug = obj.optString("used_slug").ifEmpty { obj.optString("slug") }
+                                if (slug.isEmpty()) continue
+                                val href = if (slug.startsWith("http")) slug else "$mainUrl/$slug"
+                                val poster = fixUrlNull(obj.optString("poster_url").ifEmpty { obj.optString("face_url") })
+                                val isTv = slug.contains("dizi/") || obj.optString("used_type").contains("Series")
 
-                            if (isTv) {
-                                items.add(newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
-                                    this.posterUrl = poster
-                                })
-                            } else {
-                                items.add(newMovieSearchResponse(title, href, TvType.Movie) {
-                                    this.posterUrl = poster
-                                })
+                                if (isTv) {
+                                    items.add(newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
+                                        this.posterUrl = poster
+                                    })
+                                } else {
+                                    items.add(newMovieSearchResponse(title, href, TvType.Movie) {
+                                        this.posterUrl = poster
+                                    })
+                                }
                             }
                         }
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("YabancDizi", "getMainPage error", e)
             }
-        } catch (e: Exception) {
-            Log.e("YabancDizi", "getMainPage error", e)
+        } else {
+            try {
+                val targetUrl = if (page > 1) "${request.data}?page=$page" else request.data
+                val document = app.get(targetUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
+                document.select("a[href*='/dizi/'], a[href*='/film/']").forEach { a ->
+                    val rawHref = fixUrlNull(a.attr("href")) ?: return@forEach
+                    val href = if (rawHref.startsWith("http")) rawHref else "$mainUrl$rawHref"
+                    val title = a.selectFirst("img")?.attr("alt")?.trim() ?: a.text().trim()
+                    if (title.isNotEmpty()) {
+                        val poster = fixUrlNull(a.selectFirst("img")?.attr("src"))
+                        if (href.contains("/dizi/")) {
+                            items.add(newTvSeriesSearchResponse(title, href, TvType.TvSeries) { this.posterUrl = poster })
+                        } else {
+                            items.add(newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = poster })
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
         }
 
         if (items.isEmpty()) {
             try {
-                val document = app.get("$mainUrl/diziler").document
+                val document = app.get("$mainUrl/diziler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
                 document.select("a[href*='/dizi/'], a[href*='/film/']").forEach { a ->
-                    val href = fixUrlNull(a.attr("href")) ?: return@forEach
+                    val rawHref = fixUrlNull(a.attr("href")) ?: return@forEach
+                    val href = if (rawHref.startsWith("http")) rawHref else "$mainUrl$rawHref"
                     val title = a.selectFirst("img")?.attr("alt")?.trim() ?: a.text().trim()
                     if (title.isNotEmpty()) {
                         val poster = fixUrlNull(a.selectFirst("img")?.attr("src"))

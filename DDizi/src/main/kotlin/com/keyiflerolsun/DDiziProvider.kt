@@ -19,7 +19,25 @@ class DDizi : MainAPI() {
         "$mainUrl/yeni-eklenenler8" to "Yeni Eklenenler",
         "$mainUrl/yabanci-dizi-izle" to "Yabancı Diziler",
         "$mainUrl/eski.diziler" to "Eski Dizi Arşivi",
-        "$mainUrl/diziler" to "Tüm Diziler"
+        "$mainUrl/diziler" to "Tüm Yerli Diziler",
+        "$mainUrl/diziler/2078/uzak-sehir-39-son-bolum-izle" to "Uzak Şehir",
+        "$mainUrl/diziler/1952/kizilcik-serbeti-22-son-bolum-izle" to "Kızılcık Şerbeti",
+        "$mainUrl/diziler/1856/teskilat-189-son-bolum-izle" to "Teşkilat",
+        "$mainUrl/diziler/1838/gonul-dagi-171-son-bolum-izle" to "Gönül Dağı",
+        "$mainUrl/diziler/2041/mehmed-fetihler-sultani-179-son-bolum-izle" to "Mehmed: Fetihler Sultanı",
+        "$mainUrl/diziler/2189/organize-isler-karun-hazinesi-son-bolum-izle" to "Organize İşler",
+        "$mainUrl/diziler/2171/alti-ustu-istanbul-son-bolum-izle" to "Altı Üstü İstanbul",
+        "$mainUrl/diziler/2185/anne-yarisi-son-bolum-izle" to "Anne Yarısı",
+        "$mainUrl/diziler/2122/halef-koklerin-cagrisi-12-son-bolum-izle" to "Halef: Köklerin Çağrısı",
+        "$mainUrl/diziler/2180/haysiyet-2-son-bolum-izle" to "Haysiyet",
+        "$mainUrl/diziler/2127/tasacak-bu-deniz-131-son-bolum-izle" to "Taşacak Bu Deniz",
+        "$mainUrl/diziler/2158/yeralti-3-son-bolum-izle" to "Yeraltı",
+        "$mainUrl/diziler/2188/sevdam-karadeniz-son-bolum-izle" to "Sevdam Karadeniz",
+        "$mainUrl/diziler/2182/sevdan-bir-ates-8-son-bolum-izle" to "Sevdan Bir Ateş",
+        "$mainUrl/diziler/2175/kalbim-sana-emanet-son-bolum-izle" to "Kalbim Sana Emanet",
+        "$mainUrl/diziler/1972/wednesday-hd" to "Wednesday",
+        "$mainUrl/diziler/1809/stranger-things-hd15" to "Stranger Things",
+        "$mainUrl/diziler/1808/la-casa-de-papel-hd" to "La Casa De Papel"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {

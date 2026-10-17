@@ -19,6 +19,17 @@ class AniMOM : MainAPI() {
         "$mainUrl/home" to "Son Eklenenler",
         "$mainUrl/trendler" to "Trend Animeler",
         "$mainUrl/anime-filmleri" to "Anime Filmleri",
+        "$mainUrl/anime/tur/aksiyon" to "Aksiyon Animeleri",
+        "$mainUrl/anime/tur/macera" to "Macera Animeleri",
+        "$mainUrl/anime/tur/komedi" to "Komedi Animeleri",
+        "$mainUrl/anime/tur/fantastik" to "Fantastik Animeleri",
+        "$mainUrl/anime/tur/bilim-kurgu" to "Bilim Kurgu",
+        "$mainUrl/anime/tur/dram" to "Dram Animeleri",
+        "$mainUrl/anime/tur/romantik" to "Romantik Animeleri",
+        "$mainUrl/anime/tur/gerilim" to "Gerilim & Gizem",
+        "$mainUrl/anime/tur/dogaustu" to "Doğaüstü",
+        "$mainUrl/anime/tur/spor" to "Spor Animeleri",
+        "$mainUrl/anime/tur/psikolojik" to "Psikolojik Animeler",
         "$mainUrl/kesfet" to "Keşfet",
         "$mainUrl/anime-izle" to "Tüm Animeler"
     )
@@ -31,7 +42,13 @@ class AniMOM : MainAPI() {
             app.get("$mainUrl/trendler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         }
 
-        val items = doc.select("a[href*='/anime/']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+        var items = doc.select("a[href*='/anime/']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+        if (items.isEmpty() && targetUrl != "$mainUrl/trendler") {
+            try {
+                val fallbackDoc = app.get("$mainUrl/trendler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+                items = fallbackDoc.select("a[href*='/anime/']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+            } catch (_: Exception) {}
+        }
         return newHomePageResponse(request.name, items)
     }
 

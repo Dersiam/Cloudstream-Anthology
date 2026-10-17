@@ -23,23 +23,43 @@ class SinemaCX : MainAPI() {
     override var sequentialMainPageScrollDelay = 250L
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/tur/aile-filmleri/page/"       to "Aile Filmleri",
         "${mainUrl}/tur/aksiyon-filmleri/page/"    to "Aksiyon Filmleri",
-        "${mainUrl}/tur/animasyon-filmleri/page/"  to "Animasyon Filmleri",
-        "${mainUrl}/tur/belgesel-filmleri/page/"   to "Belgesel Filmleri",
+        "${mainUrl}/tur/macera-filmleri/page/"     to "Macera Filmleri",
         "${mainUrl}/tur/bilim-kurgu-filmleri/page/" to "Bilim Kurgu Filmleri",
-        "${mainUrl}/tur/biyografi-filmleri/page/"  to "Biyografi Filmleri",
-        "${mainUrl}/tur/fantastik-filmler/page/"   to "Fantastik Filmler",
-        "${mainUrl}/tur/gizem-filmleri/page/"      to "Gizem Filmleri",
+        "${mainUrl}/tur/animasyon-filmleri/page/"  to "Animasyon Filmleri",
         "${mainUrl}/tur/komedi-filmleri/page/"     to "Komedi Filmleri",
         "${mainUrl}/tur/korku-filmleri/page/"      to "Korku Filmleri",
-        "${mainUrl}/tur/macera-filmleri/page/"     to "Macera Filmleri",
+        "${mainUrl}/tur/gerilim-filmleri/page/"    to "Gerilim Filmleri",
+        "${mainUrl}/tur/dram-filmleri/page/"       to "Dram Filmleri",
+        "${mainUrl}/tur/suc-filmleri/page/"        to "Suç Filmleri",
+        "${mainUrl}/tur/fantastik-filmler/page/"   to "Fantastik Filmler",
+        "${mainUrl}/tur/gizem-filmleri/page/"      to "Gizem Filmleri",
         "${mainUrl}/tur/romantik-filmler/page/"    to "Romantik Filmler",
+        "${mainUrl}/tur/biyografi-filmleri/page/"  to "Biyografi Filmleri",
+        "${mainUrl}/tur/tarihi-filmler/page/"      to "Tarihi Filmler",
+        "${mainUrl}/tur/savas-filmleri/page/"      to "Savaş Filmleri",
+        "${mainUrl}/tur/aile-filmleri/page/"       to "Aile Filmleri",
+        "${mainUrl}/tur/belgesel-filmleri/page/"   to "Belgesel Filmleri",
+        "${mainUrl}/tur/western-filmleri/page/"    to "Western Filmleri",
+        "${mainUrl}/tur/spor-filmleri/page/"       to "Spor Filmleri",
+        "${mainUrl}/tur/muzikal-filmler/page/"     to "Müzikal Filmler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val document = app.get("${request.data}${page}/").document
-        val home     = document.select("a[href*='/film/'], div.frag-k, div.film_kutu").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+        val targetUrl = if (request.data.endsWith("/page/")) "${request.data}${page}/" else request.data
+        val document = try {
+            app.get(targetUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/tur/aksiyon-filmleri/page/1/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+        var home = document.select("a[href*='/film/'], div.frag-k, div.film_kutu").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+
+        if (home.isEmpty() && targetUrl != "${mainUrl}/tur/aksiyon-filmleri/page/1/") {
+            val fallbackDoc = try {
+                app.get("${mainUrl}/tur/aksiyon-filmleri/page/1/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            } catch (_: Exception) { null }
+            home = fallbackDoc?.select("a[href*='/film/'], div.frag-k, div.film_kutu")?.mapNotNull { it.toSearchResult() }?.distinctBy { it.url } ?: emptyList()
+        }
 
         return newHomePageResponse(request.name, home)
     }

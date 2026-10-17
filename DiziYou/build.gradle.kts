@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 cloudstream {
     description = "DiziYou doğrudan depolama akışları ve Türkçe altyazı desteği."

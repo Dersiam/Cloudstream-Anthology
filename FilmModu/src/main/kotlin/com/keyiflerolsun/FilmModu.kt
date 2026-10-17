@@ -19,13 +19,26 @@ class FilmModu : MainAPI() {
         "${mainUrl}/turkce-dublaj-hd-film-izle" to "Türkçe Dublaj Filmler",
         "${mainUrl}/turkce-altyazili-hd-filmler-izle" to "Türkçe Altyazılı Filmler",
         "${mainUrl}/film-tur/4k-film-izle" to "4K Filmler",
+        "${mainUrl}/film-tur/tavsiye-filmler" to "Tavsiye Filmler",
+        "${mainUrl}/film-tur/odullu-filmler-izle" to "Oscar Ödüllü Filmler",
+        "${mainUrl}/film-tur/kult-filmler-izle" to "Kült Filmler",
         "${mainUrl}/film-tur/aksiyon" to "Aksiyon",
+        "${mainUrl}/film-tur/macera-filmleri" to "Macera",
         "${mainUrl}/film-tur/animasyon" to "Animasyon",
         "${mainUrl}/film-tur/bilim-kurgu-filmleri" to "Bilim Kurgu",
-        "${mainUrl}/film-tur/komedi" to "Komedi",
+        "${mainUrl}/film-tur/hd-komedi-filmleri" to "Komedi",
         "${mainUrl}/film-tur/korku-filmleri" to "Korku",
-        "${mainUrl}/film-tur/kult-filmler-izle" to "Kült Filmler",
-        "${mainUrl}/film-tur/odullu-filmler-izle" to "Oscar Ödüllü Filmler"
+        "${mainUrl}/film-tur/gerilim" to "Gerilim",
+        "${mainUrl}/film-tur/dram-filmleri" to "Dram",
+        "${mainUrl}/film-tur/fantastik-filmler" to "Fantastik",
+        "${mainUrl}/film-tur/gizem-filmleri" to "Gizem",
+        "${mainUrl}/film-tur/suc-filmleri" to "Suç",
+        "${mainUrl}/film-tur/romantik-filmler" to "Romantik",
+        "${mainUrl}/film-tur/tarih" to "Tarih",
+        "${mainUrl}/film-tur/savas-filmleri" to "Savaş",
+        "${mainUrl}/film-tur/belgeseller" to "Belgeseller",
+        "${mainUrl}/film-tur/hd-hint-filmleri" to "Hint Filmleri",
+        "${mainUrl}/film-tur/vahsi-bati-filmleri" to "Vahşi Batı"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -34,8 +47,18 @@ class FilmModu : MainAPI() {
         } else {
             request.data
         }
-        val document = app.get(url).document
-        val home = document.select("div.movie, div.movie-large, div.poster").mapNotNull { it.toMainPageResult() }
+        val document = try {
+            app.get(url).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/turkce-dublaj-hd-film-izle").document
+        }
+        var home = document.select("div.movie, div.movie-large, div.poster").mapNotNull { it.toMainPageResult() }
+        if (home.isEmpty() && request.data != "${mainUrl}/turkce-dublaj-hd-film-izle") {
+            val fallbackDoc = try {
+                app.get("${mainUrl}/turkce-dublaj-hd-film-izle").document
+            } catch (_: Exception) { null }
+            home = fallbackDoc?.select("div.movie, div.movie-large, div.poster")?.mapNotNull { it.toMainPageResult() } ?: emptyList()
+        }
         return newHomePageResponse(request.name, home.distinctBy { it.url })
     }
 

@@ -28,12 +28,24 @@ class Webtezle : MainAPI() {
         "$TMDB_API/trending/all/day?api_key=$TMDB_KEY&language=tr-TR&page=" to "Günün Trendleri",
         "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Filmler",
         "$TMDB_API/tv/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Diziler",
+        "$TMDB_API/movie/now_playing?api_key=$TMDB_KEY&language=tr-TR&page=" to "Vizyondaki Filmler",
+        "$TMDB_API/tv/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "En Çok Oy Alan Diziler",
         "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=28&page=" to "Aksiyon Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=12&page=" to "Macera Filmleri",
         "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=878&page=" to "Bilim Kurgu Filmleri",
         "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=18&page=" to "Dram Filmleri",
         "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=53&page=" to "Gerilim Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=27&page=" to "Korku Filmleri",
         "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=35&page=" to "Komedi Filmleri",
-        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=10749&page=" to "Romantik Filmler"
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=16&page=" to "Animasyon Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=14&page=" to "Fantastik Filmler",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=9648&page=" to "Gizem Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=10749&page=" to "Romantik Filmler",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=80&page=" to "Suç Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=99&page=" to "Belgesel Filmleri",
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=10759&page=" to "Aksiyon & Macera Dizileri",
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=10765&page=" to "Bilim Kurgu & Fantazi Dizileri",
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=18&page=" to "Popüler Dram Dizileri"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {

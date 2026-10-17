@@ -1,4 +1,4 @@
-version = 8
+version = 9
 
 cloudstream {
     description = "HDPlayer HLS, Sibnet ve YourUpload üzerinden Türkçe anime akışları."

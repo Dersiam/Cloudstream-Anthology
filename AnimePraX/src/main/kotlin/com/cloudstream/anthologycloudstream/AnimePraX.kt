@@ -21,12 +21,19 @@ class AnimePraX : MainAPI() {
         "$fallbackSource/trendler" to "Günün Trendleri",
         "$fallbackSource/kesfet" to "Popüler & Keşfet",
         "$fallbackSource/anime-filmleri" to "Anime Filmleri",
-        "$fallbackSource/tur/aksiyon" to "Aksiyon Animeleri",
-        "$fallbackSource/tur/macera" to "Macera Animeleri",
-        "$fallbackSource/tur/komedi" to "Komedi Animeleri",
-        "$fallbackSource/tur/dram" to "Dram Animeleri",
-        "$fallbackSource/tur/fantastik" to "Fantastik Animeleri",
-        "$fallbackSource/tur/bilim-kurgu" to "Bilim Kurgu Animeleri",
+        "$fallbackSource/anime/tur/aksiyon" to "Aksiyon Animeleri",
+        "$fallbackSource/anime/tur/macera" to "Macera Animeleri",
+        "$fallbackSource/anime/tur/komedi" to "Komedi Animeleri",
+        "$fallbackSource/anime/tur/fantastik" to "Fantastik",
+        "$fallbackSource/anime/tur/bilim-kurgu" to "Bilim Kurgu",
+        "$fallbackSource/anime/tur/dram" to "Dram Animeleri",
+        "$fallbackSource/anime/tur/romantik" to "Romantik",
+        "$fallbackSource/anime/tur/gerilim" to "Gerilim",
+        "$fallbackSource/anime/tur/dogaustu" to "Doğaüstü",
+        "$fallbackSource/anime/tur/spor" to "Spor",
+        "$fallbackSource/anime/tur/psikolojik" to "Psikolojik",
+        "$fallbackSource/anime/tur/shounen" to "Shounen",
+        "$fallbackSource/anime/tur/isekai" to "Isekai",
         "$fallbackSource/anime-izle" to "Tüm Animeler"
     )
 
@@ -38,7 +45,13 @@ class AnimePraX : MainAPI() {
             app.get("$fallbackSource/trendler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
         }
 
-        val items = doc.select("a[href*='/anime/']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+        var items = doc.select("a[href*='/anime/']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+        if (items.isEmpty() && targetUrl != "$fallbackSource/trendler") {
+            val fallbackDoc = try {
+                app.get("$fallbackSource/trendler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
+            } catch (_: Exception) { null }
+            items = fallbackDoc?.select("a[href*='/anime/']")?.mapNotNull { it.toSearchResult() }?.distinctBy { it.url } ?: emptyList()
+        }
         return newHomePageResponse(request.name, items)
     }
 

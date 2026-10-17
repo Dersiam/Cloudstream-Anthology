@@ -17,15 +17,39 @@ class SeiCode : MainAPI() {
 
     override val mainPage = mainPageOf(
         "$apiUrl/anime/latest" to "Son Eklenenler",
-        "$apiUrl/anime/search?q=action" to "Aksiyon",
-        "$apiUrl/anime/search?q=comedy" to "Komedi",
-        "$apiUrl/anime/search?q=fantasy" to "Fantastik",
-        "$apiUrl/anime/search?q=romance" to "Romantik"
+        "$apiUrl/anime/search?q=adventure" to "Macera & Keşif",
+        "$apiUrl/anime/search?q=dragon" to "Ejderhalar & Efsaneler",
+        "$apiUrl/anime/search?q=detective" to "Dedektif & Gizem",
+        "$apiUrl/anime/search?q=demon" to "Şeytanlar & Doğaüstü",
+        "$apiUrl/anime/search?q=magic" to "Büyü & Doğaüstü",
+        "$apiUrl/anime/search?q=witch" to "Cadılar & Fantazi",
+        "$apiUrl/anime/search?q=hero" to "Kahramanlar & Savaşçılar",
+        "$apiUrl/anime/search?q=dead" to "Karanlık & Hayatta Kalma",
+        "$apiUrl/anime/search?q=love" to "Romantizm & Duygusal",
+        "$apiUrl/anime/search?q=girl" to "Kızlar & Günlük Hayat",
+        "$apiUrl/anime/search?q=world" to "Farklı Dünyalar & Isekai",
+        "$apiUrl/anime/search?q=time" to "Zaman Yolculuğu & Boyutlar",
+        "$apiUrl/anime/search?q=super" to "Süper Güçler",
+        "$apiUrl/anime/search?q=war" to "Savaş & Askeri",
+        "$apiUrl/anime/search?q=monster" to "Canavarlar",
+        "$apiUrl/anime/search?q=level" to "Seviye Atlama & Zindan",
+        "$apiUrl/anime/search?q=sword" to "Kılıç Ustaları",
+        "$apiUrl/anime/search?q=king" to "Krallıklar & Hükümdarlar"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
-        val res = app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
-        val items = parseJsonResults(res)
+        val res = try {
+            app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
+        } catch (_: Exception) {
+            app.get("$apiUrl/anime/latest", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
+        }
+        var items = parseJsonResults(res)
+        if (items.isEmpty() && request.data != "$apiUrl/anime/latest") {
+            val fallback = try {
+                app.get("$apiUrl/anime/latest", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).text
+            } catch (_: Exception) { "" }
+            items = parseJsonResults(fallback)
+        }
         return newHomePageResponse(request.name, items)
     }
 

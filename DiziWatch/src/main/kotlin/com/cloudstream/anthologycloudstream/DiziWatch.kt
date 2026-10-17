@@ -17,27 +17,59 @@ class DiziWatch : MainAPI() {
 
     override val mainPage = mainPageOf(
         "$mainUrl/yeni-bolumler" to "Yeni Bölümler",
-        "$mainUrl/anime-arsivi" to "Anime Arşivi",
         "$mainUrl/" to "Öne Çıkan Anime ve Diziler",
+        "$mainUrl/anime-arsivi" to "Anime Arşivi",
         "$mainUrl/dizi-arsivi" to "Yabancı Dizi Arşivi",
-        "$mainUrl/tur/aksiyon" to "Aksiyon",
-        "$mainUrl/tur/bilim-kurgu" to "Bilim Kurgu",
-        "$mainUrl/tur/komedi" to "Komedi",
-        "$mainUrl/tur/dram" to "Dram",
-        "$mainUrl/tur/fantastik" to "Fantastik",
-        "$mainUrl/tur/romantik" to "Romantik"
+        "$mainUrl/anime-arsivi#Aksiyon" to "Anime: Aksiyon",
+        "$mainUrl/anime-arsivi#Komedi" to "Anime: Komedi",
+        "$mainUrl/anime-arsivi#Romantik" to "Anime: Romantik",
+        "$mainUrl/anime-arsivi#Bilim Kurgu" to "Anime: Bilim Kurgu",
+        "$mainUrl/anime-arsivi#Fantastik" to "Anime: Fantastik",
+        "$mainUrl/anime-arsivi#Dram" to "Anime: Dram",
+        "$mainUrl/anime-arsivi#Gizem" to "Anime: Gizem",
+        "$mainUrl/anime-arsivi#Macera" to "Anime: Macera",
+        "$mainUrl/anime-arsivi#Doğaüstü" to "Anime: Doğaüstü",
+        "$mainUrl/anime-arsivi#Okul" to "Anime: Okul",
+        "$mainUrl/anime-arsivi#Shounen" to "Anime: Shounen",
+        "$mainUrl/dizi-arsivi#Aksiyon" to "Dizi: Aksiyon",
+        "$mainUrl/dizi-arsivi#Komedi" to "Dizi: Komedi",
+        "$mainUrl/dizi-arsivi#Dram" to "Dizi: Dram",
+        "$mainUrl/dizi-arsivi#Bilim Kurgu" to "Dizi: Bilim Kurgu",
+        "$mainUrl/dizi-arsivi#Fantastik" to "Dizi: Fantastik",
+        "$mainUrl/dizi-arsivi#Gizem" to "Dizi: Gizem",
+        "$mainUrl/dizi-arsivi#Korku" to "Dizi: Korku",
+        "$mainUrl/dizi-arsivi#Suç" to "Dizi: Suç"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val url = if (page > 1) "${request.data}?page=$page" else request.data
+        val genreFilter = if (request.data.contains("#")) request.data.substringAfter("#") else null
+        val fetchUrl = if (request.data.contains("#")) request.data.substringBefore("#") else request.data
+        val url = if (page > 1) {
+            if (fetchUrl.contains("?")) "$fetchUrl&sayfa=$page" else "$fetchUrl?sayfa=$page"
+        } else {
+            fetchUrl
+        }
         val document = try {
             app.get(url, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         } catch (_: Exception) {
             app.get("$mainUrl/yeni-bolumler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         }
-        var items = document.select("a[href*='/dizi/']")
-            .mapNotNull { it.toSearchResult() }
-            .distinctBy { it.url }
+
+        var items = if (genreFilter != null) {
+            val listSeries = document.select("div.list-series")
+            val filtered = listSeries.filter { it.text().contains(genreFilter, ignoreCase = true) }
+                .mapNotNull { it.selectFirst("a[href*='/dizi/']")?.toSearchResult() }
+                .distinctBy { it.url }
+            if (filtered.isNotEmpty()) filtered else {
+                document.select("a[href*='/dizi/']")
+                    .mapNotNull { it.toSearchResult() }
+                    .distinctBy { it.url }
+            }
+        } else {
+            document.select("a[href*='/dizi/']")
+                .mapNotNull { it.toSearchResult() }
+                .distinctBy { it.url }
+        }
 
         if (items.isEmpty() && request.data != "$mainUrl/yeni-bolumler") {
             items = app.get("$mainUrl/yeni-bolumler", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"))

@@ -19,27 +19,41 @@ class DiziYou : MainAPI() {
     override val supportedTypes       = setOf(TvType.TvSeries)
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Aile"                 to "Aile",
+        mainUrl                                                       to "Son Eklenen Bölümler",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/"                          to "Tüm Diziler",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Aksiyon"              to "Aksiyon",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Animasyon"            to "Animasyon",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Belgesel"             to "Belgesel",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Bilim+Kurgu"          to "Bilim Kurgu",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Dram"                 to "Dram",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Fantazi"              to "Fantazi",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Gerilim"              to "Gerilim",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Gizem"                to "Gizem",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Komedi"               to "Komedi",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Korku"                to "Korku",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Macera"               to "Macera",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Sava%C5%9F"           to "Savaş",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Bilim+Kurgu"          to "Bilim Kurgu",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Komedi"               to "Komedi",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Dram"                 to "Dram",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Gerilim"              to "Gerilim",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Korku"                to "Korku",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Fantazi"              to "Fantazi",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Gizem"                to "Gizem",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Su%C3%A7"             to "Suç",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Romantik"             to "Romantik",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Animasyon"            to "Animasyon",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Tarih"                to "Tarih",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Sava%C5%9F"           to "Savaş",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Biyografi"            to "Biyografi",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Belgesel"             to "Belgesel",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Aile"                 to "Aile",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=M%C3%BCzik"           to "Müzik",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Vah%C5%9Fi+Bat%C4%B1" to "Vahşi Batı"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val url      = request.data.replace("SAYFA", "$page")
-        val document = app.get(url).document
-        val home     = document.select("div.single-item, div.listepisodes, div.post").mapNotNull { it.toMainPageResult() }
+        val url = if (request.data.contains("SAYFA")) request.data.replace("SAYFA", "$page") else request.data
+        val document = try {
+            app.get(url).document
+        } catch (_: Exception) {
+            app.get(mainUrl).document
+        }
+        var home = document.select("div.single-item, div.listepisodes, div.post").mapNotNull { it.toMainPageResult() }
+        if (home.isEmpty() && url != mainUrl) {
+            val fallbackDoc = try { app.get(mainUrl).document } catch (_: Exception) { null }
+            home = fallbackDoc?.select("div.single-item, div.listepisodes, div.post")?.mapNotNull { it.toMainPageResult() } ?: emptyList()
+        }
 
         return newHomePageResponse(request.name, home)
     }

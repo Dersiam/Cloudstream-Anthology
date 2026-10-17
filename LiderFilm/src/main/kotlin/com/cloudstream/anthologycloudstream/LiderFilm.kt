@@ -21,19 +21,47 @@ class LiderFilm : MainAPI() {
         "${mainUrl}/" to "Son Eklenenler",
         "${mainUrl}/filmler" to "Filmler",
         "${mainUrl}/diziler" to "Diziler",
+        "${mainUrl}/?sort=imdb" to "IMDb Puanına Göre",
+        "${mainUrl}/?sort=newest" to "En Yeniler",
+        "${mainUrl}/yerli-filmler" to "Yerli Filmler",
+        "${mainUrl}/yerli-diziler" to "Yerli Diziler",
+        "${mainUrl}/kore-dizileri" to "Kore Dizileri",
+        "${mainUrl}/asya-dizileri" to "Asya Dizileri",
+        "${mainUrl}/hint-filmleri" to "Hint Filmleri",
         "${mainUrl}/tur/aksiyon" to "Aksiyon",
+        "${mainUrl}/tur/animasyon" to "Animasyon",
         "${mainUrl}/tur/bilim-kurgu" to "Bilim Kurgu",
         "${mainUrl}/tur/komedi" to "Komedi",
         "${mainUrl}/tur/korku" to "Korku",
-        "${mainUrl}/tur/animasyon" to "Animasyon",
+        "${mainUrl}/tur/dram" to "Dram",
+        "${mainUrl}/tur/gerilim" to "Gerilim",
+        "${mainUrl}/tur/gizem" to "Gizem",
+        "${mainUrl}/tur/macera" to "Macera",
+        "${mainUrl}/tur/romantik" to "Romantik",
+        "${mainUrl}/tur/suc" to "Suç & Polisiye",
+        "${mainUrl}/tur/belgesel" to "Belgesel"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
         val pageUrl = if (page > 1) "${request.data}?page=$page" else request.data
-        val document = app.get(pageUrl).document
-        val items = document.select("a.movie-card, div.movie-card, a.cw-card, div.cw-card, a[href]:has(img)")
+        val document = try {
+            app.get(pageUrl).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/").document
+        }
+        var items = document.select("a.movie-card, div.movie-card, a.cw-card, div.cw-card, a[href]:has(img)")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (items.isEmpty() && request.data != "${mainUrl}/") {
+            try {
+                val fallbackDoc = app.get("${mainUrl}/").document
+                items = fallbackDoc.select("a.movie-card, div.movie-card, a.cw-card, div.cw-card, a[href]:has(img)")
+                    .mapNotNull { it.toSearchResult() }
+                    .distinctBy { it.url }
+            } catch (_: Exception) {}
+        }
+
         return newHomePageResponse(request.name, items)
     }
 

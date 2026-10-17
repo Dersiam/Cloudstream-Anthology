@@ -1,4 +1,4 @@
-version = 4
+version = 5
 
 cloudstream {
     description = "HDFilmDelisi JSON API arşivi üzerinden VidMody 1080p HLS akışları."

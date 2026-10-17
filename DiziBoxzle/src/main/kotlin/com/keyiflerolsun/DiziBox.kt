@@ -19,8 +19,20 @@ class DiziBoxzle : MainAPI() {
         "${mainUrl}/diziler" to "Popüler Diziler",
         "${mainUrl}/filmler" to "Filmler",
         "${mainUrl}/tur/aksiyon" to "Aksiyon",
+        "${mainUrl}/tur/aksiyon-macera" to "Aksiyon & Macera",
         "${mainUrl}/tur/bilim-kurgu" to "Bilim Kurgu",
-        "${mainUrl}/tur/dram" to "Dram"
+        "${mainUrl}/tur/bilim-kurgu-fantastik" to "Bilim Kurgu & Fantastik",
+        "${mainUrl}/tur/komedi" to "Komedi",
+        "${mainUrl}/tur/dram" to "Dram",
+        "${mainUrl}/tur/suc" to "Suç & Polisiye",
+        "${mainUrl}/tur/gerilim" to "Gerilim",
+        "${mainUrl}/tur/gizem" to "Gizem",
+        "${mainUrl}/tur/korku" to "Korku",
+        "${mainUrl}/tur/animasyon" to "Animasyon",
+        "${mainUrl}/tur/anime" to "Anime",
+        "${mainUrl}/tur/belgesel" to "Belgesel",
+        "${mainUrl}/tur/romantik" to "Romantik",
+        "${mainUrl}/tur/aile" to "Aile"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -29,14 +41,28 @@ class DiziBoxzle : MainAPI() {
         } else {
             request.data
         }
-        val document = app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
-        val home = document.select("a[href*='/dizi/'], a[href*='/film/']")
+        val document = try {
+            app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+        var home = document.select("a[href*='/dizi/'], a[href*='/film/']")
             .filter { a ->
                 val href = a.attr("href")
                 !href.contains("/locale/")
             }
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (home.isEmpty() && request.data != "${mainUrl}/") {
+            try {
+                val fallbackDoc = app.get("${mainUrl}/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+                home = fallbackDoc.select("a[href*='/dizi/'], a[href*='/film/']")
+                    .filter { a -> !a.attr("href").contains("/locale/") }
+                    .mapNotNull { it.toSearchResult() }
+                    .distinctBy { it.url }
+            } catch (_: Exception) {}
+        }
 
         return newHomePageResponse(request.name, home)
     }

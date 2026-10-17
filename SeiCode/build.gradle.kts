@@ -1,4 +1,4 @@
-version = 5
+version = 6
 
 cloudstream {
     description = "SeiCode anime platformu — TauVideo, Ok.ru, Sibnet, VidMoly ve MP4Upload üzerinden 1080p doğrudan MP4 ve HLS akışları."

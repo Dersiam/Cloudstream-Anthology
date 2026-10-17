@@ -21,21 +21,42 @@ class AnthologyBelgeselocuk : MainAPI() {
         "${mainUrl}/son-eklenenler"               to "Son Eklenenler",
         "${mainUrl}/en-cok-izlenen-belgeseller"   to "En Çok İzlenenler",
         "${mainUrl}/haftanin-trendleri"           to "Haftanın Trendleri",
+        "${mainUrl}/konu/cizgi-film"              to "Çizgi Film & Çocuk",
+        "${mainUrl}/konu/hayvan-belgeselleri"     to "Hayvanlar Alemi",
+        "${mainUrl}/konu/doga-belgeselleri"       to "Doğa & Vahşi Yaşam",
+        "${mainUrl}/konu/bilim-belgeselleri"      to "Bilim & Teknoloji",
+        "${mainUrl}/konu/kozmik-belgeseller"      to "Uzay & Kozmik",
+        "${mainUrl}/konu/tarih-belgeselleri"      to "Tarih",
         "${mainUrl}/konu/turk-tarihi-belgeselleri" to "Türk Tarihi",
-        "${mainUrl}/konu/tarih-belgeselleri"       to "Tarih",
-        "${mainUrl}/konu/bilim-belgeselleri"       to "Bilim",
-        "${mainUrl}/konu/doga-belgeselleri"        to "Doğa",
-        "${mainUrl}/konu/savas-belgeselleri"       to "Savaş",
-        "${mainUrl}/konu/kozmik-belgeseller"       to "Kozmik",
-        "${mainUrl}/konu/seri-belgeseller"         to "Seri"
+        "${mainUrl}/konu/eski-tarih-belgeselleri" to "Antik Çağ & Medeniyetler",
+        "${mainUrl}/konu/savas-belgeselleri"      to "Savaş & Askeri",
+        "${mainUrl}/konu/seyehat-belgeselleri"    to "Seyahat & Gezi",
+        "${mainUrl}/konu/dunya-belgeselleri"      to "Dünya & Coğrafya",
+        "${mainUrl}/konu/sanat-belgeselleri"      to "Kültür & Sanat",
+        "${mainUrl}/konu/psikoloji-belgeselleri"  to "İnsan & Psikoloji",
+        "${mainUrl}/konu/polisiye-belgeselleri"   to "Suç & Polisiye",
+        "${mainUrl}/konu/muhendislik-belgeselleri" to "Mühendislik & Mimari",
+        "${mainUrl}/konu/otomobil-belgeselleri"   to "Otomotiv & Araçlar",
+        "${mainUrl}/konu/seri-belgeseller"        to "Dizi Belgeseller",
+        "${mainUrl}/konu/egitim-belgeselleri"     to "Eğitim"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val pageUrl = if (page > 1) "${request.data}&page=$page" else request.data
-        val document = app.get(pageUrl).document
-        val home = document.select("a.px-today-card, a.px-ep-card, div.px-notable-item a, a[href*='/belgeseldizi/'], a[href*='/belgesel/']")
+        val document = try {
+            app.get(pageUrl).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/son-eklenenler").document
+        }
+        var home = document.select("a.px-today-card, a.px-ep-card, div.px-notable-item a, a[href*='/belgeseldizi/'], a[href*='/belgesel/']")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (home.isEmpty() && request.data != "${mainUrl}/son-eklenenler") {
+            val fallbackDoc = try { app.get("${mainUrl}/son-eklenenler").document } catch (_: Exception) { null }
+            home = fallbackDoc?.select("a.px-today-card, a.px-ep-card, div.px-notable-item a, a[href*='/belgeseldizi/'], a[href*='/belgesel/']")
+                ?.mapNotNull { it.toSearchResult() }?.distinctBy { it.url } ?: emptyList()
+        }
 
         return newHomePageResponse(request.name, home)
     }

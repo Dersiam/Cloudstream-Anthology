@@ -18,24 +18,52 @@ class HDFilmIzle : MainAPI() {
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
 
     override val mainPage = mainPageOf(
+        "${mainUrl}/" to "Son Filmler",
+        "${mainUrl}/dizi/" to "Yabancı Diziler",
+        "${mainUrl}/imdb-top-250/" to "IMDb Top 250",
+        "${mainUrl}/yerli-filmler/" to "Yerli Filmler",
+        "${mainUrl}/olmeden-izle/" to "Ölmeden Önce İzle",
+        "${mainUrl}/kanal/netflix/" to "Netflix İçerikleri",
+        "${mainUrl}/kanal/prime-video/" to "Prime Video",
+        "${mainUrl}/kanal/apple-tv/" to "Apple TV+",
+        "${mainUrl}/kanal/disney/" to "Disney+",
         "${mainUrl}/tur/aksiyon/" to "Aksiyon Filmleri",
+        "${mainUrl}/tur/macera/" to "Macera Filmleri",
         "${mainUrl}/tur/animasyon/" to "Animasyon Filmleri",
-        "${mainUrl}/tur/bilim-kurgu/" to "Bilim Kurgu Filmleri",
+        "${mainUrl}/tur/bilim-kurgu/" to "Bilim Kurgu",
         "${mainUrl}/tur/komedi/" to "Komedi Filmleri",
         "${mainUrl}/tur/korku/" to "Korku Filmleri",
         "${mainUrl}/tur/gerilim/" to "Gerilim Filmleri",
         "${mainUrl}/tur/dram/" to "Dram Filmleri",
-        "${mainUrl}/tur/macera/" to "Macera Filmleri",
-        "${mainUrl}/tur/romantik/" to "Romantik Filmler",
+        "${mainUrl}/tur/fantastik/" to "Fantastik Filmler",
+        "${mainUrl}/tur/gizem/" to "Gizem Filmleri",
         "${mainUrl}/tur/suc/" to "Suç Filmleri",
+        "${mainUrl}/tur/romantik/" to "Romantik Filmler",
+        "${mainUrl}/tur/biyografi/" to "Biyografi",
+        "${mainUrl}/tur/tarih/" to "Tarih",
+        "${mainUrl}/tur/savas/" to "Savaş",
+        "${mainUrl}/tur/belgesel/" to "Belgesel",
+        "${mainUrl}/tur/aile/" to "Aile",
+        "${mainUrl}/tur/western/" to "Western"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val pageUrl = if (page > 1) "${request.data}page/$page/" else request.data
-        val document = app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
-        val home = document.select("div#moviesListResult a.poster, div.film-list a.poster, a[href*='/film/']")
+        val document = try {
+            app.get(pageUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/tur/aksiyon/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+        var home = document.select("div#moviesListResult a.poster, div.film-list a.poster, a[href*='/film/']")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (home.isEmpty() && request.data != "${mainUrl}/tur/aksiyon/") {
+            home = app.get("${mainUrl}/tur/aksiyon/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+                .select("div#moviesListResult a.poster, div.film-list a.poster, a[href*='/film/']")
+                .mapNotNull { it.toSearchResult() }
+                .distinctBy { it.url }
+        }
 
         return newHomePageResponse(request.name, home)
     }

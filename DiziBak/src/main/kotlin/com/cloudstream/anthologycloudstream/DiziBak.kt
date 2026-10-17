@@ -18,13 +18,20 @@ class DiziBak : MainAPI() {
         "$mainUrl/tum-bolumler/" to "Son Bölümler",
         "$mainUrl/diziler/" to "Tüm Diziler",
         "$mainUrl/filmler/" to "Tüm Filmler",
-        "$mainUrl/tur/aksiyon/" to "Aksiyon Dizileri",
+        "$mainUrl/tur/aksiyon/" to "Aksiyon",
+        "$mainUrl/tur/macera/" to "Macera",
+        "$mainUrl/tur/animasyon/" to "Animasyon",
         "$mainUrl/tur/bilim-kurgu/" to "Bilim Kurgu",
-        "$mainUrl/tur/dram/" to "Dram Dizileri",
-        "$mainUrl/tur/komedi/" to "Komedi Dizileri",
-        "$mainUrl/tur/gerilim/" to "Gerilim Dizileri",
-        "$mainUrl/tur/korku/" to "Korku Dizileri",
-        "$mainUrl/tur/macera/" to "Macera Dizileri"
+        "$mainUrl/tur/dram/" to "Dram",
+        "$mainUrl/tur/komedi/" to "Komedi",
+        "$mainUrl/tur/gerilim/" to "Gerilim",
+        "$mainUrl/tur/korku/" to "Korku",
+        "$mainUrl/tur/fantastik/" to "Fantastik",
+        "$mainUrl/tur/gizem/" to "Gizem",
+        "$mainUrl/tur/suc/" to "Suç & Polisiye",
+        "$mainUrl/tur/romantik/" to "Romantik",
+        "$mainUrl/tur/belgesel/" to "Belgesel",
+        "$mainUrl/tur/aile/" to "Aile"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -35,9 +42,19 @@ class DiziBak : MainAPI() {
             app.get("$mainUrl/tum-bolumler/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         }
 
-        val items = document.select("a[href*='/diziler/'], a[href*='/filmler/'], a[href*='-sezon-'], a[href*='-bolum-'], div.article-episode-card a, div.article-series-card a")
+        var items = document.select("a[href*='/diziler/'], a[href*='/filmler/'], a[href*='-sezon-'], a[href*='-bolum-'], div.article-episode-card a, div.article-series-card a")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (items.isEmpty() && request.data != "$mainUrl/tum-bolumler/") {
+            val fallbackDoc = try {
+                app.get("$mainUrl/tum-bolumler/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+            } catch (_: Exception) { null }
+            items = fallbackDoc?.select("a[href*='/diziler/'], a[href*='/filmler/'], a[href*='-sezon-'], a[href*='-bolum-'], div.article-episode-card a, div.article-series-card a")
+                ?.mapNotNull { it.toSearchResult() }
+                ?.distinctBy { it.url } ?: emptyList()
+        }
+
         return newHomePageResponse(request.name, items)
     }
 

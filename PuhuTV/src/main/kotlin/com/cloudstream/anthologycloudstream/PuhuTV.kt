@@ -17,15 +17,30 @@ class PuhuTV : MainAPI() {
 
     override val mainPage = mainPageOf(
         mainUrl to "Öne Çıkanlar",
-        "$mainUrl/dizi" to "Diziler",
+        "$mainUrl/dizi" to "Tüm Diziler",
+        "$mainUrl/list/dram" to "Dram Dizileri",
+        "$mainUrl/list/aile" to "Aile Dizileri",
+        "$mainUrl/list/romantik" to "Romantik",
+        "$mainUrl/list/aksiyon-macera" to "Aksiyon & Macera",
+        "$mainUrl/list/belgesel" to "Belgesel",
         "$mainUrl/film" to "Filmler",
         "$mainUrl/cocuk" to "Çocuk",
         "$mainUrl/canli-yayin" to "Canlı Yayınlar"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
-        val document = app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
-        val items = document.select("a[href*='-detay'], a[href*='-izle']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+        val document = try {
+            app.get(request.data, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        } catch (_: Exception) {
+            app.get(mainUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+        }
+        var items = document.select("a[href*='-detay'], a[href*='-izle']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+        if (items.isEmpty() && request.data != mainUrl) {
+            try {
+                val fallbackDoc = app.get(mainUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+                items = fallbackDoc.select("a[href*='-detay'], a[href*='-izle']").mapNotNull { it.toSearchResult() }.distinctBy { it.url }
+            } catch (_: Exception) {}
+        }
         return newHomePageResponse(request.name, items)
     }
 

@@ -1,4 +1,4 @@
-version = 6
+version = 7
 
 cloudstream {
     description = "KultFilmler arşivi üzerinden VidMoly/Vidpapi HLS akışları."

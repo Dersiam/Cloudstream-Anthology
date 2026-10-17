@@ -21,36 +21,51 @@ class SetFilmIzle : MainAPI() {
     override val supportedTypes       = setOf(TvType.Movie, TvType.TvSeries)
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/tur/aile/"        to "Aile",
+        "${mainUrl}/trend/"           to "Trendler",
+        "${mainUrl}/imdb-en-iyiler/"   to "IMDb Top 250",
+        "${mainUrl}/turkce-dublaj-filmler/" to "Türkçe Dublaj Filmler",
+        "${mainUrl}/yerli-filmler/"   to "Yerli Filmler",
+        "${mainUrl}/ag/netflix/"      to "Netflix",
+        "${mainUrl}/ag/amazon/"       to "Amazon Prime",
+        "${mainUrl}/ag/disney/"       to "Disney+",
+        "${mainUrl}/ag/hbo/"          to "HBO",
         "${mainUrl}/tur/aksiyon/"     to "Aksiyon",
+        "${mainUrl}/tur/macera/"      to "Macera",
         "${mainUrl}/tur/animasyon/"   to "Animasyon",
-        "${mainUrl}/tur/belgesel/"    to "Belgesel",
         "${mainUrl}/tur/bilim-kurgu/" to "Bilim-Kurgu",
-        "${mainUrl}/tur/biyografi/"   to "Biyografi",
-        "${mainUrl}/tur/dini/"        to "Dini",
-        "${mainUrl}/tur/dram/"        to "Dram",
-        "${mainUrl}/tur/fantastik/"   to "Fantastik",
-        "${mainUrl}/tur/genclik/"     to "Gençlik",
-        "${mainUrl}/tur/gerilim/"     to "Gerilim",
-        "${mainUrl}/tur/gizem/"       to "Gizem",
         "${mainUrl}/tur/komedi/"      to "Komedi",
         "${mainUrl}/tur/korku/"       to "Korku",
-        "${mainUrl}/tur/macera/"      to "Macera",
-        "${mainUrl}/tur/mini-dizi/"   to "Mini Dizi",
-        "${mainUrl}/tur/muzik/"       to "Müzik",
-        "${mainUrl}/tur/program/"     to "Program",
+        "${mainUrl}/tur/gerilim/"     to "Gerilim",
+        "${mainUrl}/tur/dram/"        to "Dram",
+        "${mainUrl}/tur/fantastik/"   to "Fantastik",
+        "${mainUrl}/tur/gizem/"       to "Gizem",
+        "${mainUrl}/tur/suc/"         to "Suç",
         "${mainUrl}/tur/romantik/"    to "Romantik",
         "${mainUrl}/tur/savas/"       to "Savaş",
-        "${mainUrl}/tur/spor/"        to "Spor",
-        "${mainUrl}/tur/suc/"         to "Suç",
         "${mainUrl}/tur/tarih/"       to "Tarih",
+        "${mainUrl}/tur/aile/"        to "Aile",
+        "${mainUrl}/tur/belgesel/"    to "Belgesel",
+        "${mainUrl}/tur/biyografi/"   to "Biyografi",
+        "${mainUrl}/tur/genclik/"     to "Gençlik",
+        "${mainUrl}/tur/mini-dizi/"   to "Mini Dizi",
+        "${mainUrl}/tur/muzik/"       to "Müzik",
+        "${mainUrl}/tur/spor/"        to "Spor",
         "${mainUrl}/tur/western/"     to "Western"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val pageUrl = if (page > 1) "${request.data}page/$page/" else request.data
-        val document = app.get(pageUrl).document
-        val home     = document.select("a.card-link, div.items article, article.card").mapNotNull { it.toMainPageResult() }.distinctBy { it.url }
+        val document = try {
+            app.get(pageUrl).document
+        } catch (_: Exception) {
+            app.get("${mainUrl}/tur/aksiyon/").document
+        }
+        var home = document.select("a.card-link, div.items article, article.card").mapNotNull { it.toMainPageResult() }.distinctBy { it.url }
+
+        if (home.isEmpty() && request.data != "${mainUrl}/tur/aksiyon/") {
+            val fallbackDoc = try { app.get("${mainUrl}/tur/aksiyon/").document } catch (_: Exception) { null }
+            home = fallbackDoc?.select("a.card-link, div.items article, article.card")?.mapNotNull { it.toMainPageResult() }?.distinctBy { it.url } ?: emptyList()
+        }
 
         return newHomePageResponse(request.name, home)
     }

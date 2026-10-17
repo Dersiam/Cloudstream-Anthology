@@ -17,13 +17,26 @@ class DiziPod : MainAPI() {
         mainUrl to "Son Eklenenler",
         "$mainUrl/diziler" to "Popüler Diziler",
         "$mainUrl/filmler" to "Filmler",
-        "$mainUrl/tur/aksiyon" to "Aksiyon",
-        "$mainUrl/tur/bilim-kurgu" to "Bilim Kurgu",
-        "$mainUrl/tur/komedi" to "Komedi",
-        "$mainUrl/tur/dram" to "Dram",
-        "$mainUrl/tur/gerilim" to "Gerilim",
-        "$mainUrl/tur/korku" to "Korku",
-        "$mainUrl/tur/animasyon" to "Animasyon"
+        "$mainUrl/tur/aksiyon/" to "Aksiyon",
+        "$mainUrl/tur/aksiyon-macera/" to "Aksiyon & Macera",
+        "$mainUrl/tur/macera/" to "Macera",
+        "$mainUrl/tur/animasyon/" to "Animasyon",
+        "$mainUrl/tur/anime/" to "Anime",
+        "$mainUrl/tur/belgesel/" to "Belgesel",
+        "$mainUrl/tur/bilim-kurgu/" to "Bilim Kurgu",
+        "$mainUrl/tur/bilim-kurgu-fantazi/" to "Bilim Kurgu & Fantazi",
+        "$mainUrl/tur/komedi/" to "Komedi",
+        "$mainUrl/tur/dram/" to "Dram",
+        "$mainUrl/tur/gerilim/" to "Gerilim",
+        "$mainUrl/tur/korku/" to "Korku",
+        "$mainUrl/tur/fantastik/" to "Fantastik",
+        "$mainUrl/tur/gizem/" to "Gizem",
+        "$mainUrl/tur/suc/" to "Suç",
+        "$mainUrl/tur/romantik/" to "Romantik",
+        "$mainUrl/tur/aile/" to "Aile",
+        "$mainUrl/tur/savas-politik/" to "Savaş & Politik",
+        "$mainUrl/tur/tarih/" to "Tarih",
+        "$mainUrl/tur/western/" to "Western"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {

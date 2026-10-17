@@ -20,20 +20,36 @@ class TvDiziler : MainAPI() {
         "${mainUrl}/dizi-izle" to "Tüm Diziler",
         "${mainUrl}/dizi/tur/aile" to "Aile",
         "${mainUrl}/dizi/tur/aksiyon" to "Aksiyon",
+        "${mainUrl}/dizi/tur/dram" to "Dram",
         "${mainUrl}/dizi/tur/gerilim" to "Gerilim",
         "${mainUrl}/dizi/tur/komedi" to "Komedi",
         "${mainUrl}/dizi/tur/romantik" to "Romantik",
-        "${mainUrl}/dizi/tur/suc" to "Suç"
+        "${mainUrl}/dizi/tur/suc" to "Suç",
+        "${mainUrl}/dizi/tur/animasyon" to "Animasyon",
+        "${mainUrl}/dizi/tur/muzik" to "Müzik",
+        "${mainUrl}/dizi/tur/yarisma" to "Yarışma",
+        "${mainUrl}/film/tur/belgesel" to "Belgesel",
+        "${mainUrl}/film/tur/savas-politik" to "Savaş & Politik",
+        "${mainUrl}/film/tur/tarih" to "Tarih"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val targetUrl = if (request.data == mainUrl) mainUrl else "${request.data}/$page"
-        val doc = app.get(
-            targetUrl,
-            headers = mapOf(
-                "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            )
-        ).document
+        val doc = try {
+            app.get(
+                targetUrl,
+                headers = mapOf(
+                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                )
+            ).document
+        } catch (_: Exception) {
+            app.get(
+                mainUrl,
+                headers = mapOf(
+                    "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                )
+            ).document
+        }
 
         val items = mutableListOf<SearchResponse>()
         doc.select("div.poster-xs, div.poster-long, article, div.poster").forEach { el ->
@@ -51,6 +67,24 @@ class TvDiziler : MainAPI() {
             items.add(newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
             })
+        }
+
+        if (items.isEmpty() && targetUrl != mainUrl) {
+            try {
+                val fallbackDoc = app.get(mainUrl, headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")).document
+                fallbackDoc.select("div.poster-xs, div.poster-long, article, div.poster").forEach { el ->
+                    val title = el.selectFirst("div.poster-xs-subject p, div.poster-long-subject h2, h2, h3, a")?.text()?.replace(" izle", "")?.trim() ?: return@forEach
+                    val rawHref = el.selectFirst("a")?.attr("href")?.trim() ?: return@forEach
+                    val href = when {
+                        rawHref.startsWith("http") -> rawHref
+                        rawHref.startsWith("//") -> "https:$rawHref"
+                        rawHref.startsWith("/") -> "$mainUrl$rawHref"
+                        else -> "$mainUrl/$rawHref"
+                    }
+                    val posterUrl = fixUrlNull(el.selectFirst("img")?.let { it.attr("data-src").ifEmpty { it.attr("src") } })
+                    items.add(newTvSeriesSearchResponse(title, href, TvType.TvSeries) { this.posterUrl = posterUrl })
+                }
+            } catch (_: Exception) {}
         }
 
         return newHomePageResponse(request.name, items.distinctBy { it.url })

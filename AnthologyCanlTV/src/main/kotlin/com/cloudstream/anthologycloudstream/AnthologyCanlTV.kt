@@ -17,11 +17,31 @@ class AnthologyCanlTV : MainAPI() {
     override val hasDownloadSupport = false
     override val supportedTypes = setOf(TvType.Live)
 
+    override val mainPage = mainPageOf(
+        "ALL" to "Tüm Kanallar",
+        "🇹🇷 ULUSAL KANALLAR" to "Ulusal Kanallar",
+        "🇹🇷 HABER KANALLARI" to "Haber Kanalları",
+        "🇹🇷 SPOR KANALLARI" to "Spor Kanalları",
+        "🇹🇷 SİNEMA KANALLARI" to "Sinema Kanalları",
+        "🇹🇷 BELGESEL & ÇOCUK" to "Belgesel & Çocuk",
+        "🇹🇷 MÜZİK & EĞLENCE" to "Müzik & Eğlence"
+    )
+
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val kanallar = IptvPlaylistParser().parseM3U(app.get(mainUrl).text)
+        val filteredGroups = if (request.data == "ALL" || request.data.isEmpty()) {
+            kanallar.items.groupBy { it.attributes["group-title"] }
+        } else {
+            val matching = kanallar.items.filter { it.attributes["group-title"] == request.data }
+            if (matching.isNotEmpty()) {
+                matching.groupBy { it.attributes["group-title"] }
+            } else {
+                kanallar.items.groupBy { it.attributes["group-title"] }
+            }
+        }
 
         return newHomePageResponse(
-            kanallar.items.groupBy { it.attributes["group-title"] }.map { group ->
+            filteredGroups.map { group ->
                 val title = group.key ?: ""
                 val show = group.value.map { kanal ->
                     val streamurl = kanal.url.toString()

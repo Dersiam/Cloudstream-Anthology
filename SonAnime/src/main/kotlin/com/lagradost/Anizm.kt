@@ -27,8 +27,18 @@ class SonAnime : MainAPI() {
         "${mainUrl}/api/anime?filter=popular" to "Popüler Animeler",
         "${mainUrl}/api/anime?filter=movie" to "Anime Filmleri",
         "${mainUrl}/api/anime?filter=action" to "Aksiyon Animeleri",
+        "${mainUrl}/api/anime?filter=adventure" to "Macera",
         "${mainUrl}/api/anime?filter=comedy" to "Komedi Animeleri",
         "${mainUrl}/api/anime?filter=drama" to "Dram Animeleri",
+        "${mainUrl}/api/anime?filter=fantasy" to "Fantastik",
+        "${mainUrl}/api/anime?filter=scifi" to "Bilim Kurgu",
+        "${mainUrl}/api/anime?filter=romance" to "Romantik",
+        "${mainUrl}/api/anime?filter=thriller" to "Gerilim & Gizem",
+        "${mainUrl}/api/anime?filter=horror" to "Korku",
+        "${mainUrl}/api/anime?filter=supernatural" to "Doğaüstü",
+        "${mainUrl}/api/anime?filter=sports" to "Spor",
+        "${mainUrl}/api/anime?filter=psychological" to "Psikolojik",
+        "${mainUrl}/api/anime?filter=sliceoflife" to "Günlük Hayat",
         "${mainUrl}/api/anime?filter=all" to "Tüm Animeler"
     )
 
@@ -54,8 +64,18 @@ class SonAnime : MainAPI() {
             "movie" -> list.filter { it.optString("anime_type").contains("movie", ignoreCase = true) }
             "popular" -> list.filter { it.optDouble("anime_malScore", 0.0) >= 7.5 }
             "action" -> list.filter { it.optString("anime_genres").contains("Action", ignoreCase = true) || it.optString("anime_genres").contains("Aksiyon", ignoreCase = true) }
+            "adventure" -> list.filter { it.optString("anime_genres").contains("Adventure", ignoreCase = true) || it.optString("anime_genres").contains("Macera", ignoreCase = true) }
             "comedy" -> list.filter { it.optString("anime_genres").contains("Comedy", ignoreCase = true) || it.optString("anime_genres").contains("Komedi", ignoreCase = true) }
             "drama" -> list.filter { it.optString("anime_genres").contains("Drama", ignoreCase = true) || it.optString("anime_genres").contains("Dram", ignoreCase = true) }
+            "fantasy" -> list.filter { it.optString("anime_genres").contains("Fantasy", ignoreCase = true) || it.optString("anime_genres").contains("Fantastik", ignoreCase = true) }
+            "scifi" -> list.filter { it.optString("anime_genres").contains("Sci-Fi", ignoreCase = true) || it.optString("anime_genres").contains("Bilim", ignoreCase = true) }
+            "romance" -> list.filter { it.optString("anime_genres").contains("Romance", ignoreCase = true) || it.optString("anime_genres").contains("Romantik", ignoreCase = true) }
+            "thriller" -> list.filter { it.optString("anime_genres").contains("Thriller", ignoreCase = true) || it.optString("anime_genres").contains("Mystery", ignoreCase = true) || it.optString("anime_genres").contains("Gerilim", ignoreCase = true) || it.optString("anime_genres").contains("Gizem", ignoreCase = true) }
+            "horror" -> list.filter { it.optString("anime_genres").contains("Horror", ignoreCase = true) || it.optString("anime_genres").contains("Korku", ignoreCase = true) }
+            "supernatural" -> list.filter { it.optString("anime_genres").contains("Supernatural", ignoreCase = true) || it.optString("anime_genres").contains("Doğaüstü", ignoreCase = true) }
+            "sports" -> list.filter { it.optString("anime_genres").contains("Sport", ignoreCase = true) || it.optString("anime_genres").contains("Spor", ignoreCase = true) }
+            "psychological" -> list.filter { it.optString("anime_genres").contains("Psychological", ignoreCase = true) || it.optString("anime_genres").contains("Psikolojik", ignoreCase = true) }
+            "sliceoflife" -> list.filter { it.optString("anime_genres").contains("Slice of Life", ignoreCase = true) || it.optString("anime_genres").contains("Yaşam", ignoreCase = true) }
             else -> list
         }
 

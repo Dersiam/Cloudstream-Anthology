@@ -1,4 +1,4 @@
-version = 5
+version = 6
 
 cloudstream {
     description = "5000+ HD film, dizi ve anime - Türkçe dublaj & altyazı, 1080p çift ses direct MKV."

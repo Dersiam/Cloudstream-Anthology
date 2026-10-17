@@ -22,15 +22,27 @@ class KultFilmler : MainAPI() {
 
     override val mainPage = mainPageOf(
         "${mainUrl}/" to "Son Filmler",
-        "${mainUrl}/category/aksiyon-filmleri-izle/" to "Aksiyon Filmleri",
+        "${mainUrl}/dizi-arsivi/" to "Yabancı Diziler",
+        "${mainUrl}/category/aksiyon-filmleri-izle/" to "Aksiyon",
+        "${mainUrl}/category/macera-filmleri-izle/" to "Macera",
         "${mainUrl}/category/bilim-kurgu-filmleri-izle/" to "Bilim Kurgu",
-        "${mainUrl}/category/dram-filmleri-izle/" to "Dram Filmleri",
-        "${mainUrl}/category/gerilim-filmleri-izle/" to "Gerilim Filmleri",
-        "${mainUrl}/category/korku-filmleri-izle/" to "Korku Filmleri",
-        "${mainUrl}/category/komedi-filmleri-izle/" to "Komedi Filmleri",
-        "${mainUrl}/category/macera-filmleri-izle/" to "Macera Filmleri",
-        "${mainUrl}/category/animasyon-filmleri-izle/" to "Animasyon Filmleri",
-        "${mainUrl}/dizi-arsivi/" to "Yabancı Diziler"
+        "${mainUrl}/category/animasyon-filmleri-izle/" to "Animasyon",
+        "${mainUrl}/category/komedi-filmleri-izle-1/" to "Komedi",
+        "${mainUrl}/category/dram-filmleri-izle-1/" to "Dram",
+        "${mainUrl}/category/gerilim-filmleri-izle/" to "Gerilim",
+        "${mainUrl}/category/korku-filmleri-izle/" to "Korku",
+        "${mainUrl}/category/fantastik-filmleri-izle/" to "Fantastik",
+        "${mainUrl}/category/gizem-filmleri-izle/" to "Gizem",
+        "${mainUrl}/category/suc-filmleri-izle/" to "Suç",
+        "${mainUrl}/category/polisiye-filmleri-izle/" to "Polisiye",
+        "${mainUrl}/category/romantik-filmleri-izle-1/" to "Romantik",
+        "${mainUrl}/category/biyografi-filmleri-izle/" to "Biyografi",
+        "${mainUrl}/category/tarih-filmleri-izle/" to "Tarih",
+        "${mainUrl}/category/savas-filmleri-izle/" to "Savaş",
+        "${mainUrl}/category/aile-filmleri-izle/" to "Aile",
+        "${mainUrl}/category/belgesel-izle/" to "Belgesel",
+        "${mainUrl}/category/western-filmleri-izle/" to "Western",
+        "${mainUrl}/category/kara-filmleri-izle/" to "Kara Film"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -45,9 +57,16 @@ class KultFilmler : MainAPI() {
             app.get("${mainUrl}/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
         }
 
-        val home = document.select("a.mcard, a.dcard, div.movie-box, a:has(img.pimg), a:has(div.poster)")
+        var home = document.select("a.mcard, a.dcard, div.movie-box, a:has(img.pimg), a:has(div.poster)")
             .mapNotNull { it.toSearchResult() }
             .distinctBy { it.url }
+
+        if (home.isEmpty() && request.data != "${mainUrl}/") {
+            home = app.get("${mainUrl}/", headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).document
+                .select("a.mcard, a.dcard, div.movie-box, a:has(img.pimg), a:has(div.poster)")
+                .mapNotNull { it.toSearchResult() }
+                .distinctBy { it.url }
+        }
 
         return newHomePageResponse(request.name, home)
     }

@@ -30,8 +30,17 @@ class Anizium : MainAPI() {
         "genre:Komedi" to "Komedi Animeleri",
         "genre:Dram" to "Dram Animeleri",
         "genre:Fantastik" to "Fantastik Animeleri",
-        "genre:Bilim Kurgu" to "Bilim Kurgu Animeleri",
-        "genre:Romantik" to "Romantik Animeleri"
+        "genre:Bilim Kurgu" to "Bilim Kurgu",
+        "genre:Romantik" to "Romantik",
+        "genre:Gerilim" to "Gerilim",
+        "genre:Gizem" to "Gizem",
+        "genre:Doğaüstü" to "Doğaüstü",
+        "genre:Psikolojik" to "Psikolojik",
+        "genre:Korku" to "Korku",
+        "genre:Spor" to "Spor",
+        "genre:Okul" to "Okul",
+        "genre:Shounen" to "Shounen",
+        "genre:Isekai" to "Isekai"
     )
 
     private fun getIstanbulDay(): String {

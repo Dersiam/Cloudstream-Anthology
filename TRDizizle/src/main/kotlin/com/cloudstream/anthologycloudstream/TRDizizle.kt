@@ -25,13 +25,25 @@ class TRDizizle : MainAPI() {
         "$TMDB_API/tv/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Diziler",
         "$TMDB_API/trending/tv/day?api_key=$TMDB_KEY&language=tr-TR&page=" to "Günün Trend Dizileri",
         "$TMDB_API/tv/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "En Çok Beğenilen Diziler",
+        "$TMDB_API/tv/on_the_air?api_key=$TMDB_KEY&language=tr-TR&page=" to "Yayındaki Diziler",
         "$TMDB_API/movie/popular?api_key=$TMDB_KEY&language=tr-TR&page=" to "Popüler Filmler",
+        "$TMDB_API/movie/now_playing?api_key=$TMDB_KEY&language=tr-TR&page=" to "Vizyondaki Filmler",
+        "$TMDB_API/movie/top_rated?api_key=$TMDB_KEY&language=tr-TR&page=" to "IMDb En İyi Filmler",
         "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=18&page=" to "Dram Dizileri",
         "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=35&page=" to "Komedi Dizileri",
         "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=10759&page=" to "Aksiyon & Macera",
         "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=10765&page=" to "Bilim Kurgu & Fantastik",
         "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=80&page=" to "Suç & Polisiye",
-        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=9648&page=" to "Gizem Dizileri"
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=9648&page=" to "Gizem Dizileri",
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=16&page=" to "Animasyon Dizileri",
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=99&page=" to "Belgesel Dizileri",
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=10762&page=" to "Çocuk & Aile",
+        "$TMDB_API/discover/tv?api_key=$TMDB_KEY&language=tr-TR&with_genres=10768&page=" to "Savaş & Politik",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=28&page=" to "Aksiyon Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=878&page=" to "Bilim Kurgu Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=27&page=" to "Korku Filmleri",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=10749&page=" to "Romantik Filmler",
+        "$TMDB_API/discover/movie?api_key=$TMDB_KEY&language=tr-TR&with_genres=35&page=" to "Komedi Filmleri"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {

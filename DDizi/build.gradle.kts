@@ -1,4 +1,4 @@
-version = 6
+version = 7
 
 cloudstream {
     description = "Yerli dizi arşivi, güncel bölümler kataloğu ve doğrudan Ciner/Yandex CDN MP4/HLS akışları."

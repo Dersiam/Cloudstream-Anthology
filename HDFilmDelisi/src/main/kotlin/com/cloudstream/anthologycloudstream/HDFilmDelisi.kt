@@ -17,11 +17,20 @@ class HDFilmDelisi : MainAPI() {
         "$mainUrl/api/films?sort=imdb" to "En Yüksek IMDb",
         "$mainUrl/api/films?sort=popular" to "Popüler Filmler",
         "$mainUrl/api/search?q=aksiyon" to "Aksiyon",
+        "$mainUrl/api/search?q=macera" to "Macera",
         "$mainUrl/api/search?q=bilim" to "Bilim Kurgu",
         "$mainUrl/api/search?q=komedi" to "Komedi",
         "$mainUrl/api/search?q=korku" to "Korku",
+        "$mainUrl/api/search?q=gerilim" to "Gerilim",
         "$mainUrl/api/search?q=dram" to "Dram",
-        "$mainUrl/api/search?q=animasyon" to "Animasyon"
+        "$mainUrl/api/search?q=suc" to "Suç",
+        "$mainUrl/api/search?q=animasyon" to "Animasyon",
+        "$mainUrl/api/search?q=fantastik" to "Fantastik",
+        "$mainUrl/api/search?q=gizem" to "Gizem",
+        "$mainUrl/api/search?q=romantik" to "Romantik",
+        "$mainUrl/api/search?q=savas" to "Savaş",
+        "$mainUrl/api/search?q=aile" to "Aile",
+        "$mainUrl/api/search?q=belgesel" to "Belgesel"
     )
 
     private data class FilmItem(

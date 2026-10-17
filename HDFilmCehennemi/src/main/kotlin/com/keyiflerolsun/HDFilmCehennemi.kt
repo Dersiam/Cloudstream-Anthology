@@ -21,14 +21,28 @@ class HDFilmCehennemi : MainAPI() {
 
     override val mainPage = mainPageOf(
         "$mainUrl/api/search?q=a" to "Son Eklenenler",
-        "$mainUrl/kategori/aksiyon-filmleri-izle/" to "Aksiyon Filmleri",
-        "$mainUrl/kategori/komedi-filmleri-izle/" to "Komedi Filmleri",
-        "$mainUrl/kategori/korku-filmleri-izle/" to "Korku Filmleri",
-        "$mainUrl/kategori/bilim-kurgu-filmleri-izle/" to "Bilim Kurgu",
-        "$mainUrl/kategori/dram-filmleri-izle/" to "Dram Filmleri",
-        "$mainUrl/kategori/gerilim-filmleri-izle/" to "Gerilim Filmleri",
-        "$mainUrl/kategori/animasyon-filmleri-izle/" to "Animasyon Filmleri",
-        "$mainUrl/dizi-izle/" to "Yabancı Diziler"
+        "$mainUrl/filmler/" to "Tüm Filmler",
+        "$mainUrl/dizi-izle/" to "Yabancı Diziler",
+        "$mainUrl/kategori/tavsiye-filmleri-izle/" to "Tavsiye Filmleri",
+        "$mainUrl/kategori/en-iyi-filmler/" to "En İyi Filmler",
+        "$mainUrl/kategori/netflix-filmleri-izle/" to "Netflix Filmleri",
+        "$mainUrl/imdb-puani/" to "IMDb Puanına Göre",
+        "$mainUrl/tur/aksiyon-filmleri-izle/" to "Aksiyon",
+        "$mainUrl/tur/komedi-filmleri/" to "Komedi",
+        "$mainUrl/tur/korku-filmleri/" to "Korku",
+        "$mainUrl/tur/bilim-kurgu-filmleri-izle/" to "Bilim Kurgu",
+        "$mainUrl/tur/dram-filmleri/" to "Dram",
+        "$mainUrl/tur/gerilim-filmleri/" to "Gerilim",
+        "$mainUrl/tur/animasyon-film-izle/" to "Animasyon",
+        "$mainUrl/tur/macera-filmleri/" to "Macera",
+        "$mainUrl/tur/fantastik-filmleri/" to "Fantastik",
+        "$mainUrl/tur/gizem-filmleri/" to "Gizem",
+        "$mainUrl/tur/suc-filmleri/" to "Suç",
+        "$mainUrl/tur/romantik-filmler/" to "Romantik",
+        "$mainUrl/tur/aile-filmleri/" to "Aile",
+        "$mainUrl/tur/savas-filmleri/" to "Savaş",
+        "$mainUrl/tur/belgesel-filmleri/" to "Belgesel",
+        "$mainUrl/tur/tarih-filmleri/" to "Tarih"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {

@@ -19,11 +19,24 @@ class AsyaAnimeleri : MainAPI() {
         "${mainUrl}/series/?order=latest" to "Yeni Eklenenler",
         mainUrl to "Son Bölümler",
         "${mainUrl}/genres/aksiyon/" to "Aksiyon Animeleri",
-        "${mainUrl}/genres/fantastik/" to "Fantastik Animeleri",
-        "${mainUrl}/genres/komedi/" to "Komedi Animeleri",
-        "${mainUrl}/genres/macera/" to "Macera Animeleri",
-        "${mainUrl}/genres/romantik/" to "Romantik Animeleri",
-        "${mainUrl}/genres/dram/" to "Dram Animeleri"
+        "${mainUrl}/genres/macera/" to "Macera",
+        "${mainUrl}/genres/fantastik/" to "Fantastik",
+        "${mainUrl}/genres/dovus-sanatlari/" to "Dövüş Sanatları",
+        "${mainUrl}/genres/isekai/" to "Isekai",
+        "${mainUrl}/genres/komedi/" to "Komedi",
+        "${mainUrl}/genres/shounen/" to "Shounen",
+        "${mainUrl}/genres/bilim-kurgu/" to "Bilim Kurgu",
+        "${mainUrl}/genres/buyu/" to "Büyü",
+        "${mainUrl}/genres/dogaustu/" to "Doğaüstü",
+        "${mainUrl}/genres/dram/" to "Dram",
+        "${mainUrl}/genres/gerilim/" to "Gerilim",
+        "${mainUrl}/genres/gizem/" to "Gizem",
+        "${mainUrl}/genres/hayatta-kalma/" to "Hayatta Kalma",
+        "${mainUrl}/genres/korku/" to "Korku",
+        "${mainUrl}/genres/psikolojik/" to "Psikolojik",
+        "${mainUrl}/genres/romantik/" to "Romantik",
+        "${mainUrl}/genres/seinen/" to "Seinen",
+        "${mainUrl}/genres/spor/" to "Spor"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {

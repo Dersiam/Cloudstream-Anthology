@@ -66,8 +66,17 @@ class Anizm : MainAPI() {
         "genre:Komedi" to "Komedi Animeleri",
         "genre:Dram" to "Dram Animeleri",
         "genre:Fantastik" to "Fantastik Animeleri",
-        "genre:Bilim Kurgu" to "Bilim Kurgu Animeleri",
-        "genre:Romantik" to "Romantik Animeleri"
+        "genre:Bilim Kurgu" to "Bilim Kurgu",
+        "genre:Romantik" to "Romantik",
+        "genre:Gerilim" to "Gerilim",
+        "genre:Gizem" to "Gizem",
+        "genre:Doğaüstü" to "Doğaüstü",
+        "genre:Psikolojik" to "Psikolojik",
+        "genre:Korku" to "Korku",
+        "genre:Spor" to "Spor",
+        "genre:Okul" to "Okul",
+        "genre:Shounen" to "Shounen",
+        "genre:Isekai" to "Isekai"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -124,6 +133,28 @@ class Anizm : MainAPI() {
                         val poster = item.optString("poster").ifEmpty { item.optString("banner") }
                         val isTv = item.optString("type") != "movie"
 
+                        if (isTv) {
+                            homeItems.add(newTvSeriesSearchResponse(title, "$siteOrigin/anime/$id", TvType.Anime) {
+                                this.posterUrl = poster
+                            })
+                        } else {
+                            homeItems.add(newMovieSearchResponse(title, "$siteOrigin/anime/$id", TvType.AnimeMovie) {
+                                this.posterUrl = poster
+                            })
+                        }
+                    }
+                }
+            if (homeItems.isEmpty()) {
+                val sections = listOf("settlement_top", "settlement_middle", "settlement_lower")
+                for (sec in sections) {
+                    val fallbackArr = json.optJSONArray(sec) ?: continue
+                    for (i in 0 until fallbackArr.length()) {
+                        val item = fallbackArr.optJSONObject(i) ?: continue
+                        val id = item.optString("ID").ifEmpty { item.optString("id") }
+                        val title = item.optString("name").ifEmpty { item.optString("title") }
+                        if (id.isEmpty() || title.isEmpty()) continue
+                        val poster = item.optString("poster").ifEmpty { item.optString("banner") }
+                        val isTv = item.optString("type") != "movie"
                         if (isTv) {
                             homeItems.add(newTvSeriesSearchResponse(title, "$siteOrigin/anime/$id", TvType.Anime) {
                                 this.posterUrl = poster
