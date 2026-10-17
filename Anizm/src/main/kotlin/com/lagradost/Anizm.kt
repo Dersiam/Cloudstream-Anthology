@@ -144,6 +144,8 @@ class Anizm : MainAPI() {
                         }
                     }
                 }
+            }
+
             if (homeItems.isEmpty()) {
                 val sections = listOf("settlement_top", "settlement_middle", "settlement_lower")
                 for (sec in sections) {
@@ -167,7 +169,7 @@ class Anizm : MainAPI() {
                     }
                 }
             }
-        } catch (e: Exception) {}
+        } catch (_: Exception) {}
 
         return newHomePageResponse(request.name, homeItems.distinctBy { it.url })
     }
